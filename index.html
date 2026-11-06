@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PC価格調査 3社比較</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root {
+  --font-anthropic-sans: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+  --font-anthropic-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 26px; --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 18px; --cds-gap-xl: 28px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px; --cds-pad-xl: 24px;
+  --cds-radius: 8px; --cds-dur-slow: .25s; --cds-ease-out: cubic-bezier(.2,.7,.2,1);
+  --cds-shadow-popover: 0 8px 24px -8px rgba(0,30,80,.25);
+}
+html, body { margin: 0; background: #f3f6fa; }
+.dash-select { appearance: none; -webkit-appearance: none; font: inherit; font-size: 13px; height: 34px; padding: 0 30px 0 12px; border-radius: 8px; border: 1px solid #d3deec; color: #172033; cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235f6c80' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 12px center; }
+.pc-loading { position: fixed; inset: 0; display: grid; place-items: center; background: #f3f6fa; font-family: var(--font-anthropic-sans); color: #5f6c80; z-index: 50; transition: opacity .3s; }
+.pc-loading.done { opacity: 0; pointer-events: none; }
+.pc-error { color: #d13b3b; }
+
+
+.pc { --mk0: #e8710a; --mk1: #004da1; --mk2: #1f1f1f; --brand: #004da1; --brand2: #0a7cd6;
+  --color-fg: #172033; --color-fg-muted: #5f6c80; --color-bg: #ffffff; --color-panel: #ffffff; --color-border-line: #e3e9f1;
+  --color-ok: #0e8a4a; --color-bad: #d13b3b; --color-warn: #b7791f; --cds-chart-grid: #edf1f6; --cds-chart-muted: #b9c3d1; --cds-chart-axis: #c9d2de;
+  --cds-surface-popover: #ffffff; --cds-border: #e3e9f1; --cds-text-secondary: #5f6c80;
+  --r: 12px; font-family: var(--font-anthropic-sans); color: var(--color-fg); background: #f3f6fa; display: grid; gap: 10px; padding: 10px clamp(8px, 1.4vw, 16px); min-height: 100vh; color-scheme: light; }
+.pc * { box-sizing: border-box; }
+.pc a { color: inherit; }
+
+/* ヘッダー：1行のバー（タイトル・最終取得・タブ・ボタン） */
+.pc .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 12px 8px 16px; background: #fff; border: 1px solid var(--color-border-line); border-radius: var(--r); box-shadow: 0 4px 16px -12px rgba(0, 50, 120, .3); }
+.pc .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.pc .brand h1 { font-family: var(--font-anthropic-sans); font-size: 15px; font-weight: var(--cds-font-weight-medium); margin: 0; color: #0d1830; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
+.pc .brand h1::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: linear-gradient(var(--brand), var(--brand2)); }
+.pc .brand .lead { font-size: 12px; color: var(--color-fg-muted); white-space: nowrap; }
+.pc .brand .lead b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.pc .links { display: flex; gap: 6px; margin-left: auto; }
+.pc .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border-line); background: #fff; color: var(--color-fg); text-decoration: none; white-space: nowrap; }
+.pc .chip:hover { border-color: var(--brand2); }
+.pc .chip.primary { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; border-color: transparent; font-weight: var(--cds-font-weight-medium); }
+
+/* タブ */
+.pc .tabs { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 999px; background: #f1f4f9; }
+.pc .tab { font: inherit; font-size: 13px; border: 0; background: none; color: var(--color-fg-muted); padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: background var(--cds-dur-slow), color var(--cds-dur-slow); }
+.pc .tab:hover { color: var(--color-fg); }
+.pc .tab[aria-selected="true"] { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; font-weight: var(--cds-font-weight-medium); box-shadow: 0 6px 16px -8px rgba(0, 77, 161, .7); }
+
+/* カード・表 */
+.pc .card { position: relative; background: #fff; border: 1px solid var(--color-border-line); overflow: hidden; border-radius: var(--r); padding: 12px 14px; min-width: 0; box-shadow: 0 6px 22px -14px rgba(0, 50, 120, .22); }
+.pc .card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--r) var(--r) 0 0; background: linear-gradient(90deg, var(--brand), var(--brand2)); }
+.pc .kicker { display: none; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--brand2); font-weight: var(--cds-font-weight-medium); margin-bottom: 2px; }
+.pc .cardhead { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; justify-content: space-between; margin-bottom: var(--cds-gap-xs); }
+.pc h2 { font-size: 14px; font-weight: var(--cds-font-weight-medium); margin: 0; }
+.pc .note { color: var(--color-fg-muted); font-size: 12px; margin: 0 0 8px; }
+.pc .tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.pc input.search { font: inherit; font-size: var(--cds-font-size-caption); padding: 8px 14px; border: 1px solid var(--color-border-line); border-radius: 999px; background: var(--color-bg); color: var(--color-fg); min-width: min(100%, 14rem); outline: none; }
+.pc input.search:focus { border-color: var(--color-fg-muted); }
+.pc .tbl { overflow: auto; max-height: calc(100vh - 190px); min-height: 320px; border-radius: var(--cds-radius); }
+.pc table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.pc th { text-align: left; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; z-index: 1; background: #f6f8fb; padding: 8px 10px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; cursor: pointer; user-select: none; }
+.pc th:hover { color: var(--color-fg); }
+.pc th[aria-sort="ascending"]::after { content: " ↑"; }
+.pc th[aria-sort="descending"]::after { content: " ↓"; }
+.pc th.mk0, .pc th.mk1, .pc th.mk2 { text-align: right; }
+.pc th.mk0::before, .pc th.mk1::before, .pc th.mk2::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.pc th.mk0::before { background: var(--mk0); } .pc th.mk1::before { background: var(--mk1); } .pc th.mk2::before { background: var(--mk2); }
+.pc td { padding: 6px 10px; border-bottom: 1px solid color-mix(in srgb, var(--color-border-line) 60%, transparent); vertical-align: middle; }
+.pc tbody tr:nth-child(even) td { background: #fafbfd; }
+.pc tbody tr:hover td { background: #eef5ff; }
+.pc td.n, .pc th.n { text-align: right; white-space: nowrap; }
+.pc td.best span { display: inline-block; padding: 2px 9px; border-radius: 999px; background: color-mix(in srgb, var(--color-ok) 16%, transparent); color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
+.pc td.dim { color: var(--color-fg-muted); }
+.pc td.strong { font-weight: var(--cds-font-weight-medium); }
+.pc td.tag span { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .95em; border: 1px solid var(--color-border-line); white-space: nowrap; }
+.pc td.mk0 span { background: var(--mk0); border-color: var(--mk0); color: #fff; } .pc td.mk1 span { background: var(--mk1); border-color: var(--mk1); color: #fff; } .pc td.mk2 span { background: var(--mk2); border-color: var(--mk2); color: #fff; }
+.pc td.down { color: var(--color-ok); } .pc td.up { color: var(--color-bad); }
+.pc td.t-down span { background: color-mix(in srgb, var(--color-ok) 16%, transparent); color: var(--color-ok); border: 0; }
+.pc td.t-up span { background: color-mix(in srgb, var(--color-bad) 16%, transparent); color: var(--color-bad); border: 0; }
+.pc td.t-new span { background: #e3efff; color: var(--brand); border: 0; }
+.pc td.t-end span { background: color-mix(in srgb, var(--color-fg) 8%, transparent); color: var(--color-fg-muted); border: 0; }
+.pc tr.click { cursor: pointer; }
+.pc tr.sel td { background: #e3efff !important; }
+.pc tr.sel td:first-child { box-shadow: inset 3px 0 0 var(--brand); }
+.pc .count { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); white-space: nowrap; }
+
+/* 同スペック：右パネル */
+.pc .samewrap { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.pc .samewrap.open { grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr); }
+.pc .samewrap:not(.open) .side { display: none; }
+.pc .closebtn { font: inherit; font-size: 12px; border: 1px solid var(--color-border-line); background: #fff; color: var(--color-fg-muted); border-radius: 999px; padding: 4px 12px; cursor: pointer; float: right; }
+.pc .closebtn:hover { color: var(--color-fg); border-color: var(--color-fg-muted); }
+@media (max-width: 960px) { .pc .samewrap.open { grid-template-columns: 1fr; } }
+.pc .side { position: sticky; top: 10px; max-height: calc(100vh - 90px); overflow: auto; }
+.pc .empty { background: #f8fafc; display: grid; place-items: center; text-align: center; gap: var(--cds-gap-sm); padding: var(--cds-pad-xl) var(--cds-pad-md); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); border: 1px dashed var(--color-border-line); border-radius: var(--r); }
+.pc .empty .ic { font-size: 1.6rem; opacity: .6; }
+.pc .samehead { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); margin: 0 0 var(--cds-gap-md); line-height: 1.3; }
+.pc .mk { border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); margin-bottom: var(--cds-gap-sm); background: color-mix(in srgb, var(--c) 7%, transparent); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent); }
+.pc .mk-h { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); font-weight: var(--cds-font-weight-medium); color: var(--c); margin-bottom: 4px; }
+.pc .mk-h .c { color: var(--color-fg-muted); font-weight: 400; font-size: var(--cds-font-size-caption); }
+.pc .it { display: grid; grid-template-columns: 6.5rem 1fr; gap: 2px var(--cds-gap-sm); font-size: var(--cds-font-size-caption); padding: 7px 0; border-top: 1px solid color-mix(in srgb, var(--c) 18%, transparent); }
+.pc .mk-h + .it { border-top: 0; }
+.pc .it .pr { font-variant-numeric: tabular-nums; font-weight: var(--cds-font-weight-medium); white-space: nowrap; }
+.pc .it.top .pr::after { content: "最安"; margin-left: 6px; font-size: .8em; padding: 1px 6px; border-radius: 999px; background: color-mix(in srgb, var(--color-ok) 16%, transparent); color: var(--color-ok); }
+.pc .it a { color: var(--color-fg); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 30%, transparent); }
+.pc .it a:hover { border-bottom-color: var(--color-fg); }
+.pc .it a::after { content: " ↗"; color: var(--color-fg-muted); }
+.pc .it .sub { grid-column: 2; color: var(--color-fg-muted); }
+.pc .more { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding-top: 4px; }
+
+/* 価格変動 */
+.pc .pills { display: grid; gap: var(--cds-gap-sm); grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); margin-bottom: var(--cds-gap-md); }
+.pc .pill { border-radius: var(--r); padding: var(--cds-pad-sm) var(--cds-pad-md); border: 1px solid var(--color-border-line); background: #f8fafc; }
+.pc .pill .k { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pc .pill .v { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; }
+.pc .pill.p-down .v { color: var(--color-ok); } .pc .pill.p-up .v { color: var(--color-bad); } .pc .pill.p-new .v { color: var(--brand); }
+.pc .chart { position: relative; margin-bottom: var(--cds-gap-md); }
+.pc .tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 2; }
+.pc .tip .d { color: var(--cds-text-secondary); }
+.pc .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.pc .waiting { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-sm); }
+
+/* 同スペック：検索・プルダウン・クイックボタン */
+.pc .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 2px 0 10px; }
+.pc .bigsearch { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; width: min(100%, 360px); border: 2px solid var(--brand); border-radius: 10px; background: #eef5ff; box-shadow: 0 2px 10px -4px rgba(0, 77, 161, .35); }
+.pc .bigsearch:focus-within { background: #fff; box-shadow: 0 0 0 4px rgba(10, 124, 214, .18); }
+.pc .bigsearch .mg { color: var(--brand); font-size: 16px; line-height: 1; }
+.pc .bigsearch input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px; color: var(--color-fg); }
+.pc .bigsearch input::placeholder { color: #6a7d98; }
+.pc .fsel { height: 40px; min-width: 11rem; max-width: 100%; border-radius: 10px; border: 1px solid #c9d6e8; background-color: #fff; font-size: 13px; color: var(--color-fg); }
+.pc .fsel.on { border-color: var(--brand); background-color: #eef5ff; color: var(--brand); font-weight: var(--cds-font-weight-medium); }
+.pc .clearbtn { height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #c9d6e8; background: #fff; color: var(--color-fg-muted); font: inherit; font-size: 13px; cursor: pointer; }
+.pc .clearbtn:hover { color: var(--color-bad); border-color: var(--color-bad); }
+.pc .filters .count { margin-left: auto; font-size: 13px; }
+.pc .filters .count b { font-family: var(--font-anthropic-serif); font-size: 20px; color: var(--color-fg); font-weight: 400; margin-right: 2px; }
+.pc .quick { display: grid; grid-template-columns: 3.4rem 1fr; gap: 6px; align-items: start; margin-bottom: 6px; }
+.pc .quick .ql { font-size: 11px; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); letter-spacing: .08em; padding-top: 6px; }
+.pc .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.pc .qchip { font: inherit; font-size: 12px; padding: 5px 11px; border-radius: 999px; border: 1px solid #d3deec; background: #fff; color: var(--color-fg); cursor: pointer; white-space: nowrap; transition: background var(--cds-dur-slow), border-color var(--cds-dur-slow); }
+.pc .qchip small { color: var(--color-fg-muted); margin-left: 4px; font-size: 11px; }
+.pc .qchip:hover { border-color: var(--brand2); background: #f2f8ff; }
+.pc .qchip.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+.pc .qchip.on small { color: #cfe1fb; }
+.pc .quickwrap { border-top: 1px dashed var(--color-border-line); padding-top: 8px; margin-bottom: 8px; }
+
+/* 使い方 */
+.pc .howgrid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); }
+.pc .timeline { display: grid; gap: 0; margin-top: var(--cds-gap-sm); }
+.pc .step { display: grid; grid-template-columns: 4.2rem 1.6rem 1fr; gap: 0 var(--cds-gap-sm); align-items: start; }
+.pc .step .tm { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); font-variant-numeric: tabular-nums; text-align: right; padding-top: 2px; }
+.pc .step .dot { position: relative; height: 100%; min-height: 64px; }
+.pc .step .dot::before { content: ""; position: absolute; left: 50%; top: 8px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand2)); box-shadow: 0 0 0 4px #e3efff; }
+.pc .step .dot::after { content: ""; position: absolute; left: 50%; top: 24px; bottom: -4px; width: 2px; margin-left: -1px; background: linear-gradient(#59c2ff, transparent); opacity: .5; }
+.pc .step:last-child .dot::after { display: none; }
+.pc .step .bd { padding-bottom: var(--cds-gap-md); }
+.pc .step .bd b { display: block; font-weight: var(--cds-font-weight-medium); }
+.pc .step .bd span { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.pc .howlist { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--cds-gap-sm); }
+.pc .howlist li { display: grid; grid-template-columns: 1.8rem 1fr; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.pc .howlist li b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); display: block; font-size: var(--cds-font-size-body); }
+.pc .howlist .ic { width: 1.8rem; height: 1.8rem; border-radius: 8px; display: grid; place-items: center; font-size: 14px; color: #fff; background: linear-gradient(135deg, var(--brand), var(--brand2)); }
+.pc .terms { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0; font-size: var(--cds-font-size-caption); }
+.pc .terms dt { font-weight: var(--cds-font-weight-medium); white-space: nowrap; }
+.pc .terms dd { margin: 0; color: var(--color-fg-muted); }
+.pc .lastrun { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; background: #eef5ff; border: 1px solid #cfe1fb; }
+.pc .lastrun::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #18c27a; box-shadow: 0 0 8px #18c27a; }
+@media (max-width: 560px) { .pc .terms { grid-template-columns: 1fr; } .pc .terms dd { margin-bottom: 6px; } }
+
+@media (prefers-reduced-motion: no-preference) { .pc section.page:not([hidden]) { animation: pcfade var(--cds-dur-slow) var(--cds-ease-out); } }
+@keyframes pcfade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+
+</style>
+</head>
+<body>
+<div class="pc-loading" id="pc-loading">データを読み込み中…</div>
+
+
+<div class="pc">
+  <header class="topbar" id="top">
+    <div class="brand">
+      <h1>PC価格調査 3社比較</h1>
+      <span class="lead">最終取得 <b data-draw="fetched" data-source="status">—</b>・税込・BTOは基本構成</span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="same-desk" aria-selected="true">同スペック比較（デスクトップ）</button>
+      <button class="tab" role="tab" data-tab="same-note" aria-selected="false">同スペック比較（ノート）</button>
+      <button class="tab" role="tab" data-tab="changes" aria-selected="false">価格変動</button>
+      <button class="tab" role="tab" data-tab="list" aria-selected="false">一覧</button>
+      <button class="tab" role="tab" data-tab="howto" aria-selected="false">使い方</button>
+    </nav>
+    <div class="links">
+      <a class="chip primary" href="https://github.com/knoro-hue/pcprice_reseach_list/raw/main/output/pc_price_latest.xlsx" target="_blank" rel="noopener">⬇ Excel</a>
+    </div>
+  </header>
+
+  <section class="page" id="same">
+    <div class="samewrap">
+      <div class="card">
+        <div class="cardhead">
+          <div><div class="kicker">Same-spec benchmark</div><h2>同じCPU×GPUの最安比較</h2></div>
+          <span class="note" style="margin:0">2社以上が出している構成だけ。見出しで並び替え、行クリックで各社の該当モデルとリンク</span>
+        </div>
+        <div class="filters">
+          <label class="bigsearch"><span class="mg">⌕</span><input class="pc-same-q" type="search" placeholder="フリーワード検索（例：5070、9800X3D、Core Ultra 7）" aria-label="フリーワード検索"></label>
+          <select class="dash-select fsel pc-fcpu" data-draw="fCpu" data-source="same" aria-label="CPUで絞り込み"></select>
+          <select class="dash-select fsel pc-fgpu" data-draw="fGpu" data-source="same" aria-label="GPUで絞り込み"></select>
+          <button class="clearbtn pc-fclear" type="button">✕ 条件をクリア</button>
+          <span class="count"><b data-draw="sameCount" data-source="same">—</b>構成</span>
+        </div>
+        <div class="quickwrap">
+          <div class="quick"><span class="ql">GPU</span><div class="chips" data-draw="gpuChips" data-source="same"></div></div>
+          <div class="quick"><span class="ql">CPU</span><div class="chips" data-draw="cpuChips" data-source="same"></div></div>
+        </div>
+        <div class="tbl"><table data-source="same" data-row-key="kind,spec">
+          <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest">最安の社</th><th data-field="spread" class="n">最安との差</th></tr></thead>
+          <tbody data-draw="sameRows"></tbody>
+        </table></div>
+      </div>
+      <div class="card side" id="same-models">
+        <button class="closebtn pc-same-close" type="button">✕ 閉じる</button>
+        <div data-draw="sameModels" data-source="products"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="changes" hidden>
+    <div class="card">
+      <div class="cardhead">
+        <div><div class="kicker">Price movement</div><h2>価格変動</h2></div>
+        <div class="tools">
+          <select class="dash-select pc-cdate" data-draw="changeDates" data-source="changes" aria-label="日付"></select>
+          <select class="dash-select pc-ckind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
+          <select class="dash-select pc-ctype" aria-label="種類"><option value="">すべての種類</option><option value="値下げ">値下げ</option><option value="値上げ">値上げ</option><option value="新登場">新登場</option><option value="終売・掲載終了">終売・掲載終了</option></select>
+        </div>
+      </div>
+      <p class="note">前日以前の取得結果との差。直近60日分</p>
+      <p class="waiting" data-draw="changeWait" data-source="changes">—</p>
+      <div class="pills">
+        <div class="pill p-down"><div class="k">値下げ</div><div class="v" data-draw="cnt0" data-source="changes">—</div></div>
+        <div class="pill p-up"><div class="k">値上げ</div><div class="v" data-draw="cnt1" data-source="changes">—</div></div>
+        <div class="pill p-new"><div class="k">新登場</div><div class="v" data-draw="cnt2" data-source="changes">—</div></div>
+        <div class="pill"><div class="k">終売・掲載終了</div><div class="v" data-draw="cnt3" data-source="changes">—</div></div>
+      </div>
+      <div class="chart" data-draw="changeChart" data-source="changes"></div>
+      <div class="tbl"><table data-source="changes" data-row-key="date,maker,id,type">
+        <thead><tr><th data-field="type">種類</th><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="gpu_key">GPU</th><th data-field="old" class="n">前回</th><th data-field="new" class="n">今回</th><th data-field="delta" class="n">差額</th><th data-field="id">商品ID</th></tr></thead>
+        <tbody data-draw="changeRows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="page" id="list" hidden>
+    <div class="card">
+      <div class="cardhead">
+        <div><div class="kicker">All products</div><h2>一覧</h2></div>
+        <div class="tools">
+          <select class="dash-select pc-maker" aria-label="メーカー"><option value="">3社すべて</option><option value="パソコン工房">パソコン工房</option><option value="ドスパラ">ドスパラ</option><option value="マウス">マウス</option></select>
+          <select class="dash-select pc-lkind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
+          <input class="search pc-list-q" type="search" placeholder="型番・CPU・GPUで検索" aria-label="商品を検索">
+          <span class="count"><span data-draw="listCount" data-source="products">—</span> 件</span>
+        </div>
+      </div>
+      <p class="note">見出しで並び替え（初期は安い順）。表示は先頭300件まで。全件はExcelで</p>
+      <div class="tbl"><table data-source="products" data-row-key="maker,id">
+        <thead><tr><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="price" class="n">価格(税込)</th><th data-field="cpu_key">CPU</th><th data-field="gpu_key">GPU</th><th data-field="mem">メモリ</th><th data-field="storage_cap">ストレージ</th><th data-field="cooler">クーラー</th><th data-field="psu">電源</th><th data-field="id">商品ID</th></tr></thead>
+        <tbody data-draw="listRows"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="page" id="howto" hidden>
+    <div class="howgrid">
+      <div class="card">
+        <div class="kicker">Update schedule</div>
+        <h2>いつ更新されるか</h2>
+        <p class="note">毎日自動で更新されます。土日祝も同じです</p>
+        <div class="lastrun">最終取得 <b data-draw="fetched2" data-source="status">—</b></div>
+        <div class="timeline">
+          <div class="step"><div class="tm">8:47</div><div class="dot"></div><div class="bd"><b>3社の公式通販を取得</b><span>GitHub上で全PCの価格・スペックを取得し、前日との差（値下げ・値上げ・新登場・終売）を計算。Excelもこの時点で更新されます。所要5〜20分</span></div></div>
+          <div class="step"><div class="tm">9:00頃</div><div class="dot"></div><div class="bd"><b>このページに反映</b><span>このページは取得完了と同時に最新になります（8:47の取得が終わる9時前後）。管理者のスマホには9:40に要約が届きます</span></div></div>
+          <div class="step"><div class="tm">随時</div><div class="dot"></div><div class="bd"><b>手動で取り直したいとき</b><span>管理者がGitHubで取得をやり直すと、数分後にこのページにも反映されます（ページを再読み込み）</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="kicker">How to use</div>
+        <h2>各タブの見方</h2>
+        <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
+        <ul class="howlist">
+          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じCPUとGPUの組み合わせを2社以上が出している構成を一覧。緑の丸枠がその構成の最安。行をクリックすると右側に各社の該当モデル（安い順・各社8件まで）と公式ページへのリンクを表示</div></li>
+          <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
+          <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
+          <li><span class="ic">⬇</span><div><b>Excel</b>上の「Excelをダウンロード」から3社まとめの最新版（メーカー・型番・価格・CPU・GPU・メモリ・ストレージ・クーラー・電源・URL）</div></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="kicker">Definitions</div>
+      <h2>データの決まりごと</h2>
+      <p class="note">比較するときに知っておきたい前提</p>
+      <dl class="terms">
+        <dt>対象</dt><dd>パソコン工房・ドスパラ・マウスコンピューター（mouse／NEXTGEAR／G TUNE／DAIV／MousePro）の公式通販に掲載中のデスクトップPC・ノートPC全機種。中古・パーツ単体は含みません（パソコン工房の「組立キット」系はPC一覧に載っているため含みます）</dd>
+        <dt>価格</dt><dd>税込。BTOは基本構成（最安構成）の価格。マウスはセール中ならセール価格</dd>
+        <dt>同スペックの基準</dt><dd>CPUとGPUの型番が同じものを同スペックとしています。メモリ・ストレージ・電源などは機種ごとに異なるため、右側のモデル一覧で確認してください。ノート向けGPUは「Laptop」付きで区別</dd>
+        <dt>内蔵GPU</dt><dd>グラフィックボードを積まず、CPU内蔵のグラフィックスを使う機種</dd>
+        <dt>終売・掲載終了</dt><dd>前日まで掲載があり、当日の取得で見つからなかった機種。在庫切れで一時的に消えた場合も含みます</dd>
+        <dt>取得に失敗した社</dt><dd>サイトの不調などで取得できなかった社は前回のデータを表示し、その社の変動は計算しません（通知で知らせます）</dd>
+        <dt>データ元</dt><dd>各社公式サイトの公開情報。仕様の細部（クーラー・電源など）は商品ページの記載を自動で読み取っているため、最終確認は公式ページで</dd>
+      </dl>
+    </div>
+  </section>
+
+</div>
+
+
+<script>
+/* GitHub Pages 用：ダッシュボードの最小互換レイヤー（データは同じリポジトリの data/ から読む） */
+(function () {
+  const store = {}, draws = {};
+  const hiddenUp = (el) => { for (let e = el; e; e = e.parentElement) if (e.hasAttribute && e.hasAttribute('hidden')) return true; return false; };
+  const run = (name) => document.querySelectorAll(`[data-draw="${name}"]`).forEach((el) => { if (!hiddenUp(el) || el.closest('[hidden]') === el) { try { draws[name](el); } catch (e) { console.error(name, e); } } });
+  window.dash = {
+    colors: ['#e8710a', '#004da1', '#1f1f1f', '#0a7cd6', '#0e8a4a', '#d13b3b', '#7b5cd6', '#5f6c80'],
+    data: (id) => (id in store ? { status: 'ok', data: store[id] } : { status: 'loading', data: [] }),
+    draw: (name, fn) => { if (fn) draws[name] = fn; if (draws[name]) run(name); },
+    redrawAll: () => Object.keys(draws).forEach(run),
+    setLink: (name) => { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
+    _store: store,
+  };
+  new MutationObserver(() => dash.redrawAll()).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => dash.draw('changeChart'), 200); });
+})();
+</script>
+<script>
+
+window.PC = window.PC || {};
+const PC = window.PC;
+PC.MAKERS = [['pk', 'パソコン工房'], ['ds', 'ドスパラ'], ['ms', 'マウス']];
+PC.MKCLS = { 'パソコン工房': 'mk0', 'ドスパラ': 'mk1', 'マウス': 'mk2' };
+PC.TYPES = ['値下げ', '値上げ', '新登場', '終売・掲載終了'];
+PC.TCLS = { '値下げ': 't-down', '値上げ': 't-up', '新登場': 't-new', '終売・掲載終了': 't-end' };
+PC.yen = (v) => (v == null || v === '' ? '' : d3.format(',')(v));
+PC.key = (...p) => p.map((x) => encodeURIComponent(x ?? '')).join(',');
+PC.q = {}; PC.sort = {}; PC.sameKind = 'デスクトップ';
+PC.ok = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+
+/* 各社の色（ドスパラ: コーポレートブルー #004DA1、パソコン工房: 区別用オレンジ、マウス: ロゴの黒） */
+PC.COLORS = ['#e8710a', '#004da1', '#1f1f1f'];
+
+/* タブ */
+const pcTab = (name) => {
+  document.querySelectorAll('.pc .tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  const sec = name.startsWith('same') ? 'same' : name;
+  if (sec === 'same') {
+    const nk = name === 'same-note' ? 'ノート' : 'デスクトップ';
+    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); }
+    PC.sameKind = nk;
+    if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
+  }
+  document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
+  ['sameRows', 'sameModels', 'sameCount', 'fCpu', 'fGpu', 'gpuChips', 'cpuChips'].forEach((d) => dash.draw(d));
+  dash.setLink(name);
+};
+document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
+
+document.querySelectorAll('.pc-fcpu').forEach((el) => el.addEventListener('change', () => PC.setF({ cpu: el.value })));
+document.querySelectorAll('.pc-fgpu').forEach((el) => el.addEventListener('change', () => PC.setF({ gpu: el.value })));
+document.querySelectorAll('.pc-fclear').forEach((el) => el.addEventListener('click', () => {
+  document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); PC.q.same = '';
+  PC.setF({ cpu: '', gpu: '', fam: '' });
+}));
+PC.closeSame = () => { PC.sameSel = null; document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.remove('open')); dash.draw('sameRows'); dash.draw('sameModels'); };
+document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('click', () => PC.closeSame()));
+
+/* 検索・絞り込み */
+[['.pc-same-q', 'same', ['sameRows', 'sameCount']], ['.pc-list-q', 'list', ['listRows', 'listCount']]].forEach(([sel, k, draws]) => {
+  document.querySelectorAll(sel).forEach((el) => el.addEventListener('input', () => { PC.q[k] = el.value.trim().toLowerCase(); draws.forEach((d) => dash.draw(d)); }));
+});
+[['.pc-maker', 'maker', ['listRows', 'listCount']], ['.pc-lkind', 'lkind', ['listRows', 'listCount']], ['.pc-ctype', 'ctype', ['changeRows']], ['.pc-ckind', 'ckind', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3', 'changeChart']], ['.pc-cdate', 'cdate', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']]].forEach(([sel, k, draws]) => {
+  document.querySelectorAll(sel).forEach((el) => el.addEventListener('change', () => { PC[k] = el.value; draws.forEach((d) => dash.draw(d)); }));
+});
+
+const pcHash = location.hash.slice(1);
+if (['same-desk', 'same-note', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
+
+/* 並び替え */
+PC.cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja', { numeric: true }));
+PC.sortRows = (name, rows) => {
+  const st = PC.sort[name];
+  if (!st) return rows;
+  return rows.slice().sort((x, y) => {
+    const a = x[st.field], b = y[st.field];
+    const na = a == null || a === '', nb = b == null || b === '';
+    if (na || nb) return na && nb ? 0 : na ? 1 : -1;
+    return st.dir * PC.cmp(a, b);
+  });
+};
+document.querySelectorAll('.pc table').forEach((table) => {
+  const body = table.querySelector('tbody[data-draw]');
+  if (!body) return;
+  const name = body.dataset.draw;
+  table.querySelectorAll('th[data-field]').forEach((th) => th.addEventListener('click', () => {
+    const f = th.dataset.field, cur = PC.sort[name];
+    PC.sort[name] = { field: f, dir: cur && cur.field === f ? -cur.dir : 1 };
+    table.querySelectorAll('th[data-field]').forEach((h) => h.setAttribute('aria-sort', h === th ? (PC.sort[name].dir > 0 ? 'ascending' : 'descending') : 'none'));
+    dash.draw(name);
+  }));
+});
+
+/* 表の行（セルは文字だけ。強調はクラスで） */
+PC.rows = (tb, rows, cols, keyFn, onRow, presorted) => {
+  tb.replaceChildren();
+  if (!presorted) rows = PC.sortRows(tb.dataset.draw, rows);
+  rows.forEach((r) => {
+    const tr = document.createElement('tr');
+    tr.dataset.key = keyFn(r);
+    cols.forEach(([f, fmt, cls, pill]) => {
+      const td = document.createElement('td');
+      const txt = fmt ? fmt(r[f], r) : (r[f] ?? '');
+      if (pill && txt !== '') { const sp = document.createElement('span'); sp.textContent = txt; td.appendChild(sp); } else td.textContent = txt;
+      const c = typeof cls === 'function' ? cls(r[f], r) : cls;
+      if (c) td.className = c;
+      tr.appendChild(td);
+    });
+    if (onRow) onRow(tr, r);
+    tb.appendChild(tr);
+  });
+};
+
+/* ヒーロー */
+['fetched', 'fetched2'].forEach((n) => dash.draw(n, (el) => { const s = PC.ok('status'); el.textContent = s && s.length ? d3.max(s, (r) => r.fetched_at) || '—' : '—'; }));
+/* 同スペック比較 */
+PC.f = { cpu: '', gpu: '', fam: '' };
+PC.fam = (cpu) => { const m = String(cpu).match(/^(Core Ultra [3579]|Core i[3579]|Core [3579]|Ryzen AI (?:Max\+?|[579])|Ryzen Threadripper|Ryzen [3579]|Xeon|Celeron|Pentium|Athlon|N\d+)/); return m ? m[1] : 'その他'; };
+PC.sameBase = () => { const d = PC.ok('same'); return d ? d.filter((r) => r.kind === PC.sameKind) : null; };
+PC.sameList = () => {
+  const d = PC.sameBase(); if (!d) return null;
+  const q = PC.q.same;
+  return d.filter((r) => (!q || (r.cpu + ' ' + r.gpu).toLowerCase().includes(q))
+    && (!PC.f.cpu || r.cpu === PC.f.cpu) && (!PC.f.gpu || r.gpu === PC.f.gpu) && (!PC.f.fam || PC.fam(r.cpu) === PC.f.fam));
+};
+PC.FDRAWS = ['sameRows', 'sameCount', 'fCpu', 'fGpu', 'gpuChips', 'cpuChips'];
+PC.setF = (patch) => { Object.assign(PC.f, patch); PC.FDRAWS.forEach((d) => dash.draw(d)); };
+PC.opts = (sel, rows, field, label) => {
+  const counts = d3.rollups(rows, (v) => v.length, (r) => r[field]).sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
+  sel.replaceChildren(new Option(label + '：すべて', ''), ...counts.map(([k, n]) => new Option(`${k}（${n}）`, k)));
+  sel.value = PC.f[field] || '';
+  sel.classList.toggle('on', !!PC.f[field]);
+};
+dash.draw('fCpu', (sel) => { const d = PC.sameBase(); if (!d) return sel.replaceChildren(); PC.opts(sel, d, 'cpu', 'CPU'); });
+dash.draw('fGpu', (sel) => { const d = PC.sameBase(); if (!d) return sel.replaceChildren(); PC.opts(sel, d, 'gpu', 'GPU'); });
+PC.chips = (el, items, isOn, onClick) => {
+  el.replaceChildren(...items.map(([k, n]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'qchip' + (isOn(k) ? ' on' : '');
+    b.textContent = k; const sm = document.createElement('small'); sm.textContent = n; b.appendChild(sm);
+    b.addEventListener('click', () => onClick(k)); return b;
+  }));
+};
+dash.draw('gpuChips', (el) => {
+  const d = PC.sameBase(); if (!d) return el.replaceChildren();
+  const top = d3.rollups(d, (v) => v.length, (r) => r.gpu).sort((a, b) => b[1] - a[1]).slice(0, 12)
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
+  PC.chips(el, top, (k) => PC.f.gpu === k, (k) => PC.setF({ gpu: PC.f.gpu === k ? '' : k }));
+});
+dash.draw('cpuChips', (el) => {
+  const d = PC.sameBase(); if (!d) return el.replaceChildren();
+  const fams = d3.rollups(d, (v) => v.length, (r) => PC.fam(r.cpu)).filter(([k]) => k !== 'その他').sort((a, b) => b[1] - a[1]).slice(0, 10)
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
+  PC.chips(el, fams, (k) => PC.f.fam === k, (k) => PC.setF({ fam: PC.f.fam === k ? '' : k }));
+});
+dash.draw('sameCount', (el) => { const r = PC.sameList(); el.textContent = r ? d3.format(',')(r.length) : '—'; });
+PC.bestCls = (code) => (v, r) => (v == null ? 'n dim' : r.cheapest === PC.MAKERS.find((m) => m[0] === code)[1] ? 'n best' : 'n');
+dash.draw('sameRows', (tb) => {
+  const rows = PC.sameList(); if (!rows) return tb.replaceChildren();
+  PC.rows(tb, rows, [
+    ['cpu', null, 'strong'], ['gpu', null, 'strong'],
+    ...PC.MAKERS.map(([c]) => [c + '_min', (v) => (v == null ? '—' : PC.yen(v)), PC.bestCls(c), true]),
+    ['cheapest', null, (v) => 'tag ' + (PC.MKCLS[v] || ''), true], ['spread', PC.yen, 'n dim'],
+  ], (r) => PC.key(r.kind, r.spec), (tr, r) => {
+    tr.classList.add('click');
+    if (PC.sameSel && PC.sameSel.spec === r.spec && PC.sameSel.kind === r.kind) tr.classList.add('sel');
+    tr.addEventListener('click', () => {
+      PC.sameSel = { kind: r.kind, cpu: r.cpu, gpu: r.gpu, spec: r.spec };
+      document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.add('open'));
+      dash.draw('sameModels'); dash.draw('sameRows');
+      const side = document.getElementById('same-models');
+      if (side && side.scrollIntoView) { const rc = side.getBoundingClientRect(); if (rc.top < 0 || rc.top > window.innerHeight - 80) side.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+});
+dash.draw('sameModels', (el) => {
+  el.replaceChildren();
+  const d = PC.ok('products'), sel = PC.sameSel;
+  if (!d || !sel || sel.kind !== PC.sameKind) return;
+  const hits = d.filter((p) => p.kind === sel.kind && p.cpu_key === sel.cpu && p.gpu_key === sel.gpu && p.price).sort((a, b) => a.price - b.price);
+  const head = document.createElement('p'); head.className = 'samehead'; head.textContent = `${sel.cpu} × ${sel.gpu}`;
+  el.appendChild(head);
+  PC.MAKERS.forEach(([, name], i) => {
+    const mine = hits.filter((p) => p.maker === name);
+    const box = document.createElement('div'); box.className = 'mk'; box.style.setProperty('--c', PC.COLORS[i]);
+    const h = document.createElement('div'); h.className = 'mk-h';
+    const t = document.createElement('span'); t.textContent = name;
+    const c = document.createElement('span'); c.className = 'c'; c.textContent = mine.length ? `${mine.length}機種` : '該当なし';
+    h.append(t, c); box.appendChild(h);
+    mine.slice(0, 8).forEach((p, j) => {
+      const it = document.createElement('div'); it.className = 'it' + (j === 0 && p.price === hits[0].price ? ' top' : '');
+      const pr = document.createElement('span'); pr.className = 'pr'; pr.textContent = PC.yen(p.price) + '円';
+      const a = document.createElement('a'); a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = p.name;
+      const sub = document.createElement('span'); sub.className = 'sub';
+      sub.textContent = [p.mem && 'メモリ ' + p.mem, p.storage_cap && 'ストレージ ' + p.storage_cap, p.cooler, p.psu && '電源 ' + p.psu].filter(Boolean).join(' ・ ');
+      it.append(pr, a, sub); box.appendChild(it);
+    });
+    if (mine.length > 8) { const more = document.createElement('div'); more.className = 'more'; more.textContent = `ほか ${mine.length - 8} 機種は「一覧」タブで検索できます`; box.appendChild(more); }
+    el.appendChild(box);
+  });
+});
+
+/* 価格変動 */
+PC.changeList = (ignoreType) => {
+  const d = PC.ok('changes'); if (!d) return null;
+  const date = PC.cdate || d3.max(d, (c) => c.date);
+  return d.filter((c) => c.date === date && (!PC.ckind || c.kind === PC.ckind) && (ignoreType || !PC.ctype || c.type === PC.ctype));
+};
+dash.draw('changeWait', (el) => {
+  const d = dash.data('changes');
+  el.textContent = d.status === 'ok' && d.data.length ? '' : '初回取得の翌日から、ここに値下げ・値上げ・新登場・終売が表示されます。';
+});
+dash.draw('changeDates', (sel) => {
+  const d = PC.ok('changes');
+  const dates = d ? [...new Set(d.map((c) => c.date))].sort().reverse() : [];
+  sel.replaceChildren(...dates.map((x) => new Option(x, x)));
+  if (!dates.includes(PC.cdate)) PC.cdate = dates[0];
+  sel.value = PC.cdate || '';
+});
+PC.TYPES.forEach((t, i) => dash.draw('cnt' + i, (el) => { const r = PC.changeList(true); el.textContent = r ? d3.format(',')(r.filter((c) => c.type === t).length) : '—'; }));
+dash.draw('changeRows', (tb) => {
+  const rows = PC.changeList(false); if (!rows) return tb.replaceChildren();
+  const base = PC.sort.changeRows ? rows : rows.slice().sort((a, b) => PC.TYPES.indexOf(a.type) - PC.TYPES.indexOf(b.type) || (a.delta ?? 0) - (b.delta ?? 0));
+  PC.rows(tb, base, [
+    ['type', null, (v) => 'tag ' + (PC.TCLS[v] || ''), true], ['maker', null, (v) => 'tag ' + (PC.MKCLS[v] || ''), true], ['kind', null, 'dim'], ['name'], ['gpu_key', null, 'dim'],
+    ['old', PC.yen, 'n dim'], ['new', PC.yen, 'n'], ['delta', (v) => (v == null ? '' : (v > 0 ? '+' : '') + PC.yen(v)), (v) => (v < 0 ? 'n down' : v > 0 ? 'n up' : 'n')], ['id', null, 'dim'],
+  ], (r) => PC.key(r.date, r.maker, r.id, r.type));
+});
+PC.axis = (g) => { g.attr('font-size', null).attr('font-family', null); g.select('.domain').remove(); g.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); g.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)'); };
+dash.draw('changeChart', (el) => {
+  el.replaceChildren();
+  const d = PC.ok('changes'); if (!d || !d.length) return;
+  const by = d3.rollup(d.filter((c) => !PC.ckind || c.kind === PC.ckind), (v) => v.length, (c) => c.date, (c) => c.type);
+  const dates = [...by.keys()].sort().slice(-21);
+  if (!dates.length) return;
+  const W = el.clientWidth || 600, H = 200, m = { t: 10, r: 8, b: 24, l: 36 };
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+  const x = d3.scaleBand(dates, [m.l, W - m.r]).paddingInner(0.35);
+  const stack = d3.stack().keys(PC.TYPES).value((dt, t) => by.get(dt)?.get(t) || 0)(dates);
+  const y = d3.scaleLinear([0, d3.max(stack[stack.length - 1], (s) => s[1]) || 1], [H - m.b, m.t]).nice();
+  const colors = ['var(--color-ok)', 'var(--color-bad)', '#0a7cd6', 'var(--cds-chart-muted)'];
+  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r))).call(PC.axis);
+  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSize(0).tickFormat((s) => s.slice(5).replace('-', '/'))).call(PC.axis);
+  svg.append('g').selectAll('g').data(stack).join('g').style('fill', (s, i) => colors[i])
+    .selectAll('rect').data((s) => s).join('rect').attr('x', (p) => x(p.data)).attr('width', Math.min(32, x.bandwidth())).attr('y', (p) => y(p[1])).attr('height', (p) => Math.max(0, y(p[0]) - y(p[1])));
+  const tip = d3.select(el).append('div').attr('class', 'tip').style('display', 'none');
+  svg.on('pointermove', (ev) => {
+    const [px] = d3.pointer(ev);
+    const dt = dates.find((s) => px >= x(s) - 4 && px <= x(s) + x.bandwidth() + 4);
+    if (!dt) { tip.style('display', 'none'); return; }
+    tip.style('display', null).html('');
+    tip.append('div').attr('class', 'd').text(dt);
+    PC.TYPES.forEach((t, i) => { const l = tip.append('div'); l.append('i').attr('class', 'sw').style('background', colors[i]); l.append('span').text(`${t} ${by.get(dt)?.get(t) || 0}件`); });
+    const tw = tip.node().offsetWidth;
+    tip.style('left', Math.min(Math.max(0, x(dt) - tw / 2), W - tw) + 'px').style('top', '0px');
+  }).on('pointerleave', () => tip.style('display', 'none'));
+});
+
+/* 一覧 */
+PC.listRows = () => {
+  const d = PC.ok('products'); if (!d) return null;
+  const q = PC.q.list;
+  const r = d.filter((p) => (!PC.lkind || p.kind === PC.lkind) && (!PC.maker || p.maker === PC.maker) && (!q || [p.name, p.cpu_key, p.gpu_key, p.cpu, p.gpu, p.id].join(' ').toLowerCase().includes(q)));
+  return PC.sort.listRows ? PC.sortRows('listRows', r) : r.sort((a, b) => (a.price ?? 1e12) - (b.price ?? 1e12));
+};
+dash.draw('listCount', (el) => { const r = PC.listRows(); el.textContent = r ? d3.format(',')(r.length) : '—'; });
+dash.draw('listRows', (tb) => {
+  const rows = PC.listRows(); if (!rows) return tb.replaceChildren();
+  PC.rows(tb, rows.slice(0, 300), [
+    ['maker', null, (v) => 'tag ' + (PC.MKCLS[v] || ''), true], ['kind', null, 'dim'], ['name', null, 'strong'], ['price', PC.yen, 'n'],
+    ['cpu_key'], ['gpu_key'], ['mem', null, 'dim'], ['storage_cap', null, 'dim'], ['cooler', null, 'dim'], ['psu', null, 'dim'], ['id', null, 'dim'],
+  ], (r) => PC.key(r.maker, r.id), null, true);
+});
+
+</script>
+<script>
+(async function () {
+  const files = { products: 'products.json', same: 'same_spec.json', changes: 'changes.json', status: 'status.json' };
+  const v = Date.now();
+  try {
+    await Promise.all(Object.entries(files).map(async ([id, f]) => {
+      const res = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(f + ' ' + res.status);
+      dash._store[id] = await res.json();
+    }));
+    dash.redrawAll();
+    document.getElementById('pc-loading').classList.add('done');
+  } catch (e) {
+    const el = document.getElementById('pc-loading');
+    el.innerHTML = '<span class="pc-error">データの読み込みに失敗しました。時間をおいて再読み込みしてください。</span>';
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
