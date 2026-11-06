@@ -160,10 +160,13 @@ def main():
     prev = load(f"{DATA}/products.json", [])
     rows, status, warnings = [], [], []
 
+    prev_status = {s["maker"]: s for s in load(f"{DATA}/status.json", [])}
     for code, mod in MAKERS:
         old = [r for r in prev if r["maker"] == mod.MAKER]
         if code not in only:
             rows += old
+            if mod.MAKER in prev_status:
+                status.append(prev_status[mod.MAKER])
             continue
         try:
             if mod is pckoubou:
