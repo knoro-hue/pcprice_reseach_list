@@ -54,6 +54,13 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .chip:hover { border-color: var(--brand2); }
 .pc .chip.primary { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; border-color: transparent; font-weight: var(--cds-font-weight-medium); }
 
+/* 表示調整スライダー */
+.pc .sizer { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--brand); padding: 4px 12px; border-radius: 999px; background: #f4f8fe; border: 1px solid #b7cfee; }
+.pc .sizer label { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: var(--cds-font-weight-medium); }
+.pc .sizer input[type=range] { width: 90px; accent-color: var(--brand); cursor: pointer; }
+.pc .sizer output { min-width: 2.6em; font-variant-numeric: tabular-nums; color: var(--color-fg-muted); font-weight: 400; }
+.pc .sizer button { font: inherit; font-size: 11px; border: 1px solid #8fb3e0; background: #fff; color: var(--brand); border-radius: 999px; padding: 2px 8px; cursor: pointer; }
+
 /* タブ */
 .pc .tabs { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 3px; border-radius: 999px; background: #e6eef9; }
 .pc .tab { font: inherit; font-size: 13px; border: 0; background: none; color: var(--color-fg-muted); padding: 6px 14px; border-radius: 999px; cursor: pointer; transition: background var(--cds-dur-slow), color var(--cds-dur-slow); }
@@ -71,15 +78,15 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc input.search { font: inherit; font-size: var(--cds-font-size-caption); padding: 8px 14px; border: 1px solid #8fb3e0; border-radius: 999px; background: var(--color-bg); color: var(--color-fg); min-width: min(100%, 14rem); outline: none; }
 .pc input.search:focus { border-color: var(--color-fg-muted); }
 .pc .tbl { overflow: auto; max-height: calc(100vh - 190px); min-height: 320px; border-radius: var(--cds-radius); }
-.pc table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-.pc th { text-align: left; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; z-index: 1; background: #e6eef9; padding: 4px 8px; line-height: 1.3; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; cursor: pointer; user-select: none; }
+.pc table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--tfs, 13px); font-variant-numeric: tabular-nums; }
+.pc th { text-align: left; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; z-index: 1; background: #e6eef9; padding: var(--tpad, 4px) 8px; line-height: 1.4; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; cursor: pointer; user-select: none; }
 .pc th:hover { color: var(--color-fg); }
 .pc th[aria-sort="ascending"]::after { content: " ↑"; }
 .pc th[aria-sort="descending"]::after { content: " ↓"; }
 .pc th.mk0, .pc th.mk1, .pc th.mk2 { text-align: right; }
 .pc th.mk0::before, .pc th.mk1::before, .pc th.mk2::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
 .pc th.mk0::before { background: var(--mk0); } .pc th.mk1::before { background: var(--mk1); } .pc th.mk2::before { background: var(--mk2); }
-.pc td { padding: 2px 8px; line-height: 1.3; border-bottom: 1px solid color-mix(in srgb, var(--color-border-line) 60%, transparent); vertical-align: middle; }
+.pc td { padding: var(--tpad, 4px) 8px; line-height: 1.4; border-bottom: 1px solid color-mix(in srgb, var(--color-border-line) 60%, transparent); vertical-align: middle; }
 .pc tbody tr:nth-child(even) td { background: rgba(0, 77, 161, .035); }
 .pc tbody tr:hover td { background: #eef5ff; }
 .pc td.n, .pc th.n { text-align: right; white-space: nowrap; }
@@ -205,6 +212,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <button class="tab" role="tab" data-tab="list" aria-selected="false">一覧</button>
       <button class="tab" role="tab" data-tab="howto" aria-selected="false">使い方</button>
     </nav>
+    <div class="sizer" aria-label="表の表示調整">
+      <label>文字 <input type="range" id="pc-fs" min="11" max="20" step="1" value="13" aria-label="表の文字サイズ"><output id="pc-fs-v">13px</output></label>
+      <label>行間 <input type="range" id="pc-pad" min="0" max="12" step="1" value="4" aria-label="表の行間"><output id="pc-pad-v">4</output></label>
+      <button type="button" id="pc-size-reset">標準</button>
+    </div>
     <div class="links">
       <a class="chip primary" href="https://github.com/knoro-hue/pcprice_reseach_list/raw/main/output/pc_price_latest.xlsx" target="_blank" rel="noopener">⬇ Excel</a>
     </div>
@@ -395,6 +407,23 @@ document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('c
 [['.pc-maker', 'maker', ['listRows', 'listCount']], ['.pc-lkind', 'lkind', ['listRows', 'listCount']], ['.pc-ctype', 'ctype', ['changeRows']], ['.pc-ckind', 'ckind', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3', 'changeChart']], ['.pc-cdate', 'cdate', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']]].forEach(([sel, k, draws]) => {
   document.querySelectorAll(sel).forEach((el) => el.addEventListener('change', () => { PC[k] = el.value; draws.forEach((d) => dash.draw(d)); }));
 });
+
+/* 文字サイズ・行間スライダー（ブラウザに記憶） */
+(() => {
+  const root = document.querySelector('.pc'), fs = document.getElementById('pc-fs'), pad = document.getElementById('pc-pad');
+  const DEF = { fs: 13, pad: 4 };
+  const apply = (v) => {
+    fs.value = v.fs; pad.value = v.pad;
+    root.style.setProperty('--tfs', v.fs + 'px'); root.style.setProperty('--tpad', v.pad + 'px');
+    document.getElementById('pc-fs-v').textContent = v.fs + 'px'; document.getElementById('pc-pad-v').textContent = v.pad;
+    try { localStorage.setItem('pc-size', JSON.stringify(v)); } catch (e) {}
+  };
+  let saved = null; try { saved = JSON.parse(localStorage.getItem('pc-size')); } catch (e) {}
+  apply(saved && saved.fs ? saved : DEF);
+  const on = () => apply({ fs: +fs.value, pad: +pad.value });
+  fs.addEventListener('input', on); pad.addEventListener('input', on);
+  document.getElementById('pc-size-reset').addEventListener('click', () => apply(DEF));
+})();
 
 const pcHash = location.hash.slice(1);
 if (['same-desk', 'same-note', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
