@@ -40,6 +40,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   --cds-surface-popover: #ffffff; --cds-border: #e3e9f1; --cds-text-secondary: #5f6c80;
   --r: 12px; font-family: var(--font-anthropic-sans); color: var(--color-fg); background: transparent; position: relative; z-index: 1; display: grid; gap: 10px; padding: 10px clamp(8px, 1.4vw, 16px); min-height: 100vh; color-scheme: light; }
 .pc * { box-sizing: border-box; }
+.pc { grid-template-columns: minmax(0, 1fr); }
+.pc > *, .pc .topbar > * { min-width: 0; }
 .pc section.page { min-width: 0; }
 .pc a { color: inherit; }
 
@@ -79,7 +81,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc input.search { font: inherit; font-size: var(--cds-font-size-caption); padding: 8px 14px; border: 1px solid #8fb3e0; border-radius: 999px; background: var(--color-bg); color: var(--color-fg); min-width: min(100%, 14rem); outline: none; }
 .pc input.search:focus { border-color: var(--color-fg-muted); }
 .pc .tbl { overflow: auto; max-height: calc(100vh - 190px); min-height: 320px; border-radius: var(--cds-radius); }
-.pc table.measuring { table-layout: auto; width: max-content; }
+.pc table.measuring { table-layout: auto; width: max-content !important; }
 .pc table.measuring th, .pc table.measuring td { white-space: nowrap; width: auto !important; }
 .pc table { table-layout: fixed; width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--tfs, 13px); font-variant-numeric: tabular-nums; }
 .pc th { text-align: left; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; z-index: 1; background: #e6eef9; padding: var(--tpad, 4px) 8px; line-height: 1.4; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; cursor: pointer; user-select: none; }
@@ -93,6 +95,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc tbody tr:nth-child(even) td { background: rgba(0, 77, 161, .035); }
 .pc tbody tr:hover td { background: #eef5ff; }
 .pc td.n, .pc th.n { text-align: right; white-space: nowrap; }
+.pc td.c, .pc th.c { text-align: center; }
 .pc td.best span { display: inline-block; padding: 0 8px; border-radius: 999px; background: color-mix(in srgb, var(--color-ok) 16%, transparent); color: var(--color-ok); font-weight: var(--cds-font-weight-medium); }
 .pc td.dim { color: var(--color-fg-muted); }
 .pc td.strong { font-weight: var(--cds-font-weight-medium); }
@@ -189,6 +192,37 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .terms dd { margin: 0; color: var(--color-fg-muted); }
 .pc .lastrun { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; background: #eef5ff; border: 1px solid #cfe1fb; }
 .pc .lastrun::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #18c27a; box-shadow: 0 0 8px #18c27a; }
+/* スマホ表示 */
+@media (max-width: 700px) {
+  .pc { padding: 8px; gap: 8px; }
+  .pc .topbar { padding: 8px 10px; gap: 8px; }
+  .pc .brand { flex-wrap: wrap; gap: 2px 8px; width: 100%; }
+  .pc .brand .lead { white-space: normal; }
+  .pc .brand h1 { font-size: 14px; }
+  .pc .bigsearch input { font-size: 16px; }
+  .pc .tabs { flex-wrap: nowrap; overflow-x: auto; width: 100%; border-radius: 12px; scrollbar-width: none; }
+  .pc .tabs::-webkit-scrollbar { display: none; }
+  .pc .tab { white-space: nowrap; padding: 6px 12px; flex: none; }
+  .pc .sizer { flex: 1 1 auto; justify-content: space-between; gap: 6px; padding: 4px 10px; }
+  .pc .sizer input[type=range] { width: 64px; }
+  .pc .links { margin-left: 0; }
+  .pc .card { padding: 10px; }
+  .pc .cardhead .note { display: none; }
+  .pc .filters { gap: 6px; }
+  .pc .bigsearch { width: 100%; height: 38px; }
+  .pc .fsel { flex: 1 1 40%; min-width: 0; height: 38px; }
+  .pc .clearbtn { height: 38px; }
+  .pc .filters .count { margin-left: auto; }
+  .pc .quick { grid-template-columns: 2.6rem 1fr; }
+  .pc .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+  .pc .chips::-webkit-scrollbar { display: none; }
+  .pc .tbl { max-height: 75vh; min-height: 240px; }
+  .pc th { white-space: normal; vertical-align: bottom; }
+  .pc .tools { width: 100%; }
+  .pc .tools .dash-select, .pc input.search { flex: 1 1 40%; min-width: 0; }
+  .pc .samewrap.open { grid-template-columns: 1fr; }
+  .pc .side { position: static; max-height: none; }
+}
 @media (max-width: 560px) { .pc .terms { grid-template-columns: 1fr; } .pc .terms dd { margin-bottom: 6px; } }
 
 @media (prefers-reduced-motion: no-preference) { .pc section.page:not([hidden]) { animation: pcfade var(--cds-dur-slow) var(--cds-ease-out); } }
@@ -244,7 +278,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
           <div class="quick"><span class="ql">CPU</span><div class="chips" data-draw="cpuChips" data-source="same"></div></div>
         </div>
         <div class="tbl"><table data-source="same" data-row-key="kind,spec">
-          <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest">最安の社</th><th data-field="spread" class="n">最安との差</th></tr></thead>
+          <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest" class="c">最安</th><th data-field="spread" class="n">最安とドスパラとの価格差</th></tr></thead>
           <tbody data-draw="sameRows"></tbody>
         </table></div>
       </div>
@@ -414,17 +448,21 @@ document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('c
 /* 列幅：基本は等間隔。等間隔で収まらない列だけ、残りの幅を分けて広げる */
 PC.fitCols = (t) => {
   const ths = [...t.querySelectorAll('thead th')], n = ths.length;
-  ths.forEach((th) => { th.style.width = ''; });
-  const W = t.parentElement.clientWidth; if (!W) return;
+  ths.forEach((th) => { th.style.width = ''; }); t.style.width = '';
+  const W0 = t.parentElement.clientWidth; if (!W0) return;
+  const MIN = 84, CAP = 170;
   t.classList.add('measuring');
   const need = ths.map((th) => Math.ceil(th.getBoundingClientRect().width));
   t.classList.remove('measuring');
+  // 画面が狭いとき（スマホ）は列を潰さず、表を横スクロールにする
+  const W = Math.max(W0, n * MIN, need.reduce((a, v) => a + Math.min(v, CAP), 0));
+  t.style.width = W + 'px';
   // 余裕あり：短い列は同じ幅 L にそろえ、長い列は中身の幅。余裕なし：長い列を同じ幅 L で頭打ちにして折り返す
   const total = need.reduce((a, v) => a + v, 0), roomy = total <= W;
   const f = (L) => need.reduce((a, v) => a + (roomy ? Math.max(v, L) : Math.min(v, L)), 0);
   let lo = 0, hi = W;
   for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (f(m) < W) lo = m; else hi = m; }
-  ths.forEach((th, i) => { th.style.width = (roomy ? Math.max(need[i], lo) : Math.min(need[i], lo)) + 'px'; });
+  ths.forEach((th, i) => { th.style.width = Math.max(MIN, roomy ? Math.max(need[i], lo) : Math.min(need[i], lo)) + 'px'; });
 };
 PC.fitAll = () => document.querySelectorAll('.pc table').forEach((t) => { if (t.offsetParent) PC.fitCols(t); });
 { let raf; PC.fitSoon = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(PC.fitAll); }; }
@@ -544,7 +582,7 @@ dash.draw('sameRows', (tb) => {
   PC.rows(tb, rows, [
     ['cpu', null, 'strong'], ['gpu', null, 'strong'],
     ...PC.MAKERS.map(([c]) => [c + '_min', (v) => (v == null ? '—' : PC.yen(v)), PC.bestCls(c), true]),
-    ['cheapest', null, (v) => 'tag ' + (PC.MKCLS[v] || ''), true], ['spread', PC.yen, 'n dim'],
+    ['cheapest', null, (v) => 'tag c ' + (PC.MKCLS[v] || ''), true], ['spread', PC.yen, 'n dim'],
   ], (r) => PC.key(r.kind, r.spec), (tr, r) => {
     tr.classList.add('click');
     if (PC.sameSel && PC.sameSel.spec === r.spec && PC.sameSel.kind === r.kind) tr.classList.add('sel');
@@ -667,8 +705,8 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
-    // ドスパラが最安なら「最安との差」は0（古いデータにも適用）
-    (dash._store.same || []).forEach((r) => { if (r.cheapest === 'ドスパラ') r.spread = 0; });
+    // 「最安とドスパラとの価格差」= ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）。古いデータにも適用
+    (dash._store.same || []).forEach((r) => { r.spread = r.ds_min == null ? null : r.ds_min - r.min; });
     dash.redrawAll();
     document.getElementById('pc-loading').classList.add('done');
   } catch (e) {

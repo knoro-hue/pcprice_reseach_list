@@ -95,8 +95,8 @@ def same_spec(rows):
         lo = min(prices, key=prices.get)
         row["cheapest"] = {c: m.MAKER for c, m in MAKERS}[lo]
         row["min"] = prices[lo]
-        # ドスパラが最安なら差は0（ドスパラ視点の比較）
-        row["spread"] = 0 if lo == "ds" else max(prices.values()) - prices[lo]
+        # 最安とドスパラとの価格差 = ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）
+        row["spread"] = prices["ds"] - prices[lo] if "ds" in prices else None
         row["makers"] = len(by)
         out.append(row)
     return sorted(out, key=lambda r: (r["kind"], -r["makers"], r["min"]))
