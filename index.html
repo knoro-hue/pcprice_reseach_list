@@ -193,36 +193,69 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .lastrun { display: inline-flex; align-items: center; gap: 8px; font-size: var(--cds-font-size-caption); padding: 6px 12px; border-radius: 999px; background: #eef5ff; border: 1px solid #cfe1fb; }
 .pc .lastrun::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #18c27a; box-shadow: 0 0 8px #18c27a; }
 /* スマホ表示 */
+/* スマホ専用UI（カード表示・下部タブ・ボトムシート）。PCでは非表示 */
+.pc .mcards, .pc .msort, .pc .sheet-bg { display: none; }
 @media (max-width: 700px) {
-  .pc { padding: 8px; gap: 8px; }
-  .pc .topbar { padding: 8px 10px; gap: 8px; }
-  .pc .brand { flex-wrap: wrap; gap: 2px 8px; width: 100%; }
-  .pc .brand .lead { white-space: normal; }
-  .pc .brand h1 { font-size: 14px; }
-  .pc .bigsearch input { font-size: 16px; }
-  .pc .tabs { flex-wrap: nowrap; overflow-x: auto; width: 100%; border-radius: 12px; scrollbar-width: none; }
-  .pc .tabs::-webkit-scrollbar { display: none; }
-  .pc .tab { white-space: nowrap; padding: 6px 12px; flex: none; }
-  .pc .sizer { flex: 1 1 auto; justify-content: space-between; gap: 6px; padding: 4px 10px; }
-  .pc .sizer input[type=range] { width: 64px; }
+  .pc { padding: 8px 8px calc(76px + env(safe-area-inset-bottom)); gap: 8px; }
+  .pc .topbar { padding: 8px 10px; gap: 6px; flex-wrap: nowrap; backdrop-filter: none; background: rgba(255, 255, 255, .94); }
+  .pc .brand { flex-direction: column; align-items: flex-start; gap: 2px; flex: 1; }
+  .pc .brand h1 { font-size: 15px; }
+  .pc .brand .lead { font-size: 11px; white-space: normal; }
+  .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
+  /* 下部固定タブ */
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
+  .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
+  .pc .tab::after { content: attr(data-short); font-size: 13px; }
   .pc .card { padding: 10px; }
-  .pc .cardhead .note { display: none; }
-  .pc .filters { gap: 6px; }
-  .pc .bigsearch { width: 100%; height: 38px; }
-  .pc .fsel { flex: 1 1 40%; min-width: 0; height: 38px; }
-  .pc .clearbtn { height: 38px; }
+  .pc .card::before { display: none; }
+  .pc .cardhead .note, .pc .note { display: none; }
+  .pc .filters { gap: 6px; margin-bottom: 6px; }
+  .pc .bigsearch { width: 100%; height: 42px; }
+  .pc .bigsearch input { font-size: 16px; }
+  .pc .fsel { flex: 1 1 40%; min-width: 0; height: 40px; font-size: 14px; }
+  .pc .clearbtn { height: 40px; }
+  .pc .msort { display: block; flex: 1 1 0; min-width: 0; height: 40px; font-size: 14px; }
   .pc .filters .count { margin-left: auto; }
   .pc .quick { grid-template-columns: 2.6rem 1fr; }
   .pc .chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
   .pc .chips::-webkit-scrollbar { display: none; }
-  .pc .tbl { max-height: 75vh; min-height: 240px; }
-  .pc th { white-space: normal; vertical-align: bottom; }
+  .pc .qchip { font-size: 13px; padding: 6px 12px; }
   .pc .tools { width: 100%; }
-  .pc .tools .dash-select, .pc input.search { flex: 1 1 40%; min-width: 0; }
-  .pc .samewrap.open { grid-template-columns: 1fr; }
-  .pc .side { position: static; max-height: none; }
+  .pc .tools .dash-select, .pc input.search { flex: 1 1 40%; min-width: 0; height: 40px; font-size: 16px; }
+  .pc .pills { grid-template-columns: repeat(2, 1fr); }
+  .pc .tbl { display: none; }
+  .pc .mcards { display: grid; gap: 8px; }
+  /* ボトムシート（構成をタップ → 各社モデル） */
+  .pc .samewrap, .pc .samewrap.open { grid-template-columns: minmax(0, 1fr); }
+  .pc .samewrap.open .sheet-bg { display: block; position: fixed; inset: 0; z-index: 44; background: rgba(8, 20, 45, .45); }
+  .pc .samewrap.open .side { display: block; position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 45; max-height: 85vh; overflow: auto;
+    border-radius: 18px 18px 0 0; padding: 14px 14px calc(16px + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -10px 30px -10px rgba(0, 30, 80, .4); }
+  .pc .side .closebtn { position: sticky; top: 0; float: right; z-index: 1; font-size: 14px; padding: 6px 14px; }
+  .pc .it { grid-template-columns: 6.2rem 1fr; font-size: 14px; padding: 10px 0; line-height: 1.5; }
+  .pc .it .sub { font-size: 12px; }
 }
+/* カード */
+.pc .mc { display: block; background: #fff; border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px; color: var(--color-fg); text-decoration: none; box-shadow: 0 4px 14px -10px rgba(0, 50, 120, .4); }
+.pc .mc:active { background: #eef5ff; }
+.pc .mc-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+.pc .mc-t { font-size: 15px; font-weight: 700; line-height: 1.35; }
+.pc .mc-s { font-size: 13px; color: var(--color-fg-muted); margin-top: 1px; }
+.pc .mc-tag { flex: none; font-size: 12px; padding: 3px 9px; border-radius: 999px; color: #fff; background: var(--c, var(--brand)); white-space: nowrap; }
+.pc .mc-tag.t-down { background: var(--color-ok); } .pc .mc-tag.t-up { background: var(--color-bad); } .pc .mc-tag.t-new { background: var(--brand2); } .pc .mc-tag.t-end { background: #8a97aa; }
+.pc .mc-p { display: grid; gap: 2px; }
+.pc .mc-r { display: flex; justify-content: space-between; align-items: center; font-size: 14px; padding: 4px 8px; border-radius: 8px; font-variant-numeric: tabular-nums; }
+.pc .mc-r .nm::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c); margin-right: 6px; }
+.pc .mc-r.best { background: color-mix(in srgb, var(--color-ok) 12%, transparent); color: var(--color-ok); font-weight: 700; }
+.pc .mc-r.best .pr::after { content: " 最安"; font-size: 11px; }
+.pc .mc-r .na { color: var(--cds-chart-muted); }
+.pc .mc-f { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--color-border-line); font-size: 13px; color: var(--color-fg-muted); }
+.pc .mc-f b { color: var(--brand); font-size: 15px; font-variant-numeric: tabular-nums; }
+.pc .mc-f b.zero { color: var(--color-ok); }
+.pc .mc-price { font-size: 18px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pc .mc-spec { font-size: 12.5px; color: var(--color-fg-muted); line-height: 1.5; margin-top: 4px; }
+.pc .mc-more { text-align: center; font-size: 12px; color: var(--color-fg-muted); padding: 8px; }
 @media (max-width: 560px) { .pc .terms { grid-template-columns: 1fr; } .pc .terms dd { margin-bottom: 6px; } }
 
 @media (prefers-reduced-motion: no-preference) { .pc section.page:not([hidden]) { animation: pcfade var(--cds-dur-slow) var(--cds-ease-out); } }
@@ -243,11 +276,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <span class="lead">最終取得 <b data-draw="fetched" data-source="status">—</b>・税込・BTOは基本構成</span>
     </div>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="same-desk" aria-selected="true">同スペック比較（デスクトップ）</button>
-      <button class="tab" role="tab" data-tab="same-note" aria-selected="false">同スペック比較（ノート）</button>
-      <button class="tab" role="tab" data-tab="changes" aria-selected="false">価格変動</button>
-      <button class="tab" role="tab" data-tab="list" aria-selected="false">一覧</button>
-      <button class="tab" role="tab" data-tab="howto" aria-selected="false">使い方</button>
+      <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">同スペック比較（デスクトップ）</button>
+      <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
+      <button class="tab" role="tab" data-tab="changes" data-short="価格変動" aria-selected="false">価格変動</button>
+      <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
+      <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
     </nav>
     <div class="sizer" aria-label="表の表示調整">
       <label>文字 <input type="range" id="pc-fs" min="11" max="20" step="1" value="13" aria-label="表の文字サイズ"><output id="pc-fs-v">13px</output></label>
@@ -271,6 +304,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
           <select class="dash-select fsel pc-fcpu" data-draw="fCpu" data-source="same" aria-label="CPUで絞り込み"></select>
           <select class="dash-select fsel pc-fgpu" data-draw="fGpu" data-source="same" aria-label="GPUで絞り込み"></select>
           <button class="clearbtn pc-fclear" type="button">✕ 条件をクリア</button>
+          <select class="dash-select fsel msort pc-msort" data-for="sameRows" aria-label="並び替え"><option value="">並び：構成の多い順</option><option value="min:1">最安が安い順</option><option value="min:-1">最安が高い順</option><option value="spread:-1">ドスパラとの差が大きい順</option><option value="spread:1">ドスパラとの差が小さい順</option></select>
           <span class="count"><b data-draw="sameCount" data-source="same">—</b>構成</span>
         </div>
         <div class="quickwrap">
@@ -281,7 +315,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
           <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest" class="c">最安</th><th data-field="spread" class="n">最安とドスパラとの価格差</th></tr></thead>
           <tbody data-draw="sameRows"></tbody>
         </table></div>
+        <div class="mcards" data-draw="sameCards" data-source="same"></div>
       </div>
+      <div class="sheet-bg pc-same-close"></div>
       <div class="card side" id="same-models">
         <button class="closebtn pc-same-close" type="button">✕ 閉じる</button>
         <div data-draw="sameModels" data-source="products"></div>
@@ -312,6 +348,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <thead><tr><th data-field="type">種類</th><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="gpu_key">GPU</th><th data-field="old" class="n">前回</th><th data-field="new" class="n">今回</th><th data-field="delta" class="n">差額</th><th data-field="id">商品ID</th></tr></thead>
         <tbody data-draw="changeRows"></tbody>
       </table></div>
+      <div class="mcards" data-draw="changeCards" data-source="changes"></div>
     </div>
   </section>
 
@@ -323,6 +360,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
           <select class="dash-select pc-maker" aria-label="メーカー"><option value="">3社すべて</option><option value="パソコン工房">パソコン工房</option><option value="ドスパラ">ドスパラ</option><option value="マウス">マウス</option></select>
           <select class="dash-select pc-lkind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
           <input class="search pc-list-q" type="search" placeholder="型番・CPU・GPUで検索" aria-label="商品を検索">
+          <select class="dash-select msort pc-msort" data-for="listRows" aria-label="並び替え"><option value="">安い順</option><option value="price:-1">高い順</option></select>
           <span class="count"><span data-draw="listCount" data-source="products">—</span> 件</span>
         </div>
       </div>
@@ -331,6 +369,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <thead><tr><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="price" class="n">価格(税込)</th><th data-field="cpu_key">CPU</th><th data-field="gpu_key">GPU</th><th data-field="mem">メモリ</th><th data-field="storage_cap">ストレージ</th><th data-field="cooler">クーラー</th><th data-field="psu">電源</th><th data-field="id">商品ID</th></tr></thead>
         <tbody data-draw="listRows"></tbody>
       </table></div>
+      <div class="mcards" data-draw="listCards" data-source="products"></div>
     </div>
   </section>
 
@@ -587,9 +626,7 @@ dash.draw('sameRows', (tb) => {
     tr.classList.add('click');
     if (PC.sameSel && PC.sameSel.spec === r.spec && PC.sameSel.kind === r.kind) tr.classList.add('sel');
     tr.addEventListener('click', () => {
-      PC.sameSel = { kind: r.kind, cpu: r.cpu, gpu: r.gpu, spec: r.spec };
-      document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.add('open'));
-      dash.draw('sameModels'); dash.draw('sameRows');
+      PC.openSame(r);
       const side = document.getElementById('same-models');
       if (side && side.scrollIntoView) { const rc = side.getBoundingClientRect(); if (rc.top < 0 || rc.top > window.innerHeight - 80) side.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     });
@@ -676,6 +713,78 @@ dash.draw('changeChart', (el) => {
     const tw = tip.node().offsetWidth;
     tip.style('left', Math.min(Math.max(0, x(dt) - tw / 2), W - tw) + 'px').style('top', '0px');
   }).on('pointerleave', () => tip.style('display', 'none'));
+});
+
+/* ===== スマホ用カード ===== */
+PC.isMobile = () => window.matchMedia('(max-width: 700px)').matches;
+PC.el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+PC.MIRROR = { sameRows: 'sameCards', changeRows: 'changeCards', listRows: 'listCards' };
+{ const _d = dash.draw; dash.draw = (n, fn) => { _d(n, fn); if (!fn && PC.MIRROR[n]) _d(PC.MIRROR[n]); }; }
+window.matchMedia('(max-width: 700px)').addEventListener('change', () => dash.redrawAll());
+document.querySelectorAll('.pc-msort').forEach((sel) => sel.addEventListener('change', () => {
+  const name = sel.dataset.for, [f, d] = sel.value.split(':');
+  if (sel.value) PC.sort[name] = { field: f, dir: +d }; else delete PC.sort[name];
+  dash.draw(name);
+}));
+PC.openSame = (r) => {
+  PC.sameSel = { kind: r.kind, cpu: r.cpu, gpu: r.gpu, spec: r.spec };
+  document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.add('open'));
+  dash.draw('sameModels'); dash.draw('sameRows');
+  const side = document.getElementById('same-models'); if (side) side.scrollTop = 0;
+};
+dash.draw('sameCards', (box) => {
+  box.replaceChildren(); if (!PC.isMobile()) return;
+  const rows = PC.sameList(); if (!rows) return;
+  PC.sortRows('sameRows', rows).forEach((r) => {
+    const c = PC.el('div', 'mc'); c.addEventListener('click', () => PC.openSame(r));
+    const h = PC.el('div', 'mc-h'), t = PC.el('div');
+    t.append(PC.el('div', 'mc-t', r.cpu), PC.el('div', 'mc-s', r.gpu));
+    const tag = PC.el('span', 'mc-tag', '最安 ' + r.cheapest); tag.style.setProperty('--c', PC.COLORS[PC.MAKERS.findIndex((m) => m[1] === r.cheapest)]);
+    h.append(t, tag);
+    const p = PC.el('div', 'mc-p');
+    PC.MAKERS.forEach(([code, name], i) => {
+      const v = r[code + '_min'], row = PC.el('div', 'mc-r' + (r.cheapest === name ? ' best' : ''));
+      row.style.setProperty('--c', PC.COLORS[i]);
+      row.append(PC.el('span', 'nm', name), v == null ? PC.el('span', 'na', '取扱なし') : PC.el('span', 'pr', PC.yen(v) + '円'));
+      p.append(row);
+    });
+    const f = PC.el('div', 'mc-f'); f.append(PC.el('span', null, '最安とドスパラとの価格差'));
+    f.append(r.spread == null ? PC.el('span', null, 'ドスパラ取扱なし') : PC.el('b', r.spread === 0 ? 'zero' : '', r.spread === 0 ? '0円（ドスパラが最安）' : '+' + PC.yen(r.spread) + '円'));
+    c.append(h, p, f); box.append(c);
+  });
+});
+dash.draw('changeCards', (box) => {
+  box.replaceChildren(); if (!PC.isMobile()) return;
+  const rows = PC.changeList(false); if (!rows) return;
+  const list = PC.sort.changeRows ? PC.sortRows('changeRows', rows) : rows.slice().sort((a, b) => PC.TYPES.indexOf(a.type) - PC.TYPES.indexOf(b.type) || (a.delta ?? 0) - (b.delta ?? 0));
+  list.slice(0, 300).forEach((r) => {
+    const c = PC.el('a', 'mc'); if (r.url) { c.href = r.url; c.target = '_blank'; c.rel = 'noopener'; }
+    const h = PC.el('div', 'mc-h'), tags = PC.el('div');
+    tags.append(PC.el('span', 'mc-tag ' + (PC.TCLS[r.type] || ''), r.type), ' ');
+    const mk = PC.el('span', 'mc-tag', r.maker); mk.style.setProperty('--c', PC.COLORS[PC.MAKERS.findIndex((m) => m[1] === r.maker)]); tags.append(mk);
+    const pr = PC.el('span', 'mc-price', r.new != null ? PC.yen(r.new) + '円' : '—');
+    h.append(tags, pr);
+    c.append(h, PC.el('div', 'mc-t', r.name));
+    const d = r.delta == null ? '' : `（${r.delta > 0 ? '+' : ''}${PC.yen(r.delta)}円）`;
+    c.append(PC.el('div', 'mc-spec', [r.kind, r.gpu_key, r.old != null ? '前回 ' + PC.yen(r.old) + '円' + d : ''].filter(Boolean).join(' ・ ')));
+    box.append(c);
+  });
+  if (list.length > 300) box.append(PC.el('div', 'mc-more', `ほか ${list.length - 300} 件`));
+});
+dash.draw('listCards', (box) => {
+  box.replaceChildren(); if (!PC.isMobile()) return;
+  const rows = PC.listRows(); if (!rows) return;
+  rows.slice(0, 200).forEach((r) => {
+    const c = PC.el('a', 'mc'); if (r.url) { c.href = r.url; c.target = '_blank'; c.rel = 'noopener'; }
+    const h = PC.el('div', 'mc-h'), tags = PC.el('div');
+    const mk = PC.el('span', 'mc-tag', r.maker); mk.style.setProperty('--c', PC.COLORS[PC.MAKERS.findIndex((m) => m[1] === r.maker)]);
+    tags.append(mk, ' ', PC.el('span', 'mc-s', r.kind));
+    h.append(tags, PC.el('span', 'mc-price', r.price != null ? PC.yen(r.price) + '円' : '—'));
+    c.append(h, PC.el('div', 'mc-t', r.name));
+    c.append(PC.el('div', 'mc-spec', [r.cpu_key, r.gpu_key, r.mem && 'メモリ ' + r.mem, r.storage_cap && 'ストレージ ' + r.storage_cap].filter(Boolean).join(' ・ ')));
+    box.append(c);
+  });
+  if (rows.length > 200) box.append(PC.el('div', 'mc-more', `ほか ${d3.format(',')(rows.length - 200)} 件。検索・絞り込みで探すか、Excelで全件を確認できます`));
 });
 
 /* 一覧 */
