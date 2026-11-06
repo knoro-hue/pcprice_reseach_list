@@ -1,0 +1,18 @@
+{
+ "d_robots": "https://www.dospara.co.jp/robots.txt",
+ "d_tc60": "https://www.dospara.co.jp/TC60",
+ "d_tc30": "https://www.dospara.co.jp/TC30",
+ "d_grid": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=TC60&start=0&sz=60",
+ "d_grid2": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=TC60&start=60&sz=60",
+ "d_detail": "https://www.dospara.co.jp/TC143/MC25167.html",
+ "d_note": "https://www.dospara.co.jp/notebook",
+ "d_sitemap": "https://www.dospara.co.jp/sitemap_index.xml",
+ "m_robots": "https://www.mouse-jp.co.jp/robots.txt",
+ "m_top": "https://www.mouse-jp.co.jp/",
+ "m_desk": "https://www.mouse-jp.co.jp/desktop/",
+ "m_note": "https://www.mouse-jp.co.jp/m-book/",
+ "m_store": "https://www.mouse-jp.co.jp/store/",
+ "g_top": "https://www.g-tune.jp/",
+ "g_desk": "https://www.g-tune.jp/desktop/",
+ "m_sitemap": "https://www.mouse-jp.co.jp/sitemap.xml"
+}
