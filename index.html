@@ -40,6 +40,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   --cds-surface-popover: #ffffff; --cds-border: #e3e9f1; --cds-text-secondary: #5f6c80;
   --r: 12px; font-family: var(--font-anthropic-sans); color: var(--color-fg); background: transparent; position: relative; z-index: 1; display: grid; gap: 10px; padding: 10px clamp(8px, 1.4vw, 16px); min-height: 100vh; color-scheme: light; }
 .pc * { box-sizing: border-box; }
+.pc section.page { min-width: 0; }
 .pc a { color: inherit; }
 
 /* ヘッダー：1行のバー（タイトル・最終取得・タブ・ボタン） */
@@ -78,7 +79,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc input.search { font: inherit; font-size: var(--cds-font-size-caption); padding: 8px 14px; border: 1px solid #8fb3e0; border-radius: 999px; background: var(--color-bg); color: var(--color-fg); min-width: min(100%, 14rem); outline: none; }
 .pc input.search:focus { border-color: var(--color-fg-muted); }
 .pc .tbl { overflow: auto; max-height: calc(100vh - 190px); min-height: 320px; border-radius: var(--cds-radius); }
-.pc table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--tfs, 13px); font-variant-numeric: tabular-nums; }
+.pc table.measuring { table-layout: auto; width: max-content; }
+.pc table.measuring th, .pc table.measuring td { white-space: nowrap; width: auto !important; }
+.pc table { table-layout: fixed; width: 100%; border-collapse: separate; border-spacing: 0; font-size: var(--tfs, 13px); font-variant-numeric: tabular-nums; }
 .pc th { text-align: left; color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; z-index: 1; background: #e6eef9; padding: var(--tpad, 4px) 8px; line-height: 1.4; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; cursor: pointer; user-select: none; }
 .pc th:hover { color: var(--color-fg); }
 .pc th[aria-sort="ascending"]::after { content: " ↑"; }
@@ -408,6 +411,26 @@ document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('c
   document.querySelectorAll(sel).forEach((el) => el.addEventListener('change', () => { PC[k] = el.value; draws.forEach((d) => dash.draw(d)); }));
 });
 
+/* 列幅：基本は等間隔。等間隔で収まらない列だけ、残りの幅を分けて広げる */
+PC.fitCols = (t) => {
+  const ths = [...t.querySelectorAll('thead th')], n = ths.length;
+  ths.forEach((th) => { th.style.width = ''; });
+  const W = t.parentElement.clientWidth; if (!W) return;
+  t.classList.add('measuring');
+  const need = ths.map((th) => Math.ceil(th.getBoundingClientRect().width));
+  t.classList.remove('measuring');
+  // 余裕あり：短い列は同じ幅 L にそろえ、長い列は中身の幅。余裕なし：長い列を同じ幅 L で頭打ちにして折り返す
+  const total = need.reduce((a, v) => a + v, 0), roomy = total <= W;
+  const f = (L) => need.reduce((a, v) => a + (roomy ? Math.max(v, L) : Math.min(v, L)), 0);
+  let lo = 0, hi = W;
+  for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (f(m) < W) lo = m; else hi = m; }
+  ths.forEach((th, i) => { th.style.width = (roomy ? Math.max(need[i], lo) : Math.min(need[i], lo)) + 'px'; });
+};
+PC.fitAll = () => document.querySelectorAll('.pc table').forEach((t) => { if (t.offsetParent) PC.fitCols(t); });
+{ let raf; PC.fitSoon = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(PC.fitAll); }; }
+document.querySelectorAll('.pc table tbody').forEach((tb) => new MutationObserver(PC.fitSoon).observe(tb, { childList: true }));
+window.addEventListener('resize', PC.fitSoon);
+
 /* 文字サイズ・行間スライダー（ブラウザに記憶） */
 (() => {
   const root = document.querySelector('.pc'), fs = document.getElementById('pc-fs'), pad = document.getElementById('pc-pad');
@@ -417,6 +440,7 @@ document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('c
     root.style.setProperty('--tfs', v.fs + 'px'); root.style.setProperty('--tpad', v.pad + 'px');
     document.getElementById('pc-fs-v').textContent = v.fs + 'px'; document.getElementById('pc-pad-v').textContent = v.pad;
     try { localStorage.setItem('pc-size', JSON.stringify(v)); } catch (e) {}
+    if (PC.fitSoon) PC.fitSoon();
   };
   let saved = null; try { saved = JSON.parse(localStorage.getItem('pc-size')); } catch (e) {}
   apply(saved && saved.fs ? saved : DEF);
