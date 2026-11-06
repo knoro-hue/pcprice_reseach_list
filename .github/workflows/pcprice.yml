@@ -1,0 +1,55 @@
+name: PC価格調査（3社）
+
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "取得する社（pk=パソコン工房, ds=ドスパラ, ms=マウス）"
+        default: "pk,ds,ms"
+  schedule:
+    - cron: "47 23 * * *"     # 毎日 8:47 JST
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pcprice
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 依存ライブラリ
+        run: pip install openpyxl==3.1.5
+
+      - name: 3社を取得して集計・Excel出力
+        run: python run_all.py --only "${{ github.event.inputs.only || 'pk,ds,ms' }}"
+
+      - name: 日付付きExcelをダウンロード用に保存（30日間）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pc-price-${{ github.run_number }}
+          path: output/pc_price_2*.xlsx
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: データと最新Excelをリポジトリに保存
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data output/pc_price_latest.xlsx output/pckoubou_pc_latest.xlsx
+          if git diff --cached --quiet; then
+            echo "変更なし"
+          else
+            git commit -m "PC価格調査 $(TZ=Asia/Tokyo date '+%Y-%m-%d %H:%M')"
+            git pull --rebase -q && git push
+          fi
