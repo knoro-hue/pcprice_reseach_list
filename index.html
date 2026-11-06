@@ -6,13 +6,13 @@
 <title>PC価格調査 3社比較</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <style>
 :root {
-  --font-anthropic-sans: "Noto Sans JP", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
-  --font-anthropic-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
-  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 26px; --cds-font-weight-medium: 600;
+  --font-anthropic-sans: "BIZ UDPGothic", "BIZ UDPゴシック", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", Meiryo, sans-serif;
+  --font-anthropic-serif: var(--font-anthropic-sans);
+  --cds-font-size-caption: 12px; --cds-font-size-body: 14px; --cds-font-size-heading: 16px; --cds-font-size-title: 26px; --cds-font-weight-medium: 700;
   --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 18px; --cds-gap-xl: 28px;
   --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 16px; --cds-pad-xl: 24px;
   --cds-radius: 8px; --cds-dur-slow: .25s; --cds-ease-out: cubic-bezier(.2,.7,.2,1);
@@ -38,7 +38,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   --color-fg: #172033; --color-fg-muted: #4f6584; --color-bg: #ffffff; --color-panel: #ffffff; --color-border-line: #d5e2f2;
   --color-ok: #0e8a4a; --color-bad: #d13b3b; --color-warn: #b7791f; --cds-chart-grid: #edf1f6; --cds-chart-muted: #b9c3d1; --cds-chart-axis: #c9d2de;
   --cds-surface-popover: #ffffff; --cds-border: #e3e9f1; --cds-text-secondary: #5f6c80;
-  --r: 12px; font-family: var(--font-anthropic-sans); color: var(--color-fg); background: transparent; position: relative; z-index: 1; display: grid; gap: 10px; padding: 10px clamp(8px, 1.4vw, 16px); min-height: 100vh; color-scheme: light; }
+  --r: 12px; font-family: var(--font-anthropic-sans); color: var(--color-fg); background: transparent; position: relative; z-index: 1; display: grid; align-content: start; grid-template-rows: auto; gap: 10px; padding: 10px clamp(8px, 1.4vw, 16px); min-height: 100vh; color-scheme: light; }
 .pc * { box-sizing: border-box; }
 .pc { grid-template-columns: minmax(0, 1fr); }
 .pc > *, .pc .topbar > * { min-width: 0; }
