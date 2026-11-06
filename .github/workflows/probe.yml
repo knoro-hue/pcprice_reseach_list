@@ -2,11 +2,16 @@ name: probe
 on:
   push:
     branches: [probe]
+    paths: [probe/**, .github/workflows/probe.yml]
+permissions:
+  contents: write
 jobs:
   p:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: python probe/probe.py probe/urls.json
-      - uses: actions/upload-artifact@v4
-        with: {name: probe, path: probe_out, retention-days: 3}
+      - run: |
+          rm -rf probe/out && mv probe_out probe/out
+          git config user.name github-actions[bot]; git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add probe/out && git commit -qm "probe out" && git push
