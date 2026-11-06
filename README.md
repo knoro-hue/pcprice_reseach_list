@@ -1,22 +1,21 @@
-# パソコン工房 PC価格一覧（GitHub Actions）
+# PC価格調査（パソコン工房・ドスパラ・マウス）
 
-パソコン工房 公式通販のデスクトップ・ノートPCの全商品を取得し、Excelに出力します。
-
-## 出力列
-商品ID / 区分 / 型番 / 販売価格(税込) / CPU型番 / グラフィックス / メモリ容量 / メモリ規格 / 1stストレージ / ストレージ容量 / クーラー / 電源
-
-列を変えるときは `pckoubou_list.py` の `COLUMNS` を編集します。
+3社公式通販のデスクトップ・ノートPCを毎日取得し、比較用データとExcelを出力します。
 
 ## 実行
-- 手動：GitHubの「Actions」タブ →「パソコン工房 PC価格一覧」→「Run workflow」
-- 自動：毎日 9:17 JST（`.github/workflows/pckoubou.yml` の `schedule` を消すと手動のみ）
+- 自動：毎日 8:47 JST
+- 手動：Actions →「PC価格調査（3社）」→ Run workflow（社を絞って実行も可）
 
-## 結果の受け取り
-- 最新版：リポジトリの `output/pckoubou_pc_latest.xlsx`
-- 日付付き：実行結果ページ下部の Artifacts から（30日間保存）
+## 出力
+| ファイル | 内容 |
+|---|---|
+| `output/pc_price_latest.xlsx` | 3社まとめ（メーカー・商品ID・区分・型番・販売価格(税込)・CPU型番・グラフィックス・メモリ容量・メモリ規格・1stストレージ・ストレージ容量・クーラー・電源・URL） |
+| `output/pckoubou_pc_latest.xlsx` | パソコン工房のみ（従来形式） |
+| `data/*.json` | 比較ダッシュボード用データ（GPU/CPU別価格帯・同スペック比較・前日比変動・履歴） |
 
-## ローカル実行
-```
-pip install openpyxl
-python pckoubou_list.py --out output
-```
+## 取得方法
+- パソコン工房：検索API（価格帯で分割して全件）
+- ドスパラ：PC一覧グリッド＋詳細ページの仕様表
+- マウス：デスクトップ/ノートのカテゴリ一覧＋詳細ページの仕様表
+
+詳細ページ（クーラー・電源・メモリ規格）は `data/cache/` に保存し、新しい商品と30日以上前の分だけ取り直します。
