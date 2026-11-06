@@ -1,9 +1,5 @@
 {
- "d_notepage": "https://www.dospara.co.jp/note",
- "d_pcgrid": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=pc&start=0&sz=60",
- "d_ddetail": "https://www.dospara.co.jp/TC30/MC26039.html",
- "m_alldesk": "https://www.mouse-jp.co.jp/store/r/ra2010000/",
- "m_allnote": "https://www.mouse-jp.co.jp/store/r/ra2020000/",
- "m_detail": "https://www.mouse-jp.co.jp/store/g/gmouse-caa5a01bsadaw101dec/",
- "m_spec": "https://www2.mouse-jp.co.jp/cart/spec.asp?PROD=CAA5A01BSADAW101DEC"
+ "pk_top": "https://www.pc-koubou.jp/",
+ "ms_logo": "https://www.mouse-jp.co.jp/img/usr/logo-mcj.png",
+ "ds_logo": "https://www.dospara.co.jp/on/demandware.static/-/Library-Sites-RefArchSharedLibrary/default/dw2c7621c4/common/images/cmn__logo-color.svg"
 }
