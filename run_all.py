@@ -199,11 +199,17 @@ def main():
     order = {m.MAKER: i for i, (_, m) in enumerate(MAKERS)}
     uniq.sort(key=lambda r: (order[r["maker"]], r["kind"] != DESK, r["price"] or 10**12, r["id"]))
 
-    # 前日比（初回は比較しない）
+    # 前日比: 前日以前の最後の取得結果（baseline）と比べる。同じ日に再実行しても基準は変わらない
+    prev_date = max((s.get("fetched_at", "")[:10] for s in load(f"{DATA}/status.json", [])), default="")
+    if prev and prev_date and prev_date < today:
+        save(f"{DATA}/baseline.json", prev)
+        base = prev
+    else:
+        base = load(f"{DATA}/baseline.json", [])
     changes = load(f"{DATA}/changes.json", [])
-    if prev:
+    if base:
         ok = {s["maker"] for s in status if s["state"] == "取得成功"}
-        new_changes = [c for c in diff([r for r in prev if r["maker"] in ok], [r for r in uniq if r["maker"] in ok], today)]
+        new_changes = diff([r for r in base if r["maker"] in ok], [r for r in uniq if r["maker"] in ok], today)
         changes = [c for c in changes if c["date"] != today] + new_changes
     keep = (started.date() - timedelta(days=60)).isoformat()
     changes = sorted((c for c in changes if c["date"] >= keep), key=lambda c: (c["date"], c["maker"], c["type"]), reverse=True)
