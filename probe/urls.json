@@ -1,5 +1,6 @@
 {
- "pk_top": "https://www.pc-koubou.jp/",
- "ms_logo": "https://www.mouse-jp.co.jp/img/usr/logo-mcj.png",
- "ds_logo": "https://www.dospara.co.jp/on/demandware.static/-/Library-Sites-RefArchSharedLibrary/default/dw2c7621c4/common/images/cmn__logo-color.svg"
+ "ds_TC30": "https://www.dospara.co.jp/TC30",
+ "ds_TC143": "https://www.dospara.co.jp/TC143",
+ "ds_general_desk": "https://www.dospara.co.jp/general_desk",
+ "ds_general_note": "https://www.dospara.co.jp/general_note"
 }
