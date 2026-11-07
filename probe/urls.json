@@ -1,0 +1,10 @@
+{
+ "rk_TC1030": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC1030",
+ "rk_TC1031": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC1031",
+ "rk_TC1032": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC1032",
+ "rk_TC973": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC973",
+ "rk_TC143": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC143",
+ "rk_general_desk": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=general_desk",
+ "rk_general_note": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=general_note",
+ "rk_TC30": "https://www.dospara.co.jp/s/dospara/api/getCategoryRanking?cid=TC30"
+}
