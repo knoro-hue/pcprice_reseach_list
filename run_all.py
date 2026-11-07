@@ -9,6 +9,7 @@
   data/history.json       日別×社×区分の機種数・中央値
   data/spec_history.json  日別×区分×CPU×GPU×社の最安値（価格推移グラフ用、直近365日）
   data/status.json        社ごとの取得結果
+  data/ds_featured.json   ドスパラ特集ページ（TC30/TC143/general_desk/general_note）の掲載商品ID
   output/pc_price_latest.xlsx, output/pckoubou_pc_latest.xlsx
 使い方: python run_all.py [--only pckoubou,dospara,mouse]
 """
@@ -278,6 +279,12 @@ def main():
     save(f"{DATA}/changes.json", changes)
     save(f"{DATA}/history.json", history)
     save(f"{DATA}/spec_history.json", add_spec_history(load(f"{DATA}/spec_history.json", {}), today, uniq))
+    # ドスパラ特集ページの掲載商品（ドスパラ基準比較タブの並び順に使う）。失敗時は前回分を残す
+    if any(s["maker"] == dospara.MAKER and s["state"] == "取得成功" for s in status):
+        try:
+            save(f"{DATA}/ds_featured.json", dospara.featured())
+        except Exception as e:  # noqa: BLE001
+            warnings.append(f"ドスパラ特集ページの取得失敗（前回分を使用）: {e}")
     save(f"{DATA}/status.json", status)
 
     info = [["取得日時", started.strftime("%Y-%m-%d %H:%M") + " JST"]]

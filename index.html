@@ -57,6 +57,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .chip:hover { border-color: var(--brand2); }
 .pc .chip.primary { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; border-color: transparent; font-weight: var(--cds-font-weight-medium); }
 
+/* ドスパラ基準比較 */
+.pc td.cat span { background: #e6eef9; color: var(--brand); border-color: #b7cfee; font-size: .9em; }
+.pc .chk { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--brand); cursor: pointer; white-space: nowrap; }
+.pc .chk input { accent-color: var(--brand); width: 16px; height: 16px; }
+.pc .mc-r .df.down { color: var(--color-ok); } .pc .mc-r .df.up { color: var(--color-bad); }
+.pc .mc-r b.df { font-weight: 700; font-size: 13px; }
+@media (max-width: 700px) { .pc .tab::after { font-size: 12px; } }
+
 /* 価格推移 */
 .pc .trendpick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 8px; }
 .pc .trendpick .fsel { min-width: 9rem; }
@@ -145,6 +153,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .it { display: grid; grid-template-columns: 6.5rem 1fr; gap: 2px var(--cds-gap-sm); font-size: var(--cds-font-size-caption); padding: 7px 0; border-top: 1px solid color-mix(in srgb, var(--c) 18%, transparent); }
 .pc .mk-h + .it { border-top: 0; }
 .pc .it .pr { font-variant-numeric: tabular-nums; font-weight: var(--cds-font-weight-medium); white-space: nowrap; }
+.pc .it .pr small { font-size: 11px; font-weight: 700; } .pc .it .pr small.down { color: var(--color-ok); } .pc .it .pr small.up { color: var(--color-bad); }
 .pc .it.top .pr::after { content: "最安"; margin-left: 6px; font-size: .8em; padding: 1px 6px; border-radius: 999px; background: color-mix(in srgb, var(--color-ok) 16%, transparent); color: var(--color-ok); }
 .pc .it a { color: var(--color-fg); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--color-fg) 30%, transparent); }
 .pc .it a:hover { border-bottom-color: var(--color-fg); }
@@ -221,7 +230,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
   /* 下部固定タブ */
-  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
   .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
   .pc .tab::after { content: attr(data-short); font-size: 13px; }
@@ -295,6 +304,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">同スペック比較（デスクトップ）</button>
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
+      <button class="tab" role="tab" data-tab="dsbase" data-short="基準比較" aria-selected="false">ドスパラ基準比較</button>
       <button class="tab" role="tab" data-tab="changes" data-short="価格変動" aria-selected="false">価格変動</button>
       <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
@@ -338,6 +348,36 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <div class="card side" id="same-models">
         <button class="closebtn pc-same-close" type="button">✕ 閉じる</button>
         <div data-draw="sameModels" data-source="products"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="dsbase" hidden>
+    <div class="samewrap">
+      <div class="card">
+        <div class="cardhead">
+          <div><h2>ドスパラ基準比較（同じCPU×GPUの他社最安）</h2></div>
+          <span class="note" style="margin:0">ドスパラ特集ページ（ゲーミングデスク・ゲーミングノート・個人向けデスク・スタンダードノート）の掲載順が先、その他は安い順。差は「ドスパラ − 他社」：＋（赤）ならドスパラが高い、−（緑）ならドスパラが安い。行クリックで他社の該当モデル</span>
+        </div>
+        <div class="filters">
+          <label class="bigsearch"><span class="mg">⌕</span><input class="pc-ds-q" type="search" placeholder="型番・CPU・GPUで検索" aria-label="ドスパラのモデルを検索"></label>
+          <select class="dash-select fsel pc-ds-cat" data-draw="dsCat" data-source="dsfeat" aria-label="カテゴリ"></select>
+          <select class="dash-select fsel pc-ds-kind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
+          <label class="chk"><input type="checkbox" class="pc-ds-only"> 他社に同構成があるものだけ</label>
+          <select class="dash-select fsel msort pc-msort" data-for="dsRows" aria-label="並び替え"><option value="">並び：特集の掲載順</option><option value="price:1">価格が安い順</option><option value="pk_diff:-1">工房よりドスパラが高い順</option><option value="ms_diff:-1">マウスよりドスパラが高い順</option></select>
+          <span class="count"><b data-draw="dsCount" data-source="products">—</b>モデル</span>
+        </div>
+        <div class="tbl"><table data-source="products" data-row-key="id">
+          <thead><tr><th data-field="catLabel">カテゴリ</th><th data-field="name">ドスパラ 型番</th><th data-field="price" class="n mk1">ドスパラ価格</th><th data-field="cpu_key">CPU</th><th data-field="gpu_key">GPU</th><th data-field="mem">メモリ</th><th data-field="pk_min" class="n mk0">パソコン工房 最安</th><th data-field="pk_diff" class="n">差（ドスパラ−工房）</th><th data-field="ms_min" class="n mk2">マウス 最安</th><th data-field="ms_diff" class="n">差（ドスパラ−マウス）</th></tr></thead>
+          <tbody data-draw="dsRows"></tbody>
+        </table></div>
+        <div class="mcards" data-draw="dsCards" data-source="products"></div>
+        <p class="note" style="margin-top:6px">表示は先頭300件まで（スマホは200件）。カテゴリ・検索で絞り込めます</p>
+      </div>
+      <div class="sheet-bg pc-ds-close"></div>
+      <div class="card side" id="ds-models">
+        <button class="closebtn pc-ds-close" type="button">✕ 閉じる</button>
+        <div data-draw="dsModels" data-source="products"></div>
       </div>
     </div>
   </section>
@@ -423,6 +463,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
         <ul class="howlist">
           <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じCPUとGPUの組み合わせを2社以上が出している構成を一覧。緑の丸枠がその構成の最安。行をクリックすると右側に各社の該当モデル（安い順・各社8件まで）と公式ページへのリンクを表示</div></li>
+          <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。特集ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）の掲載順を優先し、その他は安い順。行をクリックすると他社の該当モデル一覧</div></li>
           <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>CPU×GPUの組み合わせを最大8件選ぶと、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
           <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
           <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
@@ -505,7 +546,7 @@ document.querySelectorAll('.pc-fclear').forEach((el) => el.addEventListener('cli
   document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); PC.q.same = '';
   PC.setF({ cpu: '', gpu: '', fam: '' });
 }));
-PC.closeSame = () => { PC.sameSel = null; document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.remove('open')); dash.draw('sameRows'); dash.draw('sameModels'); };
+PC.closeSame = () => { PC.sameSel = null; document.querySelectorAll('#same .samewrap').forEach((w) => w.classList.remove('open')); dash.draw('sameRows'); dash.draw('sameModels'); };
 document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('click', () => PC.closeSame()));
 
 /* 検索・絞り込み */
@@ -559,7 +600,7 @@ window.addEventListener('resize', PC.fitSoon);
 })();
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
 
 /* 並び替え */
 PC.cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja', { numeric: true }));
@@ -664,15 +705,12 @@ dash.draw('sameRows', (tb) => {
     });
   });
 });
-dash.draw('sameModels', (el) => {
-  el.replaceChildren();
-  const d = PC.ok('products'), sel = PC.sameSel;
-  if (!d || !sel || sel.kind !== PC.sameKind) return;
+/* 指定CPU×GPUの各社モデル一覧（安い順・各社8件まで）。base を渡すとドスパラ基準の差額も表示 */
+PC.modelsInto = (el, sel, makers, base) => {
+  const d = PC.ok('products'); if (!d) return;
   const hits = d.filter((p) => p.kind === sel.kind && p.cpu_key === sel.cpu && p.gpu_key === sel.gpu && p.price).sort((a, b) => a.price - b.price);
-  const head = document.createElement('p'); head.className = 'samehead'; head.textContent = `${sel.cpu} × ${sel.gpu}`;
-  { const b = PC.el('button', 'tbtn', '📈 価格推移で見る'); b.type = 'button'; b.addEventListener('click', (e) => { e.stopPropagation(); PC.tkind = sel.kind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = sel.kind; }); PC.tadd(`${sel.kind}|${sel.cpu}|${sel.gpu}`); PC.closeSame(); pcTab('changes'); window.scrollTo(0, 0); }); head.append(b); }
-  el.appendChild(head);
   PC.MAKERS.forEach(([, name], i) => {
+    if (makers && !makers.includes(name)) return;
     const mine = hits.filter((p) => p.maker === name);
     const box = document.createElement('div'); box.className = 'mk'; box.style.setProperty('--c', PC.COLORS[i]);
     const h = document.createElement('div'); h.className = 'mk-h';
@@ -681,7 +719,7 @@ dash.draw('sameModels', (el) => {
     h.append(t, c); box.appendChild(h);
     mine.slice(0, 8).forEach((p, j) => {
       const it = document.createElement('div'); it.className = 'it' + (j === 0 && p.price === hits[0].price ? ' top' : '');
-      const pr = document.createElement('span'); pr.className = 'pr'; pr.textContent = PC.yen(p.price) + '円';
+      const pr = document.createElement('span'); pr.className = 'pr'; pr.textContent = PC.yen(p.price) + '円'; if (base != null) { const df = base - p.price; const s2 = PC.el('small', df > 0 ? 'up' : df < 0 ? 'down' : '', ` (ドスパラ${PC.diffTxt(df)})`); pr.append(document.createElement('br'), s2); }
       const a = document.createElement('a'); a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = p.name;
       const sub = document.createElement('span'); sub.className = 'sub';
       sub.textContent = [p.mem && 'メモリ ' + p.mem, p.storage_cap && 'ストレージ ' + p.storage_cap, p.cooler, p.psu && '電源 ' + p.psu].filter(Boolean).join(' ・ ');
@@ -690,6 +728,15 @@ dash.draw('sameModels', (el) => {
     if (mine.length > 8) { const more = document.createElement('div'); more.className = 'more'; more.textContent = `ほか ${mine.length - 8} 機種は「一覧」タブで検索できます`; box.appendChild(more); }
     el.appendChild(box);
   });
+};
+dash.draw('sameModels', (el) => {
+  el.replaceChildren();
+  const d = PC.ok('products'), sel = PC.sameSel;
+  if (!d || !sel || sel.kind !== PC.sameKind) return;
+  const head = document.createElement('p'); head.className = 'samehead'; head.textContent = `${sel.cpu} × ${sel.gpu}`;
+  { const b = PC.el('button', 'tbtn', '📈 価格推移で見る'); b.type = 'button'; b.addEventListener('click', (e) => { e.stopPropagation(); PC.tkind = sel.kind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = sel.kind; }); PC.tadd(`${sel.kind}|${sel.cpu}|${sel.gpu}`); PC.closeSame(); pcTab('changes'); window.scrollTo(0, 0); }); head.append(b); }
+  el.appendChild(head);
+  PC.modelsInto(el, sel);
 });
 
 /* 価格変動 */
@@ -831,7 +878,7 @@ document.querySelectorAll('.pc-msort').forEach((sel) => sel.addEventListener('ch
 }));
 PC.openSame = (r) => {
   PC.sameSel = { kind: r.kind, cpu: r.cpu, gpu: r.gpu, spec: r.spec };
-  document.querySelectorAll('.pc .samewrap').forEach((w) => w.classList.add('open'));
+  document.querySelectorAll('#same .samewrap').forEach((w) => w.classList.add('open'));
   dash.draw('sameModels'); dash.draw('sameRows');
   const side = document.getElementById('same-models'); if (side) side.scrollTop = 0;
 };
@@ -890,6 +937,107 @@ dash.draw('listCards', (box) => {
   if (rows.length > 200) box.append(PC.el('div', 'mc-more', `ほか ${d3.format(',')(rows.length - 200)} 件。検索・絞り込みで探すか、Excelで全件を確認できます`));
 });
 
+/* ===== ドスパラ基準比較 ===== */
+PC.DSCAT_OTHER = 'other';
+PC.ds = { cat: '', kind: '', q: '', only: false, sel: null };
+// 区分×CPU×GPUごとの各社最安モデル（products が変わったら作り直す）
+PC.compIndex = () => {
+  const d = PC.ok('products'); if (!d) return null;
+  if (PC._ci && PC._ci.src === d) return PC._ci.map;
+  const map = new Map();
+  d.forEach((p) => {
+    if (!p.price || !p.gpu_key) return;
+    const k = `${p.kind}|${p.cpu_key}|${p.gpu_key}`;
+    const o = map.get(k) || {}; if (!o[p.maker] || p.price < o[p.maker].price) o[p.maker] = p; map.set(k, o);
+  });
+  PC._ci = { src: d, map }; return map;
+};
+PC.dsAll = () => {
+  const d = PC.ok('products'), f = PC.ok('dsfeat') || {}, ci = PC.compIndex(); if (!d || !ci) return null;
+  if (PC._dsAll && PC._dsAll.src === d && PC._dsAll.f === f) return PC._dsAll.rows;
+  const cats = Object.keys(f), pos = new Map();
+  cats.forEach((c, ci2) => (f[c].ids || []).forEach((id, j) => { if (!pos.has(id)) pos.set(id, [ci2, j, c]); }));
+  const rows = d.filter((p) => p.maker === 'ドスパラ' && p.price).map((p) => {
+    const [ci2, j, c] = pos.get(p.id) || [cats.length, 0, PC.DSCAT_OTHER];
+    const comp = ci.get(`${p.kind}|${p.cpu_key}|${p.gpu_key}`) || {};
+    const pk = comp['パソコン工房'], ms = comp['マウス'];
+    return { ...p, cat: c, catLabel: c === PC.DSCAT_OTHER ? 'その他' : f[c].label, ord: ci2 * 1e6 + (c === PC.DSCAT_OTHER ? p.price : j),
+      pk_min: pk ? pk.price : null, pk_diff: pk ? p.price - pk.price : null, pk_p: pk,
+      ms_min: ms ? ms.price : null, ms_diff: ms ? p.price - ms.price : null, ms_p: ms };
+  }).sort((a, b) => a.ord - b.ord);
+  PC._dsAll = { src: d, f, rows }; return rows;
+};
+PC.dsList = () => {
+  const r = PC.dsAll(); if (!r) return null;
+  const q = PC.ds.q;
+  return r.filter((p) => (!PC.ds.cat || p.cat === PC.ds.cat) && (!PC.ds.kind || p.kind === PC.ds.kind)
+    && (!PC.ds.only || p.pk_min != null || p.ms_min != null)
+    && (!q || [p.name, p.cpu_key, p.gpu_key, p.id].join(' ').toLowerCase().includes(q)));
+};
+PC.diffTxt = (v) => (v == null ? '' : v === 0 ? '±0' : (v > 0 ? '+' : '−') + PC.yen(Math.abs(v)));
+PC.diffCls = (v) => (v == null ? 'n dim' : v > 0 ? 'n up' : v < 0 ? 'n down' : 'n');
+dash.draw('dsCat', (sel) => {
+  const f = PC.ok('dsfeat') || {}, all = PC.dsAll() || [];
+  const cnt = (c) => all.filter((p) => p.cat === c).length;
+  sel.replaceChildren(new Option(`カテゴリ：すべて（${all.length}）`, ''), ...Object.keys(f).map((c) => new Option(`${f[c].label}（${cnt(c)}）`, c)), new Option(`その他（${cnt(PC.DSCAT_OTHER)}）`, PC.DSCAT_OTHER));
+  sel.value = PC.ds.cat;
+});
+dash.draw('dsCount', (el) => { const r = PC.dsList(); el.textContent = r ? d3.format(',')(r.length) : '—'; });
+dash.draw('dsRows', (tb) => {
+  const rows = PC.dsList(); if (!rows) return tb.replaceChildren();
+  const list = PC.sort.dsRows ? PC.sortRows('dsRows', rows) : rows;
+  PC.rows(tb, list.slice(0, 300), [
+    ['catLabel', null, 'tag cat', true], ['name', null, 'strong'], ['price', PC.yen, 'n'], ['cpu_key'], ['gpu_key'], ['mem', null, 'dim'],
+    ['pk_min', (v) => (v == null ? '—' : PC.yen(v)), (v) => (v == null ? 'n dim' : 'n')], ['pk_diff', PC.diffTxt, PC.diffCls],
+    ['ms_min', (v) => (v == null ? '—' : PC.yen(v)), (v) => (v == null ? 'n dim' : 'n')], ['ms_diff', PC.diffTxt, PC.diffCls],
+  ], (r) => PC.key(r.id), (tr, r) => {
+    tr.classList.add('click');
+    if (PC.ds.sel && PC.ds.sel.id === r.id) tr.classList.add('sel');
+    tr.addEventListener('click', () => PC.openDs(r));
+  }, true);
+});
+PC.openDs = (r) => { PC.ds.sel = r; document.querySelectorAll('#dsbase .samewrap').forEach((w) => w.classList.add('open')); dash.draw('dsModels'); dash.draw('dsRows'); const s = document.getElementById('ds-models'); if (s) s.scrollTop = 0; };
+PC.closeDs = () => { PC.ds.sel = null; document.querySelectorAll('#dsbase .samewrap').forEach((w) => w.classList.remove('open')); dash.draw('dsRows'); dash.draw('dsModels'); };
+document.querySelectorAll('.pc-ds-close').forEach((b) => b.addEventListener('click', () => PC.closeDs()));
+dash.draw('dsModels', (el) => {
+  el.replaceChildren(); const r = PC.ds.sel; if (!r) return;
+  const head = PC.el('p', 'samehead', r.name); el.append(head);
+  const me = PC.el('div', 'mk'); me.style.setProperty('--c', PC.COLORS[1]);
+  const mh = PC.el('div', 'mk-h'); mh.append(PC.el('span', null, 'ドスパラ（基準）'), PC.el('span', 'c', r.catLabel)); me.append(mh);
+  const it = PC.el('div', 'it'); const a = PC.el('a', null, r.name); a.href = r.url; a.target = '_blank'; a.rel = 'noopener';
+  it.append(PC.el('span', 'pr', PC.yen(r.price) + '円'), a, PC.el('span', 'sub', [r.cpu_key, r.gpu_key, r.mem && 'メモリ ' + r.mem, r.storage_cap && 'ストレージ ' + r.storage_cap, r.cooler, r.psu && '電源 ' + r.psu].filter(Boolean).join(' ・ ')));
+  me.append(it); el.append(me);
+  PC.modelsInto(el, { kind: r.kind, cpu: r.cpu_key, gpu: r.gpu_key }, ['パソコン工房', 'マウス'], r.price);
+});
+dash.draw('dsCards', (box) => {
+  box.replaceChildren(); if (!PC.isMobile()) return;
+  const rows = PC.dsList(); if (!rows) return;
+  const list = PC.sort.dsRows ? PC.sortRows('dsRows', rows) : rows;
+  list.slice(0, 200).forEach((r) => {
+    const c = PC.el('div', 'mc'); c.addEventListener('click', () => PC.openDs(r));
+    const h = PC.el('div', 'mc-h'), t = PC.el('div');
+    t.append(PC.el('div', 'mc-s', r.catLabel), PC.el('div', 'mc-t', r.name));
+    h.append(t, PC.el('span', 'mc-price', PC.yen(r.price) + '円'));
+    c.append(h, PC.el('div', 'mc-spec', [r.cpu_key, r.gpu_key, r.mem && 'メモリ ' + r.mem].filter(Boolean).join(' ・ ')));
+    const p = PC.el('div', 'mc-p'); p.style.marginTop = '6px';
+    [['パソコン工房', r.pk_min, r.pk_diff, 0], ['マウス', r.ms_min, r.ms_diff, 2]].forEach(([nm, v, df, i]) => {
+      const row = PC.el('div', 'mc-r'); row.style.setProperty('--c', PC.COLORS[i]);
+      const right = PC.el('span');
+      if (v == null) right.append(PC.el('span', 'na', '同構成なし'));
+      else { right.append(PC.el('span', 'pr', PC.yen(v) + '円 ')); right.append(PC.el('b', PC.diffCls(df).replace('n ', 'df '), `(${PC.diffTxt(df)})`)); }
+      row.append(PC.el('span', 'nm', nm), right); p.append(row);
+    });
+    c.append(p); box.append(c);
+  });
+  if (list.length > 200) box.append(PC.el('div', 'mc-more', `ほか ${d3.format(',')(list.length - 200)} 件。カテゴリ・検索で絞り込めます`));
+});
+document.querySelectorAll('.pc-ds-cat').forEach((x) => x.addEventListener('change', () => { PC.ds.cat = x.value; PC.dsRedraw(); }));
+document.querySelectorAll('.pc-ds-kind').forEach((x) => x.addEventListener('change', () => { PC.ds.kind = x.value; PC.dsRedraw(); }));
+document.querySelectorAll('.pc-ds-q').forEach((x) => x.addEventListener('input', () => { PC.ds.q = x.value.trim().toLowerCase(); PC.dsRedraw(); }));
+document.querySelectorAll('.pc-ds-only').forEach((x) => x.addEventListener('change', () => { PC.ds.only = x.checked; PC.dsRedraw(); }));
+PC.dsRedraw = () => ['dsRows', 'dsCount'].forEach((d) => dash.draw(d));
+PC.MIRROR.dsRows = 'dsCards';
+
 /* 一覧 */
 PC.listRows = () => {
   const d = PC.ok('products'); if (!d) return null;
@@ -917,6 +1065,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
+    try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
     // 「最安とドスパラとの価格差」= ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）。古いデータにも適用
     (dash._store.same || []).forEach((r) => { r.spread = r.ds_min == null ? null : r.ds_min - r.min; });
