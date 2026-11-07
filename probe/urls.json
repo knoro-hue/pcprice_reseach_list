@@ -1,6 +1,7 @@
 {
- "ds_TC30": "https://www.dospara.co.jp/TC30",
- "ds_TC143": "https://www.dospara.co.jp/TC143",
- "ds_general_desk": "https://www.dospara.co.jp/general_desk",
- "ds_general_note": "https://www.dospara.co.jp/general_note"
+ "g_TC30_0": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=TC30&start=0&sz=60",
+ "g_TC30_60": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=TC30&start=60&sz=60",
+ "g_TC143_0": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=TC143&start=0&sz=60",
+ "g_general_desk_0": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=general_desk&start=0&sz=60",
+ "g_general_note_0": "https://www.dospara.co.jp/on/demandware.store/Sites-dospara-Site/ja_JP/Search-UpdateGrid?cgid=general_note&start=0&sz=60"
 }
