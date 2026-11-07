@@ -112,6 +112,34 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
     return rows, totals, warnings
 
 
+# 優先表示するドスパラの特集カテゴリ（ページ上の掲載順を保持）
+FEATURED = [
+    ("TC30", "GALLERIA デスク"),
+    ("TC143", "GALLERIA ノート"),
+    ("general_desk", "THIRDWAVE デスク"),
+    ("general_note", "THIRDWAVE ノート"),
+]
+
+
+def featured(log=print) -> dict:
+    """特集カテゴリごとの掲載商品ID（サイトの並び順）"""
+    http = Http(wait=0.5)
+    out = {}
+    for cgid, label in FEATURED:
+        ids, seen, start = [], set(), 0
+        while start < 6000:
+            page = parse_grid(http.get(GRID.replace("cgid=pc", f"cgid={cgid}").format(start=start)))
+            new = [t["id"] for t in page if t["id"] not in seen]
+            if not new:
+                break
+            seen.update(new)
+            ids += new
+            start += 60
+        out[cgid] = {"label": label, "url": f"{BASE}/{cgid}", "ids": ids}
+        log(f"{MAKER} 特集 {cgid}: {len(ids)}件")
+    return out
+
+
 def _cap(s: str) -> str:
     g = gb(s)
     if g is None:
