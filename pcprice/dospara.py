@@ -112,32 +112,89 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
     return rows, totals, warnings
 
 
-# 優先表示するドスパラの特集カテゴリ（ページ上の掲載順を保持）
-FEATURED = [
-    ("TC30", "GALLERIA デスク"),
-    ("TC143", "GALLERIA ノート"),
-    ("general_desk", "THIRDWAVE デスク"),
-    ("general_note", "THIRDWAVE ノート"),
+# ドスパラの注力ページ。ページ内の「おすすめランキング」と注力枠（CPU×GPU表・ラインアップ・特集枠）の掲載モデルだけを使う
+FOCUS_PAGES = [
+    ("TC30", "ゲーミングデスク"),
+    ("TC143", "ゲーミングノート"),
+    ("general_desk", "個人向けデスク"),
+    ("general_note", "スタンダードノート"),
 ]
+RANK_API = BASE + "/s/dospara/api/getCategoryRanking?cid={cid}"
+RANK_LABEL = {
+    "TC1030": "GALLERIA Xシリーズ ランキング", "TC1031": "GALLERIA Fシリーズ ランキング",
+    "TC1032": "GALLERIA Eシリーズ ランキング", "TC973": "THIRDWAVE ゲーミング ランキング",
+    "TC143": "ゲーミングノート ランキング", "general_desk": "個人向けデスク ランキング",
+    "general_note": "スタンダードノート ランキング",
+}
+# 注力枠として扱わない見出し（キャンペーン・検索フォーム・価格帯から選ぶ等）
+SKIP_HEAD = re.compile(r"キャンペーン|新着|条件を設定|予算|価格から|^$")
 
 
-def featured(log=print) -> dict:
-    """特集カテゴリごとの掲載商品ID（サイトの並び順）"""
+def _mc(s: str) -> str | None:
+    m = re.search(r"MC\d+", s)
+    return m.group(0) if m else None
+
+
+def parse_focus(page: str, label: str, html_text: str, ranking) -> list[dict]:
+    """注力ページ1枚から掲載グループを作る。ranking(cid) は API 応答の productInfoList を返す関数"""
+    events = []
+    for m in re.finditer(r"<(h[1-4])[^>]*>(.*?)</\1>", html_text, flags=re.S):
+        events.append((m.start(), "head", re.sub(r"\s+", " ", clean(m.group(2))).strip()))
+    for m in re.finditer(r'get_ranking_data[^>]*data-categoryname="([^"]+)"', html_text):
+        events.append((m.start(), "rank", m.group(1)))
+    for m in re.finditer(r"MC\d+", html_text):
+        events.append((m.start(), "mc", m.group(0)))
+    events.sort()
+    groups, seen_rank, head = [], set(), ""
+    static = {}
+    for _, typ, val in events:
+        if typ == "head":
+            head = val
+        elif typ == "rank" and val not in seen_rank:
+            seen_rank.add(val)
+            ids = []
+            for it in ranking(val):
+                mc = _mc(it.get("url", ""))
+                if mc and mc not in ids:
+                    ids.append(mc)
+            if ids:
+                groups.append({"page": page, "pageLabel": label, "key": f"rk:{val}", "type": "ranking",
+                               "label": RANK_LABEL.get(val, f"{head} ランキング"), "ids": ids})
+        elif typ == "mc" and not SKIP_HEAD.search(head) and "ランキング" not in head:
+            g = static.get(head)
+            if g is None:
+                short = "CPU×GPU おすすめ表" if "CPU・GPUの組み合わせ" in head else head[:40]
+                g = static[head] = {"page": page, "pageLabel": label, "key": f"sec:{page}:{head}", "type": "focus",
+                                    "label": short, "ids": []}
+                groups.append(g)
+            if val not in g["ids"]:
+                g["ids"].append(val)
+    return [g for g in groups if g["ids"]]
+
+
+def focus(today: str, log=print) -> dict:
+    """注力ページのランキング・注力枠の掲載モデル（ページ上の並び順）"""
+    import json
     http = Http(wait=0.5)
-    out = {}
-    for cgid, label in FEATURED:
-        ids, seen, start = [], set(), 0
-        while start < 6000:
-            page = parse_grid(http.get(GRID.replace("cgid=pc", f"cgid={cgid}").format(start=start)))
-            new = [t["id"] for t in page if t["id"] not in seen]
-            if not new:
-                break
-            seen.update(new)
-            ids += new
-            start += 60
-        out[cgid] = {"label": label, "url": f"{BASE}/{cgid}", "ids": ids}
-        log(f"{MAKER} 特集 {cgid}: {len(ids)}件")
-    return out
+    cache: dict = {}
+
+    def ranking(cid):
+        if cid not in cache:
+            try:
+                d = json.loads(http.get(RANK_API.format(cid=cid)))
+                cache[cid] = d.get("productInfoList") or [] if d.get("returnCode") == "000000" else []
+            except Exception:  # noqa: BLE001
+                cache[cid] = []
+        return cache[cid]
+
+    groups, keys = [], set()
+    for page, label in FOCUS_PAGES:
+        for g in parse_focus(page, label, http.get(f"{BASE}/{page}"), ranking):
+            if g["key"] not in keys:  # 同じランキングが複数ページにある場合は最初の1回だけ
+                keys.add(g["key"])
+                groups.append(g)
+        log(f"{MAKER} 注力 {page}: 累計 {len(groups)} グループ")
+    return {"updated": today, "groups": groups}
 
 
 def _cap(s: str) -> str:
