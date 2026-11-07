@@ -393,9 +393,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       </div>
       <div class="trendpick">
         <select class="dash-select fsel pc-tkind" aria-label="区分"><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
-        <label class="bigsearch"><span class="mg">⌕</span><input class="pc-tq" type="search" list="pc-tlist" placeholder="CPU・GPUを入力して追加（例：7700 5070）" aria-label="CPU×GPUを追加"></label>
-        <datalist id="pc-tlist" data-draw="trendList" data-source="trend"></datalist>
-        <button class="clearbtn pc-tadd" type="button">＋ 追加</button>
+        <select class="dash-select fsel pc-tcpu" data-draw="trendCpu" data-source="trend" aria-label="CPUを選択"></select>
+        <select class="dash-select fsel pc-tgpu" data-draw="trendGpu" data-source="trend" aria-label="GPUを選択（選ぶとグラフに追加）"></select>
         <button class="clearbtn pc-tclear" type="button">すべて外す</button>
       </div>
       <div class="chips tsel" data-draw="trendSel" data-source="trend"></div>
@@ -467,7 +466,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <ul class="howlist">
           <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じCPUとGPUの組み合わせを2社以上が出している構成を一覧。緑の丸枠がその構成の最安。行をクリックすると右側に各社の該当モデル（安い順・各社8件まで）と公式ページへのリンクを表示</div></li>
           <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。注力ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）のおすすめランキング・注力枠（CPU×GPU表、ラインアップ等）に載っているモデルだけを掲載順に表示。行をクリックすると他社の該当モデル一覧</div></li>
-          <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>CPU×GPUの組み合わせを最大8件選ぶと、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
+          <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>区分・CPU・GPUをプルダウンで選んで最大8件追加すると、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
           <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
           <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
           <li><span class="ic">⬇</span><div><b>Excel</b>上の「Excelをダウンロード」から3社まとめの最新版（メーカー・型番・価格・CPU・GPU・メモリ・ストレージ・クーラー・電源・URL）</div></li>
@@ -781,7 +780,7 @@ PC.tdefault = () => {
   return same.filter((r) => r.kind === 'デスクトップ' && r.makers === 3).slice(0, 3).map((r) => `${r.kind}|${r.cpu}|${r.gpu}`);
 };
 PC.tkeys = () => { const t = PC.ok('trend'); if (!t) return []; if (!PC.tsel) PC.tsel = PC.tdefault(); return PC.tsel.filter((k) => t.series[k]); };
-PC.tredraw = () => ['trendSel', 'trendCharts'].forEach((d) => dash.draw(d));
+PC.tredraw = () => ['trendSel', 'trendCharts', 'trendGpu'].forEach((d) => dash.draw(d));
 PC.tadd = (k) => {
   const t = PC.ok('trend'); if (!t || !t.series[k]) return false;
   if (!PC.tsel) PC.tsel = PC.tdefault();
@@ -790,12 +789,27 @@ PC.tadd = (k) => {
 };
 PC.tremove = (k) => { PC.tsel = (PC.tsel || []).filter((x) => x !== k); PC.tsave(); PC.tredraw(); };
 dash.draw('trendNote', (el) => { const t = PC.ok('trend'); el.textContent = t && t.dates.length ? `${t.dates.length}日分（${t.dates[0]}〜${t.dates[t.dates.length - 1]}）。毎日の取得で1日ずつ増えます。最大${PC.TMAX}件まで表示` : ''; });
-dash.draw('trendList', (dl) => {
-  const t = PC.ok('trend'); if (!t) return dl.replaceChildren();
-  const same = new Set((PC.ok('same') || []).map((r) => `${r.kind}|${r.cpu}|${r.gpu}`));
-  const keys = Object.keys(t.series).filter((k) => k.startsWith(PC.tkind + '|'))
-    .sort((a, b) => (same.has(b) - same.has(a)) || a.localeCompare(b, 'ja', { numeric: true }));
-  dl.replaceChildren(...keys.map((k) => { const o = document.createElement('option'); o.value = PC.tlabel(k).text; return o; }));
+// 選択式：区分 → CPU → GPU（GPUを選ぶとグラフに追加）。（N社）は最新日にその構成を出している社数
+PC.tcpu = '';
+PC.tmakers = (k) => { const t = PC.ok('trend'), i = t.dates.length - 1; return t.series[k].filter((a) => a[i] != null).length; };
+PC.tkindKeys = () => { const t = PC.ok('trend'); return t ? Object.keys(t.series).filter((k) => k.startsWith(PC.tkind + '|')) : []; };
+PC.natural = (a, b) => String(a).localeCompare(String(b), 'ja', { numeric: true });
+dash.draw('trendCpu', (sel) => {
+  const keys = PC.tkindKeys(); if (!keys.length) return sel.replaceChildren(new Option('CPU：—', ''));
+  const by = d3.rollups(keys, (v) => v.length, (k) => PC.tlabel(k).cpu).sort((a, b) => PC.natural(a[0], b[0]));
+  sel.replaceChildren(new Option('① CPUを選択', ''), ...by.map(([c, n]) => new Option(`${c}（GPU ${n}種）`, c)));
+  if (!by.some(([c]) => c === PC.tcpu)) PC.tcpu = '';
+  sel.value = PC.tcpu; sel.classList.toggle('on', !!PC.tcpu);
+});
+dash.draw('trendGpu', (sel) => {
+  const keys = PC.tkindKeys().filter((k) => PC.tlabel(k).cpu === PC.tcpu);
+  sel.disabled = !PC.tcpu;
+  if (!PC.tcpu) return sel.replaceChildren(new Option('② GPUを選択（先にCPU）', ''));
+  const opts = keys.sort((a, b) => PC.natural(PC.tlabel(a).gpu, PC.tlabel(b).gpu)).map((k) => {
+    const n = PC.tmakers(k), on = (PC.tsel || []).includes(k);
+    return new Option(`${PC.tlabel(k).gpu}（${n}社）${on ? ' ✓表示中' : ''}`, k);
+  });
+  sel.replaceChildren(new Option('② GPUを選択 → 追加', ''), ...opts); sel.value = '';
 });
 dash.draw('trendSel', (el) => {
   const keys = PC.tkeys();
@@ -805,28 +819,16 @@ dash.draw('trendSel', (el) => {
     b.addEventListener('click', () => PC.tremove(k)); return b;
   }));
 });
-PC.ttry = () => {
-  const inp = document.querySelector('.pc-tq'); const q = (inp.value || '').trim(); if (!q) return;
-  const t = PC.ok('trend'); if (!t) return;
-  const keys = Object.keys(t.series).filter((k) => k.startsWith(PC.tkind + '|'));
-  let k = keys.find((x) => PC.tlabel(x).text === q);
-  if (!k) { const ws = q.toLowerCase().split(/\s+/); k = keys.find((x) => ws.every((w) => PC.tlabel(x).text.toLowerCase().includes(w))); }
-  if (k && PC.tadd(k)) inp.value = '';
-  else { inp.setCustomValidity('該当するCPU×GPUがありません'); inp.reportValidity(); setTimeout(() => inp.setCustomValidity(''), 1500); }
-};
-document.querySelectorAll('.pc-tadd').forEach((b) => b.addEventListener('click', PC.ttry));
-document.querySelectorAll('.pc-tq').forEach((i) => {
-  i.addEventListener('keydown', (e) => { if (e.key === 'Enter') PC.ttry(); });
-  i.addEventListener('change', () => { const t = PC.ok('trend'); if (t && Object.keys(t.series).some((k) => k.startsWith(PC.tkind + '|') && PC.tlabel(k).text === i.value)) PC.ttry(); });
-});
-document.querySelectorAll('.pc-tkind').forEach((x) => x.addEventListener('change', () => { PC.tkind = x.value; dash.draw('trendList'); }));
+document.querySelectorAll('.pc-tcpu').forEach((x) => x.addEventListener('change', () => { PC.tcpu = x.value; x.classList.toggle('on', !!x.value); dash.draw('trendGpu'); }));
+document.querySelectorAll('.pc-tgpu').forEach((x) => x.addEventListener('change', () => { if (x.value) PC.tadd(x.value); dash.draw('trendGpu'); }));
+document.querySelectorAll('.pc-tkind').forEach((x) => x.addEventListener('change', () => { PC.tkind = x.value; PC.tcpu = ''; dash.draw('trendCpu'); dash.draw('trendGpu'); }));
 document.querySelectorAll('.pc-tclear').forEach((b) => b.addEventListener('click', () => { PC.tsel = []; PC.tsave(); PC.tredraw(); }));
 PC.yenM = (v) => (v >= 10000 ? (v / 10000).toFixed(1).replace(/\.0$/, '') + '万' : String(v));
 dash.draw('trendCharts', (grid) => {
   grid.replaceChildren();
   const t = PC.ok('trend'); if (!t) return;
   const keys = PC.tkeys();
-  if (!keys.length) { grid.append(PC.el('div', 'tempty', '上の入力欄から CPU×GPU を追加すると、各社の最安値の推移が表示されます')); return; }
+  if (!keys.length) { grid.append(PC.el('div', 'tempty', '上のプルダウンで CPU → GPU を選ぶと、各社の最安値の推移が表示されます')); return; }
   const dates = t.dates, last = dates.length - 1;
   keys.forEach((k) => {
     const lab = PC.tlabel(k), ser = t.series[k];
