@@ -57,6 +57,23 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .chip:hover { border-color: var(--brand2); }
 .pc .chip.primary { background: linear-gradient(135deg, var(--brand), var(--brand2)); color: #fff; border-color: transparent; font-weight: var(--cds-font-weight-medium); }
 
+/* 価格推移 */
+.pc .trendpick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 8px; }
+.pc .trendpick .fsel { min-width: 9rem; }
+.pc .tsel { margin-bottom: 10px; flex-wrap: wrap; }
+.pc .tsel .qchip.on::after { content: " ✕"; }
+.pc .trendgrid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
+.pc .tchart { position: relative; border: 1px solid var(--color-border-line); border-radius: 10px; padding: 10px 10px 4px; background: #fff; min-width: 0; }
+.pc .tchart h3 { margin: 0 0 2px; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+.pc .tchart h3 small { color: var(--color-fg-muted); font-weight: 400; font-size: 12px; white-space: nowrap; }
+.pc .tchart .lg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--color-fg-muted); margin-bottom: 2px; }
+.pc .tchart .lg b { color: var(--color-fg); font-variant-numeric: tabular-nums; }
+.pc .tchart .lg .gap { margin-left: auto; color: var(--brand); }
+.pc .tchart svg { display: block; overflow: visible; }
+.pc .tempty { color: var(--color-fg-muted); font-size: 13px; padding: 16px; border: 1px dashed var(--color-border-line); border-radius: 10px; text-align: center; }
+.pc section#changes:not([hidden]) { display: grid; gap: 10px; }
+.pc .samehead .tbtn { font: inherit; font-size: 12px; margin-left: 8px; vertical-align: middle; border: 1px solid #8fb3e0; background: #f4f8fe; color: var(--brand); border-radius: 999px; padding: 3px 10px; cursor: pointer; }
+
 /* 表示調整スライダー */
 .pc .sizer { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--brand); padding: 4px 12px; border-radius: 999px; background: #f4f8fe; border: 1px solid #b7cfee; }
 .pc .sizer label { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: var(--cds-font-weight-medium); }
@@ -326,6 +343,21 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   </section>
 
   <section class="page" id="changes" hidden>
+    <div class="card trendcard">
+      <div class="cardhead">
+        <div><h2>価格推移（CPU×GPU別・各社の最安値）</h2></div>
+        <span class="note" style="margin:0" data-draw="trendNote" data-source="trend"></span>
+      </div>
+      <div class="trendpick">
+        <select class="dash-select fsel pc-tkind" aria-label="区分"><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
+        <label class="bigsearch"><span class="mg">⌕</span><input class="pc-tq" type="search" list="pc-tlist" placeholder="CPU・GPUを入力して追加（例：7700 5070）" aria-label="CPU×GPUを追加"></label>
+        <datalist id="pc-tlist" data-draw="trendList" data-source="trend"></datalist>
+        <button class="clearbtn pc-tadd" type="button">＋ 追加</button>
+        <button class="clearbtn pc-tclear" type="button">すべて外す</button>
+      </div>
+      <div class="chips tsel" data-draw="trendSel" data-source="trend"></div>
+      <div class="trendgrid" data-draw="trendCharts" data-source="trend"></div>
+    </div>
     <div class="card">
       <div class="cardhead">
         <div><div class="kicker">Price movement</div><h2>価格変動</h2></div>
@@ -343,7 +375,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <div class="pill p-new"><div class="k">新登場</div><div class="v" data-draw="cnt2" data-source="changes">—</div></div>
         <div class="pill"><div class="k">終売・掲載終了</div><div class="v" data-draw="cnt3" data-source="changes">—</div></div>
       </div>
-      <div class="chart" data-draw="changeChart" data-source="changes"></div>
       <div class="tbl"><table data-source="changes" data-row-key="date,maker,id,type">
         <thead><tr><th data-field="type">種類</th><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="gpu_key">GPU</th><th data-field="old" class="n">前回</th><th data-field="new" class="n">今回</th><th data-field="delta" class="n">差額</th><th data-field="id">商品ID</th></tr></thead>
         <tbody data-draw="changeRows"></tbody>
@@ -392,6 +423,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
         <ul class="howlist">
           <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じCPUとGPUの組み合わせを2社以上が出している構成を一覧。緑の丸枠がその構成の最安。行をクリックすると右側に各社の該当モデル（安い順・各社8件まで）と公式ページへのリンクを表示</div></li>
+          <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>CPU×GPUの組み合わせを最大8件選ぶと、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
           <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
           <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
           <li><span class="ic">⬇</span><div><b>Excel</b>上の「Excelをダウンロード」から3社まとめの最新版（メーカー・型番・価格・CPU・GPU・メモリ・ストレージ・クーラー・電源・URL）</div></li>
@@ -432,7 +464,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     _store: store,
   };
   new MutationObserver(() => dash.redrawAll()).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
-  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => dash.draw('changeChart'), 200); });
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => dash.draw('trendCharts'), 200); });
 })();
 </script>
 <script>
@@ -480,7 +512,7 @@ document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('c
 [['.pc-same-q', 'same', ['sameRows', 'sameCount']], ['.pc-list-q', 'list', ['listRows', 'listCount']]].forEach(([sel, k, draws]) => {
   document.querySelectorAll(sel).forEach((el) => el.addEventListener('input', () => { PC.q[k] = el.value.trim().toLowerCase(); draws.forEach((d) => dash.draw(d)); }));
 });
-[['.pc-maker', 'maker', ['listRows', 'listCount']], ['.pc-lkind', 'lkind', ['listRows', 'listCount']], ['.pc-ctype', 'ctype', ['changeRows']], ['.pc-ckind', 'ckind', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3', 'changeChart']], ['.pc-cdate', 'cdate', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']]].forEach(([sel, k, draws]) => {
+[['.pc-maker', 'maker', ['listRows', 'listCount']], ['.pc-lkind', 'lkind', ['listRows', 'listCount']], ['.pc-ctype', 'ctype', ['changeRows']], ['.pc-ckind', 'ckind', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']], ['.pc-cdate', 'cdate', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']]].forEach(([sel, k, draws]) => {
   document.querySelectorAll(sel).forEach((el) => el.addEventListener('change', () => { PC[k] = el.value; draws.forEach((d) => dash.draw(d)); }));
 });
 
@@ -638,6 +670,7 @@ dash.draw('sameModels', (el) => {
   if (!d || !sel || sel.kind !== PC.sameKind) return;
   const hits = d.filter((p) => p.kind === sel.kind && p.cpu_key === sel.cpu && p.gpu_key === sel.gpu && p.price).sort((a, b) => a.price - b.price);
   const head = document.createElement('p'); head.className = 'samehead'; head.textContent = `${sel.cpu} × ${sel.gpu}`;
+  { const b = PC.el('button', 'tbtn', '📈 価格推移で見る'); b.type = 'button'; b.addEventListener('click', (e) => { e.stopPropagation(); PC.tkind = sel.kind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = sel.kind; }); PC.tadd(`${sel.kind}|${sel.cpu}|${sel.gpu}`); PC.closeSame(); pcTab('changes'); window.scrollTo(0, 0); }); head.append(b); }
   el.appendChild(head);
   PC.MAKERS.forEach(([, name], i) => {
     const mine = hits.filter((p) => p.maker === name);
@@ -686,33 +719,103 @@ dash.draw('changeRows', (tb) => {
   ], (r) => PC.key(r.date, r.maker, r.id, r.type));
 });
 PC.axis = (g) => { g.attr('font-size', null).attr('font-family', null); g.select('.domain').remove(); g.selectAll('line').attr('stroke', 'var(--cds-chart-grid)'); g.selectAll('text').attr('fill', 'var(--color-fg-muted)').style('font-size', 'var(--cds-font-size-caption)'); };
-dash.draw('changeChart', (el) => {
-  el.replaceChildren();
-  const d = PC.ok('changes'); if (!d || !d.length) return;
-  const by = d3.rollup(d.filter((c) => !PC.ckind || c.kind === PC.ckind), (v) => v.length, (c) => c.date, (c) => c.type);
-  const dates = [...by.keys()].sort().slice(-21);
-  if (!dates.length) return;
-  const W = el.clientWidth || 600, H = 200, m = { t: 10, r: 8, b: 24, l: 36 };
-  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
-  const x = d3.scaleBand(dates, [m.l, W - m.r]).paddingInner(0.35);
-  const stack = d3.stack().keys(PC.TYPES).value((dt, t) => by.get(dt)?.get(t) || 0)(dates);
-  const y = d3.scaleLinear([0, d3.max(stack[stack.length - 1], (s) => s[1]) || 1], [H - m.b, m.t]).nice();
-  const colors = ['var(--color-ok)', 'var(--color-bad)', '#0a7cd6', 'var(--cds-chart-muted)'];
-  svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r))).call(PC.axis);
-  svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSize(0).tickFormat((s) => s.slice(5).replace('-', '/'))).call(PC.axis);
-  svg.append('g').selectAll('g').data(stack).join('g').style('fill', (s, i) => colors[i])
-    .selectAll('rect').data((s) => s).join('rect').attr('x', (p) => x(p.data)).attr('width', Math.min(32, x.bandwidth())).attr('y', (p) => y(p[1])).attr('height', (p) => Math.max(0, y(p[0]) - y(p[1])));
-  const tip = d3.select(el).append('div').attr('class', 'tip').style('display', 'none');
-  svg.on('pointermove', (ev) => {
-    const [px] = d3.pointer(ev);
-    const dt = dates.find((s) => px >= x(s) - 4 && px <= x(s) + x.bandwidth() + 4);
-    if (!dt) { tip.style('display', 'none'); return; }
-    tip.style('display', null).html('');
-    tip.append('div').attr('class', 'd').text(dt);
-    PC.TYPES.forEach((t, i) => { const l = tip.append('div'); l.append('i').attr('class', 'sw').style('background', colors[i]); l.append('span').text(`${t} ${by.get(dt)?.get(t) || 0}件`); });
-    const tw = tip.node().offsetWidth;
-    tip.style('left', Math.min(Math.max(0, x(dt) - tw / 2), W - tw) + 'px').style('top', '0px');
-  }).on('pointerleave', () => tip.style('display', 'none'));
+/* 価格推移（CPU×GPU別・各社の最安値の折れ線） */
+PC.tkind = 'デスクトップ';
+PC.tsel = (() => { try { return JSON.parse(localStorage.getItem('pc-trend')) || null; } catch (e) { return null; } })();
+PC.tsave = () => { try { localStorage.setItem('pc-trend', JSON.stringify(PC.tsel)); } catch (e) {} };
+PC.TMAX = 8;
+PC.tlabel = (k) => { const [kind, cpu, gpu] = k.split('|'); return { kind, cpu, gpu, text: `${cpu} × ${gpu}` }; };
+PC.tdefault = () => {
+  // 初期表示：同スペック比較（デスクトップ）で3社そろう構成の上位3つ
+  const same = PC.ok('same') || [];
+  return same.filter((r) => r.kind === 'デスクトップ' && r.makers === 3).slice(0, 3).map((r) => `${r.kind}|${r.cpu}|${r.gpu}`);
+};
+PC.tkeys = () => { const t = PC.ok('trend'); if (!t) return []; if (!PC.tsel) PC.tsel = PC.tdefault(); return PC.tsel.filter((k) => t.series[k]); };
+PC.tredraw = () => ['trendSel', 'trendCharts'].forEach((d) => dash.draw(d));
+PC.tadd = (k) => {
+  const t = PC.ok('trend'); if (!t || !t.series[k]) return false;
+  if (!PC.tsel) PC.tsel = PC.tdefault();
+  if (!PC.tsel.includes(k)) { PC.tsel.unshift(k); PC.tsel = PC.tsel.slice(0, PC.TMAX); }
+  PC.tsave(); PC.tredraw(); return true;
+};
+PC.tremove = (k) => { PC.tsel = (PC.tsel || []).filter((x) => x !== k); PC.tsave(); PC.tredraw(); };
+dash.draw('trendNote', (el) => { const t = PC.ok('trend'); el.textContent = t && t.dates.length ? `${t.dates.length}日分（${t.dates[0]}〜${t.dates[t.dates.length - 1]}）。毎日の取得で1日ずつ増えます。最大${PC.TMAX}件まで表示` : ''; });
+dash.draw('trendList', (dl) => {
+  const t = PC.ok('trend'); if (!t) return dl.replaceChildren();
+  const same = new Set((PC.ok('same') || []).map((r) => `${r.kind}|${r.cpu}|${r.gpu}`));
+  const keys = Object.keys(t.series).filter((k) => k.startsWith(PC.tkind + '|'))
+    .sort((a, b) => (same.has(b) - same.has(a)) || a.localeCompare(b, 'ja', { numeric: true }));
+  dl.replaceChildren(...keys.map((k) => { const o = document.createElement('option'); o.value = PC.tlabel(k).text; return o; }));
+});
+dash.draw('trendSel', (el) => {
+  const keys = PC.tkeys();
+  el.replaceChildren(...keys.map((k) => {
+    const lab = PC.tlabel(k), b = PC.el('button', 'qchip on', lab.text); b.type = 'button'; b.title = 'クリックで外す';
+    if (lab.kind === 'ノート') b.append(PC.el('small', null, 'ノート'));
+    b.addEventListener('click', () => PC.tremove(k)); return b;
+  }));
+});
+PC.ttry = () => {
+  const inp = document.querySelector('.pc-tq'); const q = (inp.value || '').trim(); if (!q) return;
+  const t = PC.ok('trend'); if (!t) return;
+  const keys = Object.keys(t.series).filter((k) => k.startsWith(PC.tkind + '|'));
+  let k = keys.find((x) => PC.tlabel(x).text === q);
+  if (!k) { const ws = q.toLowerCase().split(/\s+/); k = keys.find((x) => ws.every((w) => PC.tlabel(x).text.toLowerCase().includes(w))); }
+  if (k && PC.tadd(k)) inp.value = '';
+  else { inp.setCustomValidity('該当するCPU×GPUがありません'); inp.reportValidity(); setTimeout(() => inp.setCustomValidity(''), 1500); }
+};
+document.querySelectorAll('.pc-tadd').forEach((b) => b.addEventListener('click', PC.ttry));
+document.querySelectorAll('.pc-tq').forEach((i) => {
+  i.addEventListener('keydown', (e) => { if (e.key === 'Enter') PC.ttry(); });
+  i.addEventListener('change', () => { const t = PC.ok('trend'); if (t && Object.keys(t.series).some((k) => k.startsWith(PC.tkind + '|') && PC.tlabel(k).text === i.value)) PC.ttry(); });
+});
+document.querySelectorAll('.pc-tkind').forEach((x) => x.addEventListener('change', () => { PC.tkind = x.value; dash.draw('trendList'); }));
+document.querySelectorAll('.pc-tclear').forEach((b) => b.addEventListener('click', () => { PC.tsel = []; PC.tsave(); PC.tredraw(); }));
+PC.yenM = (v) => (v >= 10000 ? (v / 10000).toFixed(1).replace(/\.0$/, '') + '万' : String(v));
+dash.draw('trendCharts', (grid) => {
+  grid.replaceChildren();
+  const t = PC.ok('trend'); if (!t) return;
+  const keys = PC.tkeys();
+  if (!keys.length) { grid.append(PC.el('div', 'tempty', '上の入力欄から CPU×GPU を追加すると、各社の最安値の推移が表示されます')); return; }
+  const dates = t.dates, last = dates.length - 1;
+  keys.forEach((k) => {
+    const lab = PC.tlabel(k), ser = t.series[k];
+    const box = PC.el('div', 'tchart'); grid.append(box);
+    const h = PC.el('h3'); h.append(PC.el('span', null, lab.text), PC.el('small', null, lab.kind));
+    const lg = PC.el('div', 'lg');
+    const legend = (i) => {
+      lg.replaceChildren();
+      const vals = ser.map((a) => a[i]);
+      PC.MAKERS.forEach(([, name], m) => { const sp = PC.el('span'); const dot = PC.el('i', 'sw'); dot.style.background = PC.COLORS[m]; sp.append(dot, name + ' ', PC.el('b', null, vals[m] == null ? '—' : PC.yen(vals[m]) + '円')); lg.append(sp); });
+      const have = vals.filter((v) => v != null);
+      lg.append(PC.el('span', 'gap', `${dates[i].slice(5).replace('-', '/')}　ドスパラ−最安 ${vals[1] != null && have.length ? PC.yen(vals[1] - Math.min(...have)) + '円' : '—'}`));
+    };
+    legend(last);
+    box.append(h, lg);
+    const W = Math.max(260, box.clientWidth - 20), H = 170, m = { t: 8, r: 14, b: 22, l: 44 };
+    const svg = d3.select(box).append('svg').attr('width', W).attr('height', H);
+    const all = ser.flat().filter((v) => v != null);
+    const lo = d3.min(all), hi = d3.max(all), pad = Math.max((hi - lo) * 0.1, lo * 0.02);
+    const x = d3.scalePoint(dates, [m.l, W - m.r]).padding(dates.length > 1 ? 0.1 : 0.5);
+    const y = d3.scaleLinear([lo - pad, hi + pad], [H - m.b, m.t]).nice();
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat(PC.yenM)).call(PC.axis);
+    const step = Math.max(1, Math.ceil(dates.length / Math.max(1, Math.floor((W - m.l) / 48))));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSize(0).tickValues(dates.filter((d, i) => i % step === 0 || i === last)).tickFormat((s) => s.slice(5).replace('-', '/'))).call(PC.axis);
+    // ドスパラを最前面に（描画順：工房→マウス→ドスパラ）
+    [0, 2, 1].forEach((mi) => {
+      const pts = ser[mi].map((v, i) => [dates[i], v]);
+      svg.append('path').datum(pts).attr('fill', 'none').attr('stroke', PC.COLORS[mi]).attr('stroke-width', mi === 1 ? 2.6 : 1.8)
+        .attr('d', d3.line().defined((p) => p[1] != null).x((p) => x(p[0])).y((p) => y(p[1])));
+      svg.append('g').selectAll('circle').data(pts.filter((p) => p[1] != null)).join('circle')
+        .attr('cx', (p) => x(p[0])).attr('cy', (p) => y(p[1])).attr('r', dates.length > 40 ? 0 : 3.2).attr('fill', PC.COLORS[mi]);
+    });
+    const guide = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', '#8fb3e0').attr('stroke-dasharray', '3 3').style('display', 'none');
+    svg.on('pointermove', (ev) => {
+      const [px] = d3.pointer(ev);
+      let i = 0, best = Infinity; dates.forEach((d, j) => { const dd = Math.abs(x(d) - px); if (dd < best) { best = dd; i = j; } });
+      guide.attr('x1', x(dates[i])).attr('x2', x(dates[i])).style('display', null); legend(i);
+    }).on('pointerleave', () => { guide.style('display', 'none'); legend(last); });
+  });
 });
 
 /* ===== スマホ用カード ===== */
@@ -814,6 +917,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
+    try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
     // 「最安とドスパラとの価格差」= ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）。古いデータにも適用
     (dash._store.same || []).forEach((r) => { r.spread = r.ds_min == null ? null : r.ds_min - r.min; });
     dash.redrawAll();

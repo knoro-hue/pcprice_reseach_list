@@ -7,6 +7,7 @@
   data/same_spec.json     同じ区分×CPU×GPUを2社以上が出している組合せの最安比較
   data/changes.json       値下げ・値上げ・新登場・終売（直近60日）
   data/history.json       日別×社×区分の機種数・中央値
+  data/spec_history.json  日別×区分×CPU×GPU×社の最安値（価格推移グラフ用、直近365日）
   data/status.json        社ごとの取得結果
   output/pc_price_latest.xlsx, output/pckoubou_pc_latest.xlsx
 使い方: python run_all.py [--only pckoubou,dospara,mouse]
@@ -100,6 +101,50 @@ def same_spec(rows):
         row["makers"] = len(by)
         out.append(row)
     return sorted(out, key=lambda r: (r["kind"], -r["makers"], r["min"]))
+
+
+def spec_min(rows):
+    """区分×CPU×GPUごとの社別最安値 {key: [pk, ds, ms]}"""
+    out = {}
+    for r in rows:
+        if r.get("price") and r.get("gpu_key"):
+            k = f"{r['kind']}|{r['cpu_key']}|{r['gpu_key']}"
+            v = out.setdefault(k, [None] * len(MAKERS))
+            i = [c for c, _ in MAKERS].index(CODE[r["maker"]])
+            if v[i] is None or r["price"] < v[i]:
+                v[i] = r["price"]
+    return out
+
+
+def add_spec_history(hist, date, rows, keep_days=365):
+    """列形式 {dates:[...], series:{key:[[pk...],[ds...],[ms...]]}} に1日分を追加（同じ日は上書き）"""
+    dates, series = hist.setdefault("dates", []), hist.setdefault("series", {})
+    if date in dates:
+        i = dates.index(date)
+    else:
+        dates.append(date)
+        dates.sort()
+        i = dates.index(date)
+        for s in series.values():
+            for arr in s:
+                arr.insert(i, None)
+    cur = spec_min(rows)
+    for k, vals in cur.items():
+        s = series.setdefault(k, [[None] * len(dates) for _ in MAKERS])
+        for m, v in enumerate(vals):
+            s[m][i] = v
+    for k, s in series.items():
+        if k not in cur:
+            for arr in s:
+                arr[i] = None
+    cut = max(0, len(dates) - keep_days)
+    if cut:
+        del dates[:cut]
+        for s in series.values():
+            for arr in s:
+                del arr[:cut]
+    hist["series"] = {k: s for k, s in series.items() if any(v is not None for arr in s for v in arr)}
+    return hist
 
 
 def diff(prev, cur, today):
@@ -232,6 +277,7 @@ def main():
     save(f"{DATA}/same_spec.json", same_spec(uniq))
     save(f"{DATA}/changes.json", changes)
     save(f"{DATA}/history.json", history)
+    save(f"{DATA}/spec_history.json", add_spec_history(load(f"{DATA}/spec_history.json", {}), today, uniq))
     save(f"{DATA}/status.json", status)
 
     info = [["取得日時", started.strftime("%Y-%m-%d %H:%M") + " JST"]]
