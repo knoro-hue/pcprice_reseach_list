@@ -7,7 +7,9 @@ on:
         description: "取得する社（pk=パソコン工房, ds=ドスパラ, ms=マウス）"
         default: "pk,ds,ms"
   schedule:
-    - cron: "47 23 * * *"     # 毎日 8:47 JST
+    - cron: "47 23 * * *"     # 毎日 8:47 JST（本番）
+    - cron: "17 1 * * *"      # 10:17 JST 予備（GitHubの定時実行が遅延・欠落したとき用）
+    - cron: "17 4 * * *"      # 13:17 JST 予備
 
 permissions:
   contents: write
@@ -17,7 +19,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # 予備の定時実行は、その日の取得が済んでいれば何もしない（手動実行は常に取得）
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.done.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: data/status.json
+          sparse-checkout-cone-mode: false
+      - id: done
+        run: |
+          today=$(TZ=Asia/Tokyo date +%F)
+          if [ "${{ github.event_name }}" = "schedule" ] && grep -q "\"fetched_at\":\"$today" data/status.json 2>/dev/null; then
+            echo "本日（$today）は取得済みのためスキップ"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+
   fetch:
+    needs: check
+    if: needs.check.outputs.skip != '1'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
