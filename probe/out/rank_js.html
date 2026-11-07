@@ -1,0 +1,174 @@
+window.addEventListener('DOMContentLoaded', () => {
+  if (typeof window._GET_CATEGORY_RANKING_DATA_CALLED !== 'undefined') return;
+  window._GET_CATEGORY_RANKING_DATA_CALLED = 1;
+
+  const rankingList = {
+    itemList: [],
+    addItem: function (categoryName, elm) {
+      let existing = this.itemList.find(item => item[0] === categoryName);
+      if (existing) {
+        existing[1].push(elm);
+      } else {
+        this.itemList.push([categoryName, [elm]]);
+      }
+    }
+  };
+
+  document.querySelectorAll('.get_ranking_data').forEach(elm => {
+    const categoryName = elm.getAttribute('data-categoryname');
+    if (categoryName) rankingList.addItem(categoryName, elm);
+  });
+
+  const postFetch = (url, elms) => {
+    return fetch(url).then(response => {
+      if (!response.ok) throw new Error('HTTPエラー: ' + response.status);
+      return response.json();
+    }).then(data => {
+      updateRanking(data, elms);
+    });
+  };
+
+  const updateRanking = (data, elms) => {
+    if (data.returnCode === '000000' && data.productInfoList?.length) {
+      data.productInfoList.forEach((product, index) => {
+        elms.forEach(wrapper => {
+          const rank = index + 1;
+          let targets = Array.from(wrapper.querySelectorAll(`[data-ranking="${rank}"][data-key], [data-ranking="${rank}"] [data-key]`));
+          if (wrapper.getAttribute('data-ranking') == rank && wrapper.hasAttribute('data-key')) {
+            targets.push(wrapper);
+          }
+
+          targets.forEach(tgt => {
+            const key = tgt.getAttribute('data-key');
+            const markClass = `js-processed-key-${key}`;
+            if (tgt.classList.contains(markClass)) return;
+
+            let val = product[key];
+
+            switch (key) {
+              case 'primename':
+              case 'itemname':
+              case 'pname':
+              case 'campname':
+                tgt.textContent = product.pname;
+                break;
+
+              case 'amttaxwo':
+              case 'amttaxnounitwo':
+              case 'uriamttaxwo':
+              case 'asmseturiamttaxwo':
+              case 'asmseturiamttaxnounitwo':
+                if (product.amttax) {
+                  tgt.innerHTML = (tgt.classList.contains('tw_noyen') ? '' : '&yen;') + String(product.amttax).replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+                }
+                break;
+
+              case 'amttax':
+              case 'uriamttax':
+                if (product.amttax) {
+                  tgt.innerHTML = String(product.amttax).replace(/(\d)(?=(\d{3})+$)/g, '$1,') + '円(税込)';
+                }
+                break;
+
+              case 'amttaxnounit':
+              case 'uriamttaxnounit':
+              case 'asmseturiamttax':
+              case 'asmseturiamttaxnounit':
+                if (product.amttax) {
+                  tgt.innerHTML = String(product.amttax).replace(/(\d)(?=(\d{3})+$)/g, '$1,');
+                }
+                break;
+
+              case 'urllink':
+              case 'urllinkb':
+                tgt.setAttribute('href', product.url + '#in-page_customize');
+                break;
+
+              case 'primeurl':
+              case 'itemurl':
+              case 'campurl':
+              case 'brlink':
+              case 'url':
+                tgt.setAttribute('href', product.url);
+                break;
+
+              case 'sbrlink':
+                const sbr = product['sbrink'] || product['sbrlink'];
+                tgt.setAttribute('href', sbr);
+                break;
+
+              case 'primeimgurl':
+              case 'itemimgurl':
+              case 'itemimgurl-lazy':
+                tgt.setAttribute('src', product.imgurl);
+                if (!tgt.getAttribute('alt') || tgt.getAttribute('alt') === '製品画像') {
+                  tgt.setAttribute('alt', product.pname);
+                }
+                break;
+
+              case 'benchmark':
+                tgt.innerHTML = (product.benchmark === '0' || product.benchmark === '') ? '計測中' : product.benchmark;
+                break;
+
+              case 'review-block':
+                if (product.reviewnum > 0) {
+                  tgt.innerHTML = `
+                    <object class="review-in-recommend">
+                      <a class="review-in-recommend__link" href="${product.url}#in-page_review">
+                        <img class="review-in-recommend__star" src="${product.ratingurl}" alt="ユーザーのレビュー">
+                        <span class="review-in-recommend__score">${product.rating}</span>
+                        <span class="review-in-recommend__count">(${product.reviewnum})</span>
+                      </a>
+                    </object>`;
+                }
+                break;
+
+              default:
+                if (val !== undefined) {
+                  tgt.innerHTML = val;
+                }
+            }
+
+            tgt.classList.add(markClass);
+          });
+        });
+      });
+    } else {
+      const errorMsg = 'メンテナンス中です';
+      elms.forEach(wrapper => {
+        const tgts = Array.from(wrapper.querySelectorAll('[data-ranking][data-key], [data-ranking] [data-key]'));
+        if (wrapper.hasAttribute('data-ranking') && wrapper.hasAttribute('data-key')) tgts.push(wrapper);
+
+        tgts.forEach(tgt => {
+          const key = tgt.getAttribute('data-key');
+          if (!['urllink', 'urllinkb', 'primeurl', 'itemurl', 'brlink', 'sbrlink', 'primeimgurl', 'itemimgurl', 'itemimgurl-lazy', 'campimgurl'].includes(key)) {
+            tgt.innerHTML = errorMsg;
+          }
+        });
+      });
+    }
+  };
+
+  (async function () {
+    for (let [category, elms] of rankingList.itemList) {
+      try {
+        await postFetch(`/s/dospara/api/getCategoryRanking?cid=${category}`, elms);
+      } catch (err) {
+        console.error('取得エラー:', err);
+      }
+    }
+
+    // ✅ すべて完了したあとに一度だけコールバック実行
+    if (Array.isArray(window.getRankingDataCallbacks?.processCallBacks)) {
+      for (const cb of window.getRankingDataCallbacks.processCallBacks) {
+        if (typeof cb === 'function') {
+          try {
+            cb();
+          } catch (e) {
+            console.error('Ranking Callback Error:', e);
+          }
+        }
+      }
+    }
+  })();
+});
