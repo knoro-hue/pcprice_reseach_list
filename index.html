@@ -224,10 +224,30 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .mk-rl { justify-content: center; }
 @media (max-width: 700px) { .pc .mk-rl { justify-content: flex-start; } }
 
+/* AI分析 */
+.pc .ai-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr); gap: 10px; align-items: start; }
+@media (max-width: 1100px) { .pc .ai-grid { grid-template-columns: minmax(0, 1fr); } }
+.pc .ai-side { display: grid; gap: 10px; }
+.pc .md { font-size: 14px; line-height: 1.75; }
+.pc .md h3 { font-size: 15.5px; margin: 16px 0 6px; padding: 4px 10px; border-left: 5px solid var(--brand); background: #eef5ff; border-radius: 4px; color: var(--brand); }
+.pc .md h3.good { border-color: var(--color-ok); background: color-mix(in srgb, var(--color-ok) 9%, #fff); color: var(--color-ok); }
+.pc .md h3.bad { border-color: var(--color-bad); background: color-mix(in srgb, var(--color-bad) 8%, #fff); color: var(--color-bad); }
+.pc .md ul, .pc .md ol { margin: 4px 0; padding-left: 22px; } .pc .md li { margin: 3px 0; }
+.pc .ai-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.pc .ai-kpi div { background: #f4f8fe; border: 1px solid #d5e2f2; border-radius: 10px; padding: 8px; text-align: center; }
+.pc .ai-kpi b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; } .pc .ai-kpi small { font-size: 11.5px; color: var(--color-fg-muted); }
+.pc .ai-kpi .g b { color: var(--color-ok); } .pc .ai-kpi .r b { color: var(--color-bad); }
+.pc .ai-bar { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 5.5rem; gap: 8px; align-items: center; font-size: 12.5px; padding: 3px 0; }
+.pc .ai-bar .tr { position: relative; height: 14px; background: #f1f4f9; border-radius: 3px; }
+.pc .ai-bar .tr::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: #9fb0c6; }
+.pc .ai-bar .fl { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.pc .ai-bar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.pc .ai-bar .v.g { color: var(--color-ok); } .pc .ai-bar .v.r { color: var(--color-bad); }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
-.pc.cust .tab[data-tab="dsbase"], .pc.cust .tab[data-tab="changes"], .pc.cust .tab[data-tab="list"], .pc.cust .tab[data-tab="howto"],
+.pc.cust .tab[data-tab="dsbase"], .pc.cust .tab[data-tab="changes"], .pc.cust .tab[data-tab="list"], .pc.cust .tab[data-tab="howto"], .pc.cust .tab[data-tab="ai"],
 .pc.cust .links .chip.primary, .pc.cust .ss-dsonly, .pc.cust .ss-l small { display: none; }
 .pc.cust .sm-c { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .pc.cust .sm-c .sm-more, .pc.cust .sm-c .sm-na { grid-column: 1 / -1; }
@@ -523,6 +543,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
       <button class="tab" role="tab" data-tab="dsbase" data-short="基準比較" aria-selected="false">ドスパラ基準比較</button>
       <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
+      <button class="tab" role="tab" data-tab="ai" data-short="AI分析" aria-selected="false">AI分析</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
     </nav>
     <div class="sizer" aria-label="表の表示調整">
@@ -645,6 +666,20 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <tbody data-draw="listRows"></tbody>
       </table></div>
       <div class="mcards" data-draw="listCards" data-source="products"></div>
+    </div>
+  </section>
+
+  <section class="page" id="ai" hidden>
+    <div class="ai-grid">
+      <div class="card ai-text">
+        <div class="cardhead"><div><h2>AI分析：ドスパラ vs パソコン工房</h2></div><span class="note" style="margin:0" data-draw="aiMeta" data-source="ai"></span></div>
+        <div class="md" data-draw="aiText" data-source="ai"></div>
+      </div>
+      <div class="ai-side">
+        <div class="card"><h2>根拠データ</h2><p class="note" data-draw="aiBasis" data-source="aistats"></p><div class="ai-kpi" data-draw="aiKpi" data-source="aistats"></div></div>
+        <div class="card"><h2>GPU別（デスクトップ）</h2><div data-draw="aiGpu" data-source="aistats"></div></div>
+        <div class="card"><h2>価格帯別（デスクトップ）</h2><div data-draw="aiBand" data-source="aistats"></div></div>
+      </div>
     </div>
   </section>
 
@@ -818,7 +853,7 @@ PC.setCust = (on) => {
 document.querySelectorAll('.pc-cust').forEach((b) => b.addEventListener('click', () => PC.setCust(!PC.cust)));
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'ai', 'howto'].includes(pcHash)) pcTab(pcHash);
 PC.setCust(PC.cust);
 
 /* 並び替え */
@@ -1735,6 +1770,52 @@ document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('cli
 document.querySelectorAll('.pc-ss-same').forEach((x) => x.addEventListener('change', () => PC.ssSet({ same: x.checked })));
 document.querySelectorAll('.pc-ss-nopro').forEach((x) => x.addEventListener('change', () => PC.ssSet({ nopro: x.checked })));
 
+/* ===== AI分析 ===== */
+PC.mdHtml = (t) => {
+  const esc = (x) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inl = (x) => esc(x).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  let html = '', list = null;
+  const close = () => { if (list) { html += `</${list}>`; list = null; } };
+  String(t || '').split('\n').forEach((ln) => {
+    let m;
+    if ((m = ln.match(/^#{1,3}\s+(.*)/))) { close(); const c = /有利|強み/.test(m[1]) ? 'good' : /不利|弱み/.test(m[1]) ? 'bad' : ''; html += `<h3 class="${c}">${inl(m[1])}</h3>`; }
+    else if ((m = ln.match(/^\s*[-・*]\s+(.*)/))) { if (list !== 'ul') { close(); html += '<ul>'; list = 'ul'; } html += `<li>${inl(m[1])}</li>`; }
+    else if ((m = ln.match(/^\s*\d+[.)]\s+(.*)/))) { if (list !== 'ol') { close(); html += '<ol>'; list = 'ol'; } html += `<li>${inl(m[1])}</li>`; }
+    else if (ln.trim()) { close(); html += `<p>${inl(ln)}</p>`; }
+  });
+  close(); return html;
+};
+dash.draw('aiMeta', (el) => { const a = PC.ok('ai'); el.textContent = a && a.text ? `${a.updated} 時点・${a.model || 'Claude'}` : ''; });
+dash.draw('aiText', (el) => {
+  const a = PC.ok('ai');
+  if (!a || !a.text) { el.innerHTML = '<p>AI分析はまだありません。リポジトリの Settings → Secrets and variables → Actions に <b>ANTHROPIC_API_KEY</b> を登録すると、毎日の取得時に Claude が更新します。</p>'; return; }
+  el.innerHTML = PC.mdHtml(a.text);
+});
+dash.draw('aiBasis', (el) => { const s = PC.ok('aistats'); el.textContent = s && s.basis ? `${s.basis}（${s.updated}）` : ''; });
+dash.draw('aiKpi', (el) => {
+  el.replaceChildren(); const s = PC.ok('aistats'); if (!s || !s.total) return;
+  const t = s.total, k = (cls, v, lab) => { const d = PC.el('div', cls); d.append(PC.el('b', null, v), PC.el('small', null, lab)); return d; };
+  el.append(k('g', String(t.ds_cheaper), 'ドスパラが安い構成'), k('r', String(t.pk_cheaper), 'パソコン工房が安い構成'),
+    k(t.median_diff > 0 ? 'r' : 'g', (t.median_diff > 0 ? '+' : '') + PC.yen(t.median_diff) + '円', `差の中央値（${t.median_pct > 0 ? '+' : ''}${t.median_pct}%）`));
+});
+PC.aiBars = (el, obj, prefix, order) => {
+  el.replaceChildren(); if (!obj) return;
+  let ents = Object.entries(obj).filter(([k]) => k.startsWith(prefix)).map(([k, v]) => [k.slice(prefix.length), v]);
+  if (order) ents.sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
+  const mx = Math.max(10, ...ents.map(([, v]) => Math.abs(v.median_pct)));
+  ents.forEach(([lab, v]) => {
+    const r = PC.el('div', 'ai-bar'), tr = PC.el('div', 'tr'), fl = PC.el('div', 'fl'), w = Math.min(50, Math.abs(v.median_pct) / mx * 50);
+    fl.style.cssText = `width:${w}%;${v.median_pct > 0 ? 'left:50%;background:var(--color-bad)' : `left:${50 - w}%;background:var(--color-ok)`}`;
+    tr.append(fl); tr.title = `${v.n}構成：ドスパラが安い${v.ds_cheaper}／パソコン工房が安い${v.pk_cheaper}`;
+    const lb = PC.el('span', 'bt', lab); PC.brandEl(lb, lab);
+    r.append(lb, tr, PC.el('span', 'v ' + (v.median_pct > 0 ? 'r' : 'g'), `${v.median_pct > 0 ? '+' : ''}${v.median_pct}%`));
+    el.append(r);
+  });
+  el.append(PC.el('p', 'note', '中央値の差（ドスパラ−パソコン工房）。緑＝ドスパラが安い、赤＝高い。バーにカーソルで構成数'));
+};
+dash.draw('aiGpu', (el) => { const s = PC.ok('aistats'); PC.aiBars(el, s && s.by_gpu, 'デスクトップ|'); });
+dash.draw('aiBand', (el) => { const s = PC.ok('aistats'); PC.aiBars(el, s && s.by_band, 'デスクトップ|', ['〜15万', '15〜20万', '20〜25万', '25〜30万', '30〜40万', '40万〜']); });
+
 /* 一覧 */
 PC.listRows = () => {
   const d = PC.ok('products'); if (!d) return null;
@@ -1762,6 +1843,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
+    for (const [id, f] of [['ai', 'ai_analysis.json'], ['aistats', 'ai_stats.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
     try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }
     try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
