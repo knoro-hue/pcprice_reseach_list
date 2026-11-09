@@ -239,6 +239,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .ai-row { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 14px; padding: 12px 4px; border-top: 1px dashed #d5e2f2; }
 .pc .ai-row:nth-of-type(even) { background: #f8fbff; }
 .pc .ai-why { margin: 2px 0 0; font-size: 14px; line-height: 1.85; letter-spacing: .02em; color: #1b2538; max-width: 70em; }
+.pc .ai-mem { margin-top: 10px; border: 1px solid #dbe5f2; border-radius: 10px; overflow: hidden; }
+.pc .ai-memh { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; background: linear-gradient(90deg, #ede4fb, #f8f5fe); border-left: 5px solid #7a4fd0; }
+.pc .ai-memh b { color: #6a3fc0; font-size: 15.5px; } .pc .ai-memh small { font-size: 12px; color: var(--color-fg-muted); }
+.pc .ai-mem .ai-row { padding-left: 12px; padding-right: 12px; }
 .pc .ai-pts { margin: 2px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.75; color: #1b2538; }
 .pc .ai-pts li::marker { color: var(--brand); }
 .pc .ai-pts.lead { padding: 8px 14px 8px 32px; background: #f4f8fe; border-radius: 8px; border-left: 4px solid var(--brand); margin: 6px 0 4px; }
@@ -693,10 +697,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 
   <section class="page" id="ai" hidden>
     <div class="ai-wrap">
-      <div class="card ai-intro"><h2>AI分析：お客様の希望別の提案と、パソコン工房との比較</h2><p class="note" style="margin:4px 0 0" data-draw="aiBasis" data-source="reco"></p></div>
+      <div class="card ai-intro"><h2>AI分析：GPUの希望別の提案と、パソコン工房との比較</h2><p class="note" style="margin:4px 0 0" data-draw="aiBasis" data-source="reco"></p></div>
       <div class="card ai-comment" data-draw="aiComment" data-source="ai"></div>
-      <div class="ai-sec"><h2>ゲーム × 目標FPS で選ぶ</h2><div class="ai-seg" data-draw="aiResSel" data-source="reco"></div></div>
-      <div class="ai-cards" data-draw="aiGames" data-source="reco"></div>
       <div class="ai-sec"><h2>GPU の希望で選ぶ</h2></div>
       <div class="ai-cards" data-draw="aiGpus" data-source="reco"></div>
     </div>
@@ -1916,31 +1918,43 @@ dash.draw('aiGames', (el) => {
     el.append(card);
   });
 });
+PC.reasonMem = (m) => {
+  const pts = [], d = m.ds_min, p = m.pk_min;
+  if (!d) return [`当社にメモリ${m.mem}GBのモデルなし` + (p ? `（パソコン工房は ${PC.yen(p.price)}円から）` : '')];
+  if (!p) pts.push(`パソコン工房にメモリ${m.mem}GBのモデルなし → 当社独占`);
+  else if (m.diff <= 0) { const c = PC.short(d, p); pts.push(c.up.length ? `構成も当社優位：${c.up.join('、')}` : c.down.length ? `構成は他社優位：${c.down.join('、')}` : (d.cpu !== p.cpu ? `CPU違い：当社 ${d.cpu} vs ${p.cpu}` : '構成ほぼ同等')); }
+  else { const c = PC.short(d, p); pts.push(`比較相手：パソコン工房 ${p.cpu}・${PC.yen(p.price)}円`); pts.push(c.up.length ? `説明材料：${c.up.join('、')}${c.down.length ? `／弱み：${c.down.join('、')}` : ''}` : c.down.length ? `弱み：${c.down.join('、')} → 価格見直し候補` : (d.cpu !== p.cpu ? `CPU違い：当社 ${d.cpu} vs ${p.cpu}` : '構成同等の純粋な価格差 → 値下げ候補')); }
+  if (m.pairs) pts.push(`同CPU比較 ${m.pairs}件中、当社安 ${m.ds_win}・他社安 ${m.pk_win} → ${m.ds_win > m.pk_win ? '当社優位' : m.ds_win < m.pk_win ? 'パソコン工房優位' : '互角'}`);
+  return pts.slice(0, 3);
+};
 dash.draw('aiGpus', (el) => {
   el.replaceChildren(); const r = PC.ok('reco'); if (!r || !r.by_gpu) return;
   r.by_gpu.forEach((g) => {
+    const mems = (g.mems || []).filter((m) => m.ds_n || m.pk_n); if (!mems.length) return;
     const card = PC.el('div', 'card ai-card'); PC.brandEl(card, g.gpu);
-    const h = PC.el('div', 'ai-h'); const t = PC.el('b', null, `${g.gpu} 希望`); h.append(PC.el('span', 'ai-k', 'GPU'), t);
-    h.append(PC.el('small', null, `当社 ${g.ds_n}機種／パソコン工房 ${g.pk_n}機種`));
-    if (g.pairs) h.append(PC.el('small', null, `同じCPU×メモリで比較 ${g.pairs}件：当社が安い ${g.ds_win}・パソコン工房が安い ${g.pk_win}`));
+    const h = PC.el('div', 'ai-h'); h.append(PC.el('span', 'ai-k', 'GPU'), PC.el('b', null, `${g.gpu} 希望`), PC.el('small', null, `当社 ${g.ds_n}機種／パソコン工房 ${g.pk_n}機種`));
     card.append(h);
-    card.append(PC.ptsEl(PC.reasonGpu(g), 'lead'));
-    const row = PC.el('div', 'ai-row'); row.append(PC.el('div', 'ai-cond', '提案（最安）'));
-    const b = PC.el('div', 'ai-body'); b.append(PC.aiModel(g.ds_min), PC.aiVerdict(g.diff, g.pk_min)); row.append(b); card.append(row);
-    if (g.ds_16) { const r2 = PC.el('div', 'ai-row'); r2.append(PC.el('div', 'ai-cond', 'メモリ16GB以上なら')); const b2 = PC.el('div', 'ai-body'); b2.append(PC.aiModel(g.ds_16)); r2.append(b2); card.append(r2); }
-    const lst = (title, cls, items) => {
-      if (!items || !items.length) return;
-      const r3 = PC.el('div', 'ai-row'); r3.append(PC.el('div', 'ai-cond ' + cls, title));
-      const ul = PC.el('ul', 'ai-list');
-      items.forEach((x) => {
-        const li = PC.el('li'); const a = PC.el('a', null, `${x.cpu}・メモリ${x.mem}GB`); a.href = x.ds.url; a.target = '_blank'; a.rel = 'noopener';
-        li.append(a, PC.el('span', null, `　当社 ${PC.yen(x.ds.price)}円 ／ パソコン工房 ${PC.yen(x.pk.price)}円　`), PC.el('b', cls, `${x.diff > 0 ? '+' : '−'}${PC.yen(Math.abs(x.diff))}円`));
-        ul.append(li);
-      });
-      r3.append(ul); card.append(r3);
-    };
-    lst('当社が有利', 'good', g.win);
-    lst('パソコン工房に不利', 'bad', g.lose);
+    mems.forEach((m) => {
+      const sec = PC.el('div', 'ai-mem');
+      const mh = PC.el('div', 'ai-memh'); mh.append(PC.el('b', null, `メモリ ${m.mem}GB`), PC.el('small', null, `当社 ${m.ds_n}機種／パソコン工房 ${m.pk_n}機種`)); sec.append(mh);
+      const row = PC.el('div', 'ai-row'); row.append(PC.el('div', 'ai-cond', '提案'));
+      const b = PC.el('div', 'ai-body');
+      if (m.ds_min) b.append(PC.aiModel(m.ds_min), PC.aiVerdict(m.diff, m.pk_min));
+      b.append(PC.ptsEl(PC.reasonMem(m))); row.append(b); sec.append(row);
+      const lst = (title, cls, items) => {
+        if (!items || !items.length) return;
+        const r3 = PC.el('div', 'ai-row'); r3.append(PC.el('div', 'ai-cond ' + cls, title));
+        const ul = PC.el('ul', 'ai-list');
+        items.forEach((x) => {
+          const li = PC.el('li'); const a = PC.el('a', null, x.cpu); a.href = x.ds.url; a.target = '_blank'; a.rel = 'noopener';
+          li.append(a, PC.el('span', null, `　当社 ${PC.yen(x.ds.price)}円 ／ パソコン工房 ${PC.yen(x.pk.price)}円　`), PC.el('b', cls, `${x.diff > 0 ? '+' : '−'}${PC.yen(Math.abs(x.diff))}円`));
+          ul.append(li);
+        });
+        r3.append(ul); sec.append(r3);
+      };
+      lst('当社が有利', 'good', m.win); lst('パソコン工房に不利', 'bad', m.lose);
+      card.append(sec);
+    });
     el.append(card);
   });
 });
