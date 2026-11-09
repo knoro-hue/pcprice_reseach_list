@@ -46,7 +46,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc a { color: inherit; }
 
 /* ヘッダー：1行のバー（タイトル・最終取得・タブ・ボタン） */
-.pc .topbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 8px 12px 8px 16px; background: rgba(255, 255, 255, .86); backdrop-filter: blur(6px); border: 1px solid var(--color-border-line); border-radius: var(--r); box-shadow: 0 4px 16px -12px rgba(0, 50, 120, .3); }
+.pc .topbar { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px 16px; padding: 8px 12px 8px 16px; background: rgba(255, 255, 255, .86); backdrop-filter: blur(6px); border: 1px solid var(--color-border-line); border-radius: var(--r); box-shadow: 0 4px 16px -12px rgba(0, 50, 120, .3); }
 .pc .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .pc .brand h1 { font-family: var(--font-anthropic-sans); font-size: 15px; font-weight: var(--cds-font-weight-medium); margin: 0; color: #0d1830; white-space: nowrap; display: flex; align-items: center; gap: 8px; }
 .pc .brand h1::before { content: ""; width: 4px; height: 16px; border-radius: 2px; background: linear-gradient(var(--brand), var(--brand2)); }
@@ -65,6 +65,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .card.ss-f { position: sticky; top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: contain; display: grid; gap: 7px; padding: 10px 12px; }
 /* 上部メニューを固定（PC） */
 @media (min-width: 701px) {
+  .pc .topbar > * { flex: none; }
+  .pc .topbar .tabs { flex: 0 1 auto; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .pc .topbar .tab { white-space: nowrap; }
+  .pc .links { margin-left: auto; }
   .pc .topbar { position: sticky; top: 10px; z-index: 40; background: rgba(255, 255, 255, .96); }
   .pc .side, .pc .tbl { scroll-margin-top: calc(var(--tbh, 60px) + 20px); }
   .pc .side { top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); }
@@ -445,13 +449,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   <header class="topbar" id="top">
     <div class="brand">
       <h1>PC価格調査 3社比較</h1>
-      <span class="lead">最終取得 <b data-draw="fetched" data-source="status">—</b>・税込・BTOは基本構成</span>
     </div>
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">同スペック比較（デスクトップ）</button>
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
       <button class="tab" role="tab" data-tab="dsbase" data-short="基準比較" aria-selected="false">ドスパラ基準比較</button>
-      <button class="tab" role="tab" data-tab="changes" data-short="価格変動" aria-selected="false">価格変動</button>
       <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
     </nav>
@@ -598,8 +600,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <ul class="howlist">
           <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左でゲームと目標FPS（ドスパラ公表のGPU別FPS）・予算・CPU（ファミリー→型番）・GPU・メモリを選ぶと、右に「GPU×メモリ」ごとのグループで3社の該当モデルを安い順に表示（各社3機種、「すべて表示」で全機種）。（ ）の数は他の条件をかけた機種数で、組み合わせのないものはグレー。</div></li>
           <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。注力ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）のおすすめランキング・注力枠（CPU×GPU表、ラインアップ等）に載っているモデルだけを掲載順に表示。行をクリックすると他社の該当モデル一覧</div></li>
-          <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>区分・CPU・GPUをプルダウンで選んで最大8件追加すると、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
-          <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
           <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
           <li><span class="ic">⬇</span><div><b>Excel</b>上の「Excelをダウンロード」から3社まとめの最新版（メーカー・型番・価格・CPU・GPU・メモリ・ストレージ・クーラー・電源・URL）</div></li>
         </ul>
@@ -949,7 +949,6 @@ dash.draw('sameModels', (el) => {
   const d = PC.ok('products'), sel = PC.sameSel;
   if (!d || !sel || sel.kind !== PC.sameKind) return;
   const head = document.createElement('p'); head.className = 'samehead'; head.textContent = `${sel.cpu} × ${sel.gpu}` + (sel.mem_gb ? ` × メモリ${sel.mem_gb}GB` : '');
-  { const b = PC.el('button', 'tbtn', '📈 価格推移で見る'); b.type = 'button'; b.addEventListener('click', (e) => { e.stopPropagation(); PC.tkind = sel.kind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = sel.kind; }); PC.tadd(`${sel.kind}|${sel.cpu}|${sel.gpu}`); PC.closeSame(); pcTab('changes'); window.scrollTo(0, 0); }); head.append(b); }
   el.appendChild(head);
   PC.modelsInto(el, sel);
 });
@@ -1361,7 +1360,7 @@ dash.draw('ssSummary', (el) => {
   const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
   const ng = new Set(list.map((p) => (f.sub === 'tree' ? p.gpu_key : `${p.gpu_key}|${p.mem_gb}`))).size;
   el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(ng)), PC.el('span', null, 'グループ'), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
-  if (f.cpu && f.gpu && !PC.cust) {
+  if (false) {
     const btn = PC.el('button', 'tbtn', '📈 価格推移で見る'); btn.type = 'button';
     btn.addEventListener('click', () => { PC.tkind = PC.sameKind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = PC.sameKind; }); PC.tadd(`${PC.sameKind}|${f.cpu}|${f.gpu}`); pcTab('changes'); window.scrollTo(0, 0); });
     el.append(btn);
