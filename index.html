@@ -213,6 +213,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .bt { font-weight: 700; } .pc .bt.br { color: var(--bc); }
 .pc .mtag { color: #fff; background: var(--c); border-radius: 999px; padding: 1px 9px; font-size: 12px; }
 
+/* 社ごとの行のモデルは枠なしで統一（最安は価格を緑字で） */
+.pc .mk-row .sm-it, .pc .mk-row.ds .sm-it, .pc .mk-row .sm-it.best, .pc .mk-row.ds .sm-it.best { background: transparent; border-color: transparent; }
+.pc .mk-row .sm-it:hover { background: rgba(255, 255, 255, .7); border-color: transparent; }
+.pc .mk-row .sm-it.best .sm-p { color: var(--color-ok); }
+
 /* 文字を減らす：機種数・最安・差額の補足は出さない（最安は緑枠で判別） */
 .pc .ssg .ssg-n, .pc .ssg .ssg-best, .pc .lv-h small, .pc .lv-h .sm-ds,
 .pc .mk-rl small, .pc .mk-rl .mk-best, .pc .mk-rl .mk-df { display: none; }
