@@ -113,6 +113,43 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .ss .chips { flex-wrap: wrap; overflow: visible; }
 }
 
+/* 内訳マトリクス */
+.pc .ss-sum { flex-direction: column; align-items: stretch; gap: 8px; }
+.pc .ss-sumt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
+.pc .ss-seg { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.pc .ss-subl { font-size: 12px; font-weight: 700; color: var(--brand); margin-right: 6px; }
+.pc .seg { font: inherit; font-size: 12.5px; padding: 5px 14px; border: 1px solid #b7cfee; background: #fff; color: var(--brand); border-radius: 999px; cursor: pointer; }
+.pc .seg.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 700; }
+.pc .sm { display: grid; border: 1px solid var(--color-border-line); border-radius: 10px; overflow: hidden; }
+.pc .sm-row { display: grid; grid-template-columns: 150px repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--color-border-line); }
+.pc .sm-row:first-child { border-top: 0; }
+.pc .sm-head { background: #f1f5fb; font-size: 12px; font-weight: 700; }
+.pc .sm-head > div { padding: 6px 10px; }
+.pc .sm-mh { color: var(--c); border-left: 3px solid var(--c); }
+.pc .sm-l { padding: 8px 10px; background: #f7faff; display: flex; flex-direction: column; gap: 2px; }
+.pc .sm-l b { font-size: 14px; color: #0d1830; } .pc .sm-l small { font-size: 11px; color: var(--color-fg-muted); }
+.pc .sm-ds { font-size: 11px; font-weight: 700; } .pc .sm-ds.up { color: var(--color-bad); } .pc .sm-ds.zero { color: var(--color-ok); }
+.pc .sm-c { padding: 6px 8px; border-left: 1px solid var(--color-border-line); background: color-mix(in srgb, var(--c) 3%, #fff); display: grid; gap: 4px; align-content: start; }
+.pc .sm-na { color: var(--cds-chart-muted); padding: 6px 4px; }
+.pc .sm-it { display: grid; gap: 1px; padding: 5px 7px; border-radius: 8px; text-decoration: none; color: var(--color-fg); border: 1px solid transparent; }
+.pc .sm-it:hover { background: #fff; border-color: #cfe1fb; }
+.pc .sm-it.best { background: color-mix(in srgb, var(--color-ok) 9%, #fff); border-color: color-mix(in srgb, var(--color-ok) 30%, #fff); }
+.pc .sm-t { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pc .sm-p { font-size: 14px; font-variant-numeric: tabular-nums; } .pc .sm-it.best .sm-p { color: var(--color-ok); }
+.pc .sm-n { font-size: 11.5px; line-height: 1.35; color: #33415c; }
+.pc .sm-s { font-size: 11px; color: var(--color-fg-muted); }
+.pc .psu-b { display: inline-flex; align-items: baseline; gap: 3px; padding: 1px 8px; border-radius: 6px; background: #0d1830; color: #fff; font-variant-numeric: tabular-nums; }
+.pc .psu-b b { font-size: 13px; } .pc .psu-b small { font-size: 9.5px; letter-spacing: .04em; opacity: .9; }
+.pc .psu-b.g-bronze { background: #8a5a2b; } .pc .psu-b.g-silver { background: #6b7685; } .pc .psu-b.g-gold { background: #b8860b; }
+.pc .psu-b.g-platinum { background: #4f6d8a; } .pc .psu-b.g-titanium { background: #3b3f47; }
+.pc .st-b { padding: 1px 8px; border-radius: 6px; background: var(--brand); color: #fff; font-size: 12.5px; font-weight: 700; }
+.pc .sm-more { font: inherit; font-size: 12px; padding: 4px; border: 1px dashed color-mix(in srgb, var(--c) 45%, #fff); background: #fff; color: var(--c); border-radius: 6px; cursor: pointer; font-weight: 700; }
+@media (max-width: 1100px) {
+  .pc .sm-row { grid-template-columns: minmax(0, 1fr); } .pc .sm-head { display: none; }
+  .pc .sm-c:has(> .sm-na) { display: none; }
+  .pc .sm-c { border-left: 3px solid var(--c); } .pc .sm-c::before { content: attr(data-mk); font-size: 12px; font-weight: 700; color: var(--c); }
+}
+
 /* ドスパラ基準比較 */
 .pc tbody tr.grp td { background: #e6eef9 !important; color: var(--brand); font-weight: 700; padding-top: 8px; padding-bottom: 6px; border-bottom: 1px solid #b7cfee; }
 .pc td.cat span { background: #e6eef9; color: var(--brand); border-color: #b7cfee; font-size: .9em; }
@@ -390,7 +427,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <p class="note" style="margin:8px 0 0">（ ）は他の条件をかけた状態の機種数。グレーは組み合わせなし</p>
       </aside>
       <div class="ss-r">
-        <div class="card ss-sum" data-draw="ssSummary" data-source="products"></div>
+        <div class="card ss-sum"><div class="ss-sumt" data-draw="ssSummary" data-source="products"></div><div class="ss-seg" data-draw="ssSub" data-source="products"></div></div>
         <div class="ss-groups" data-draw="ssGroups" data-source="products"></div>
       </div>
     </div>
@@ -574,12 +611,12 @@ const pcTab = (name) => {
   const sec = name.startsWith('same') ? 'same' : name;
   if (sec === 'same') {
     const nk = name === 'same-note' ? 'ノート' : 'デスクトップ';
-    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same; PC.ss = PC.ssNew(); PC.ss.same = sm; } }
+    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same, sb = PC.ss.sub; PC.ss = PC.ssNew(); PC.ss.same = sm; PC.ss.sub = sb; } }
     PC.sameKind = nk;
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssGroups'].forEach((d) => dash.draw(d));
+  ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
@@ -1199,7 +1236,7 @@ PC.ssMatch = (p, skip) => {
 PC.ssFacet = (skip) => { const b = PC.ssBase(); return b ? b.filter((p) => PC.ssMatch(p, skip)) : null; };
 PC.ssList = () => PC.ssFacet(null);
 PC.ssSet = (patch) => { Object.assign(PC.ss, patch, { open: {}, gshow: 8 }); PC.ssRedraw(); };
-PC.ssRedraw = () => ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssGroups'].forEach((d) => dash.draw(d));
+PC.ssRedraw = () => ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
 // 1グループ分のボタン（並びは固定、件数は他の条件を反映、0件は押せない）
 PC.ssChips = (el, field, keys, labelFn, keyFn) => {
   const rows = PC.ssFacet(field); if (!rows) return el.replaceChildren();
@@ -1238,6 +1275,74 @@ dash.draw('ssSummary', (el) => {
     el.append(btn);
   }
 });
+/* 内訳（ストレージ・電源）でサブグループ化 */
+PC.SUBS = [['', 'なし'], ['st', 'ストレージ'], ['psu', '電源'], ['st_psu', 'ストレージ×電源']];
+PC.ss.sub = 'st';
+PC.psuW = (p) => { const m = String(p.psu || '').match(/(\d{2,4})\s*W/i); return m ? +m[1] : null; };
+PC.psuGrade = (p) => { const m = String(p.psu || '').match(/(TITANIUM|PLATINUM|GOLD|SILVER|BRONZE|STANDARD)/i); return m ? m[1].toUpperCase() : ''; };
+PC.stLabel = (gb) => (gb == null ? 'ストレージ不明' : gb >= 1000 ? `SSD ${+(gb / 1000).toFixed(1)}TB` : `SSD ${gb}GB`);
+PC.subKey = (p, mode) => {
+  const st = p.storage_gb ?? -1, w = PC.psuW(p) ?? -1;
+  return mode === 'st' ? [st] : mode === 'psu' ? [w] : [st, w];
+};
+PC.subLabel = (k, mode) => {
+  const st = (v) => (v < 0 ? 'ストレージ不明' : PC.stLabel(v)), ps = (v) => (v < 0 ? '電源不明' : `電源 ${v}W`);
+  return mode === 'st' ? st(k[0]) : mode === 'psu' ? ps(k[0]) : `${st(k[0])} × ${ps(k[1])}`;
+};
+// 電源の目立つバッジ（容量＋80PLUSグレード）
+PC.psuBadge = (p) => {
+  const w = PC.psuW(p), g = PC.psuGrade(p), b = PC.el('span', 'psu-b' + (g ? ' g-' + g.toLowerCase() : ''));
+  b.append(PC.el('b', null, w ? w + 'W' : '電源—')); if (g) b.append(PC.el('small', null, g)); return b;
+};
+PC.stBadge = (p) => PC.el('span', 'st-b', p.storage_gb ? PC.stLabel(p.storage_gb).replace('SSD ', '') : '—');
+PC.SUB_SHOW = 3;
+// サブグループのマトリクス（行＝ストレージ等、列＝3社）
+PC.subMatrix = (g, mode, gi) => {
+  const f = PC.ss, box = PC.el('div', 'sm');
+  const head = PC.el('div', 'sm-row sm-head'); head.append(PC.el('div', 'sm-l', PC.SUBS.find((s) => s[0] === mode)[1]));
+  PC.MAKERS.forEach(([, n], i) => { const c = PC.el('div', 'sm-mh', n); c.style.setProperty('--c', PC.COLORS[i]); head.append(c); });
+  box.append(head);
+  const subs = d3.groups(g.ps, (p) => PC.subKey(p, mode).join('|')).map(([k, ps]) => ({ k: k.split('|').map(Number), ps, min: d3.min(ps, (p) => p.price) }))
+    .sort((a, b) => d3.ascending(a.k[0] < 0 ? 1e9 : a.k[0], b.k[0] < 0 ? 1e9 : b.k[0]) || d3.ascending(a.k[1] < 0 ? 1e9 : a.k[1], b.k[1] < 0 ? 1e9 : b.k[1]));
+  subs.forEach((sg) => {
+    const row = PC.el('div', 'sm-row');
+    const l = PC.el('div', 'sm-l'); l.append(PC.el('b', null, PC.subLabel(sg.k, mode)), PC.el('small', null, `${sg.ps.length}機種`));
+    const dsMin = d3.min(sg.ps.filter((p) => p.maker === 'ドスパラ'), (p) => p.price);
+    if (dsMin != null) { const df = dsMin - sg.min; l.append(PC.el('span', 'sm-ds ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}` : 'ドスパラ最安')); }
+    row.append(l);
+    PC.MAKERS.forEach(([, name], i) => {
+      const cell = PC.el('div', 'sm-c'); cell.style.setProperty('--c', PC.COLORS[i]);
+      cell.dataset.mk = name;
+      const mine = sg.ps.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
+      const key = `${g.k}|${sg.k.join('|')}|${name}`, open = !!f.open[key];
+      if (!mine.length) cell.append(PC.el('span', 'sm-na', '—'));
+      (open ? mine : mine.slice(0, PC.SUB_SHOW)).forEach((p) => {
+        const it = PC.el('a', 'sm-it' + (p.price === sg.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
+        const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
+        if (mode === 'st') top.append(PC.psuBadge(p));
+        else if (mode === 'psu') top.append(PC.stBadge(p));
+        it.append(top, PC.el('span', 'sm-n', p.name));
+        if (!f.cpu) it.append(PC.el('span', 'sm-s', p.cpu_key));
+        cell.append(it);
+      });
+      if (mine.length > PC.SUB_SHOW) {
+        const b = PC.el('button', 'sm-more', open ? '閉じる' : `+${mine.length - PC.SUB_SHOW}機種`); b.type = 'button';
+        b.addEventListener('click', () => { f.open[key] = !open; dash.draw('ssGroups'); }); cell.append(b);
+      }
+      row.append(cell);
+    });
+    box.append(row);
+  });
+  return box;
+};
+dash.draw('ssSub', (el) => {
+  el.replaceChildren(PC.el('span', 'ss-subl', '内訳'));
+  PC.SUBS.forEach(([v, lab]) => {
+    const b = PC.el('button', 'seg' + (PC.ss.sub === v ? ' on' : ''), lab); b.type = 'button';
+    b.addEventListener('click', () => { PC.ss.sub = v; PC.ss.open = {}; dash.draw('ssSub'); dash.draw('ssGroups'); });
+    el.append(b);
+  });
+});
 PC.SS_SHOW = 3;
 // 右：GPU×メモリごとのグループ。各グループの中に3社のモデルを安い順に3機種ずつ
 dash.draw('ssGroups', (el) => {
@@ -1260,6 +1365,7 @@ dash.draw('ssGroups', (el) => {
     const ds = g.by['ドスパラ'][0];
     if (ds) { const df = ds.price - g.min; best.append(PC.el('span', 'ssg-ds ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}円` : 'ドスパラが最安')); }
     h.append(best); card.append(h);
+    if (f.sub) { card.append(PC.subMatrix(g, f.sub)); el.append(card); return; }
     const cols = PC.el('div', 'ss-cols');
     PC.MAKERS.forEach(([, name], i) => {
       const mine = g.by[name], key = g.k + '|' + name, open = !!f.open[key];
@@ -1286,7 +1392,7 @@ dash.draw('ssGroups', (el) => {
     el.append(b);
   }
 });
-document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ssRedraw(); }));
+document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same, sb = PC.ss.sub; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ss.sub = sb; PC.ssRedraw(); }));
 document.querySelectorAll('.pc-ss-same').forEach((x) => x.addEventListener('change', () => PC.ssSet({ same: x.checked })));
 
 /* 一覧 */
