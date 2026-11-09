@@ -344,6 +344,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <div class="quickwrap">
           <div class="quick"><span class="ql">GPU</span><div class="chips" data-draw="gpuChips" data-source="same"></div></div>
           <div class="quick"><span class="ql">CPU</span><div class="chips" data-draw="cpuChips" data-source="same"></div></div>
+          <div class="quick memquick"><span class="ql">メモリ</span><div class="chips" data-draw="memChips" data-source="same"></div></div>
         </div>
         <div class="tbl"><table data-source="same" data-row-key="kind,spec">
           <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="mem_gb" class="c memcol">メモリ</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest" class="c">最安</th><th data-field="spread" class="n">最安とドスパラとの価格差</th></tr></thead>
@@ -542,7 +543,7 @@ const pcTab = (name) => {
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['sameRows', 'sameModels', 'sameCount', 'fCpu', 'fGpu', 'gpuChips', 'cpuChips'].forEach((d) => dash.draw(d));
+  ['sameRows', 'sameModels', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips', 'memChips'].forEach((d) => dash.draw(d));
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
@@ -689,7 +690,7 @@ PC.sameList = () => {
     && (!PC.f.cpu || r.cpu === PC.f.cpu) && (!PC.f.gpu || r.gpu === PC.f.gpu) && (!PC.f.fam || PC.fam(r.cpu) === PC.f.fam)
     && (!PC.f.mem || !PC.sameUnit || String(r.mem_gb) === PC.f.mem));
 };
-PC.FDRAWS = ['sameRows', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips'];
+PC.FDRAWS = ['sameRows', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips', 'memChips'];
 PC.setF = (patch) => { Object.assign(PC.f, patch); PC.FDRAWS.forEach((d) => dash.draw(d)); };
 PC.opts = (sel, rows, field, label) => {
   const counts = d3.rollups(rows, (v) => v.length, (r) => r[field]).sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
@@ -724,6 +725,12 @@ dash.draw('gpuChips', (el) => {
   const top = d3.rollups(d, (v) => v.length, (r) => r.gpu).sort((a, b) => b[1] - a[1]).slice(0, 12)
     .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
   PC.chips(el, top, (k) => PC.f.gpu === k, (k) => PC.setF({ gpu: PC.f.gpu === k ? '' : k }));
+});
+dash.draw('memChips', (el) => {
+  const row = el.closest('.memquick'); if (row) row.style.display = PC.sameUnit ? '' : 'none';
+  const d = PC.sameBase(); if (!d || !PC.sameUnit) return el.replaceChildren();
+  const ms = d3.rollups(d, (v) => v.length, (r) => r.mem_gb).sort((a, b) => a[0] - b[0]).map(([k, n]) => [k + 'GB', n]);
+  PC.chips(el, ms, (k) => PC.f.mem === String(parseInt(k, 10)), (k) => { const v = String(parseInt(k, 10)); PC.setF({ mem: PC.f.mem === v ? '' : v }); });
 });
 dash.draw('cpuChips', (el) => {
   const d = PC.sameBase(); if (!d) return el.replaceChildren();
