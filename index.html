@@ -188,6 +188,26 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .mk-items .sm-more { grid-column: 1 / -1; justify-self: start; padding: 3px 14px; border-color: color-mix(in srgb, var(--c) 45%, #fff); color: var(--c); }
 @media (max-width: 700px) { .pc .mk-row { grid-template-columns: minmax(0, 1fr); padding-left: 10px; } .pc .mk-rl { flex-direction: row; align-items: baseline; gap: 8px; } }
 
+/* ドスパラのモデル：薄い青背景・青文字 */
+.pc .mk-row.ds { background: #eaf3ff; }
+.pc .mk-row.ds .sm-it { background: #f3f8ff; border-color: #cfe1fb; }
+.pc .mk-row.ds .sm-it .sm-p, .pc .mk-row.ds .sm-it .sm-n { color: #004da1; }
+.pc .mk-row.ds .sm-it.best { background: #dcebff; border-color: #7fb0ec; }
+/* 表示切替・一覧 */
+.pc .ss-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.pc .ss-view { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.pc .lv-tbl { padding: 0; overflow: hidden; }
+.pc .lv-tbl::before { display: none; }
+.pc .xl-wrap { overflow: auto; max-height: calc(100vh - var(--tbh, 60px) - 150px); }
+.pc table.xl { table-layout: auto; font-size: 13px; }
+.pc table.xl th { position: sticky; top: 0; z-index: 2; background: #e6eef9; border-right: 1px solid #d5e2f2; }
+.pc table.xl td { padding: 5px 10px; border-right: 1px solid #edf2f8; white-space: nowrap; }
+.pc table.xl td a { color: inherit; text-decoration: none; } .pc table.xl td a:hover { text-decoration: underline; }
+.pc table.xl tr.ds td { background: #eaf3ff !important; color: #004da1; }
+.pc table.xl tbody tr:hover td { background: #dcebff !important; }
+.pc .bt { font-weight: 700; } .pc .bt.br { color: var(--bc); }
+.pc .mtag { color: #fff; background: var(--c); border-radius: 999px; padding: 1px 9px; font-size: 12px; }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -514,7 +534,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         
       </aside>
       <div class="ss-r">
-        <div class="card ss-sum"><div class="ss-sumt" data-draw="ssSummary" data-source="products"></div><div class="ss-seg" data-draw="ssSub" data-source="products"></div></div>
+        <div class="card ss-sum"><div class="ss-sumt" data-draw="ssSummary" data-source="products"></div><div class="ss-bar"><div class="ss-seg" data-draw="ssSub" data-source="products"></div><div class="ss-view" data-draw="ssView" data-source="products"></div></div></div>
         <div class="ss-groups" data-draw="ssGroups" data-source="products"></div>
       </div>
     </div>
@@ -742,7 +762,7 @@ PC.fitCols = (t) => {
   for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (f(m) < W) lo = m; else hi = m; }
   ths.forEach((th, i) => { th.style.width = Math.max(MIN, roomy ? Math.max(need[i], lo) : Math.min(need[i], lo)) + 'px'; });
 };
-PC.fitAll = () => document.querySelectorAll('.pc table').forEach((t) => { if (t.offsetParent) PC.fitCols(t); });
+PC.fitAll = () => document.querySelectorAll('.pc table:not(.xl)').forEach((t) => { if (t.offsetParent) PC.fitCols(t); });
 { let raf; PC.fitSoon = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(PC.fitAll); }; }
 document.querySelectorAll('.pc table tbody').forEach((tb) => new MutationObserver(PC.fitSoon).observe(tb, { childList: true }));
 window.addEventListener('resize', PC.fitSoon);
@@ -1551,7 +1571,8 @@ PC.order = (() => { try { const o = JSON.parse(localStorage.getItem('pc-order'))
 PC.setOrder = (o) => { PC.order = o; try { localStorage.setItem('pc-order', JSON.stringify(o)); } catch (e) {} PC.ss.open = {}; PC.ss.gshow = 8; dash.draw('ssSub'); dash.draw('ssSummary'); dash.draw('ssGroups'); };
 // 並び順エディタ（ドラッグ or ◀▶）
 dash.draw('ssSub', (el) => {
-  el.replaceChildren(PC.el('span', 'ss-subl', 'グループ順'));
+  el.replaceChildren(); el.style.display = PC.view === 'list' ? 'none' : ''; if (PC.view === 'list') return;
+  el.append(PC.el('span', 'ss-subl', 'グループ順'));
   let drag = null;
   PC.order.forEach((lv, i) => {
     if (i) el.append(PC.el('span', 'lv-arrow', '＞'));
@@ -1586,7 +1607,7 @@ PC.makerRows = (box, node, path, depth) => {
   PC.ROW_MAKERS.filter((n) => !PC.cust || n === 'ドスパラ').forEach((name) => {
     const mine = node.ps.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
     if (!mine.length) return;
-    const row = PC.el('div', 'mk-row'); row.style.setProperty('--d', depth); row.style.setProperty('--c', PC.mcol(name));
+    const row = PC.el('div', 'mk-row' + (name === 'ドスパラ' ? ' ds' : '')); row.style.setProperty('--d', depth); row.style.setProperty('--c', PC.mcol(name));
     const l = PC.el('div', 'mk-rl'); l.append(PC.el('b', null, name), PC.el('small', null, `${mine.length}機種`));
     if (mine[0].price === node.min) l.append(PC.el('span', 'mk-best', '最安'));
     else if (!PC.cust) l.append(PC.el('span', 'mk-df', `+${PC.yen(mine[0].price - node.min)}円`));
@@ -1618,7 +1639,59 @@ PC.levelInto = (box, ps, li, path) => {
     if (last) PC.makerRows(box, node, p2, li); else PC.levelInto(box, node.ps, li + 1, p2);
   });
 };
+PC.view = (() => { try { return localStorage.getItem('pc-view') || 'group'; } catch (e) { return 'group'; } })();
+dash.draw('ssView', (el) => {
+  el.replaceChildren(PC.el('span', 'ss-subl', '表示'));
+  [['group', '▤ グループ'], ['list', '☰ 一覧']].forEach(([v, lab]) => {
+    const b = PC.el('button', 'seg' + (PC.view === v ? ' on' : ''), lab); b.type = 'button';
+    b.addEventListener('click', () => { PC.view = v; try { localStorage.setItem('pc-view', v); } catch (e) {} dash.draw('ssView'); dash.draw('ssGroups'); dash.draw('ssSub'); });
+    el.append(b);
+  });
+});
+PC.lsort = { f: 'price', d: 1 };
+PC.LCOLS = [['gpu_key', 'GPU'], ['cpu_key', 'CPU'], ['mem_gb', 'メモリ'], ['storage_gb', 'ストレージ'], ['psuw', '電源'], ['price', '金額'], ['name', 'モデル名'], ['maker', 'メーカー']];
+PC.ssListView = (el, list) => {
+  const f = PC.ss, wrap = PC.el('div', 'card lv-tbl'), t = PC.el('table', 'xl');
+  const cols = PC.LCOLS.filter(([k]) => !(PC.cust && k === 'maker'));
+  if (f.game) cols.splice(5, 0, ['fps', 'FPS']);
+  const val = (p, k) => (k === 'psuw' ? PC.psuW(p) : k === 'fps' ? (PC.fpsOf(p, f.game) || {}).v : p[k]);
+  const thead = PC.el('thead'), tr = PC.el('tr');
+  cols.forEach(([k, lab]) => {
+    const th = PC.el('th', ['mem_gb', 'storage_gb', 'psuw', 'price', 'fps'].includes(k) ? 'n' : '', lab);
+    if (PC.lsort.f === k) th.setAttribute('aria-sort', PC.lsort.d > 0 ? 'ascending' : 'descending');
+    th.addEventListener('click', () => { PC.lsort = { f: k, d: PC.lsort.f === k ? -PC.lsort.d : 1 }; dash.draw('ssGroups'); });
+    tr.append(th);
+  });
+  thead.append(tr); t.append(thead);
+  const rows = list.slice().sort((a, b) => {
+    const x = val(a, PC.lsort.f), y = val(b, PC.lsort.f);
+    if (x == null || y == null) return x == null ? (y == null ? 0 : 1) : -1;
+    return PC.lsort.d * (typeof x === 'number' ? x - y : PC.natural(x, y)) || a.price - b.price;
+  });
+  const tb = PC.el('tbody');
+  rows.slice(0, 1000).forEach((p) => {
+    const r = PC.el('tr', p.maker === 'ドスパラ' ? 'ds' : '');
+    cols.forEach(([k]) => {
+      const td = PC.el('td');
+      if (k === 'gpu_key' || k === 'cpu_key') { const s = PC.el('span', 'bt', p[k]); PC.brandEl(s, p[k]); td.append(s); }
+      else if (k === 'mem_gb') { td.className = 'n'; td.textContent = p.mem_gb ? p.mem_gb + 'GB' : ''; }
+      else if (k === 'storage_gb') { td.className = 'n'; td.textContent = p.storage_gb ? PC.stLabel(p.storage_gb).replace('SSD ', '') : ''; }
+      else if (k === 'psuw') { td.className = 'n'; td.append(PC.psuBadge(p)); }
+      else if (k === 'fps') { td.className = 'n'; const fb = PC.fpsBadge(p); if (fb) td.append(fb); }
+      else if (k === 'price') { td.className = 'n strong'; td.textContent = PC.yen(p.price) + '円'; }
+      else if (k === 'name') { const a = PC.el('a', null, p.name); a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; td.append(a); }
+      else if (k === 'maker') { const s = PC.el('span', 'mtag', p.maker); s.style.setProperty('--c', PC.mcol(p.maker)); td.append(s); }
+      r.append(td);
+    });
+    tb.append(r);
+  });
+  t.append(tb);
+  const sc = PC.el('div', 'xl-wrap'); sc.append(t); wrap.append(sc);
+  if (rows.length > 1000) wrap.append(PC.el('div', 'mc-more', `先頭1,000件を表示（全${d3.format(',')(rows.length)}件）。条件で絞り込んでください`));
+  el.append(wrap);
+};
 dash.draw('ssGroups', (el) => {
+  if (PC.view === 'list') { el.replaceChildren(); const l = PC.ssList(); if (l) PC.ssListView(el, l); return; }
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
   const f = PC.ss, lv0 = PC.order[0], L0 = PC.LV[lv0];
   const groups = PC.groupBy(list, lv0);
