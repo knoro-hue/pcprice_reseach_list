@@ -123,6 +123,19 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .fps-m.est { opacity: .75; border: 1px dashed rgba(255,255,255,.7); }
 .pc .fps-b { padding: 2px 10px; border-radius: 999px; background: linear-gradient(135deg, #7b2ff7, #0a7cd6); color: #fff; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* メーカー色 */
+.pc .qchip.br { color: var(--bc); border-color: color-mix(in srgb, var(--bc) 45%, #fff); background: color-mix(in srgb, var(--bc) 7%, #fff); font-weight: 700; }
+.pc .qchip.br small { color: color-mix(in srgb, var(--bc) 70%, #fff); }
+.pc .qchip.br:hover { background: color-mix(in srgb, var(--bc) 15%, #fff); border-color: var(--bc); }
+.pc .qchip.br.on { background: var(--bc); border-color: var(--bc); color: #fff; } .pc .qchip.br.on small { color: rgba(255,255,255,.8); }
+.pc .qchip.br:disabled small { color: inherit; }
+.pc .qchip.br:disabled { color: var(--color-fg-muted); background: #f4f6f9; border-color: #e1e7ef; font-weight: 400; }
+.pc .ssg.br { border-left: 6px solid var(--bc); }
+.pc .ssg.br .ssg-t { color: var(--bc); }
+.pc .ssg.br .ssg-h { border-bottom-color: color-mix(in srgb, var(--bc) 25%, #fff); }
+.pc .sm-cpu.br { background: linear-gradient(90deg, color-mix(in srgb, var(--bc) 16%, #fff), color-mix(in srgb, var(--bc) 4%, #fff)); border-top-color: color-mix(in srgb, var(--bc) 45%, #fff); }
+.pc .sm-cpu.br b { color: var(--bc); }
+
 /* GPU＞CPU＞ストレージ＞電源 */
 .pc .sm-cpu { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; background: linear-gradient(90deg, #dce9fb, #f1f6fd); border-top: 2px solid #b7cfee; }
 .pc .sm-cpu b { font-size: 14.5px; color: var(--brand); } .pc .sm-cpu small { font-size: 12px; color: var(--color-fg-muted); }
@@ -840,10 +853,21 @@ document.querySelectorAll('.pc-sunit').forEach((el) => el.addEventListener('chan
   document.querySelectorAll('#same table').forEach((t) => t.classList.toggle('nomem', !PC.sameUnit));
   PC.setF({ mem: '' });
 }));
+// メーカー色：NVIDIA=緑、AMD Radeon=赤、Intel=青、AMD Ryzen=オレンジ
+PC.BRAND = { nvidia: ['NVIDIA', '#4f8a00'], radeon: ['AMD', '#d6202a'], intel: ['Intel', '#0068b5'], ryzen: ['AMD', '#e8620c'] };
+PC.brandOf = (t) => {
+  t = String(t);
+  if (/\b(RTX|GTX|GeForce|Quadro)\b/i.test(t)) return 'nvidia';
+  if (/\b(RX|Radeon)\b/i.test(t)) return 'radeon';
+  if (/\b(Ryzen|Athlon|Threadripper|EPYC)\b/i.test(t)) return 'ryzen';
+  if (/\b(Core|Xeon|Celeron|Pentium|Arc)\b|^N\d+/i.test(t)) return 'intel';
+  return '';
+};
+PC.brandEl = (el, t) => { const b = PC.brandOf(t); if (b) { el.classList.add('br'); el.style.setProperty('--bc', PC.BRAND[b][1]); } return el; };
 PC.chips = (el, items, isOn, onClick) => {
   el.replaceChildren(...items.map(([k, n]) => {
     const on = isOn(k), b = document.createElement('button'); b.type = 'button'; b.className = 'qchip' + (on ? ' on' : '');
-    b.textContent = k; const sm = document.createElement('small'); sm.textContent = n; b.appendChild(sm);
+    b.textContent = k; const sm = document.createElement('small'); sm.textContent = n; b.appendChild(sm); PC.brandEl(b, k);
     if (n === 0 && !on) b.disabled = true; // 他の条件と組み合わせると存在しない
     b.addEventListener('click', () => onClick(k)); return b;
   }));
@@ -1362,7 +1386,7 @@ PC.subMatrix = (g, mode, gi) => {
     if (tree && sg.cpu !== prevCpu) {
       prevCpu = sg.cpu; prevSt = null;
       const n = g.ps.filter((p) => p.cpu_key === sg.cpu).length;
-      const ch = PC.el('div', 'sm-cpu'); ch.append(PC.el('b', null, sg.cpu), PC.el('small', null, `${n}機種・最安 ${PC.yen(cpuMin.get(sg.cpu))}円`));
+      const ch = PC.el('div', 'sm-cpu'); PC.brandEl(ch, sg.cpu); ch.append(PC.el('b', null, sg.cpu), PC.el('small', null, `${n}機種・最安 ${PC.yen(cpuMin.get(sg.cpu))}円`));
       box.append(ch);
     }
     const row = PC.el('div', 'sm-row');
@@ -1483,6 +1507,7 @@ dash.draw('ssGroups', (el) => {
   groups.slice(0, f.gshow).forEach((g) => {
     const card = PC.el('div', 'ssg');
     const h = PC.el('div', 'ssg-h');
+    PC.brandEl(card, g.gpu);
     h.append(PC.el('span', 'ssg-t', tree ? g.gpu : `${g.gpu} × メモリ${g.mem}GB`), PC.el('span', 'ssg-n', PC.cust ? `${g.ps.length}機種` : `${g.ps.length}機種・${g.makers}社`));
     const bestMk = PC.MAKERS.find(([, n]) => g.by[n].length && g.by[n][0].price === g.min)[1];
     const best = PC.el('span', 'ssg-best'), tg = PC.el('span', 'tagm', PC.cust ? '最安' : '最安 ' + bestMk);
