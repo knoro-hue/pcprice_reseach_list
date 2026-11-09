@@ -1356,7 +1356,7 @@ dash.draw('ssSub', (el) => {
   });
 });
 /* ゲーム別FPS：ドスパラ詳細ページの「ゲーム性能」（モデル別・最高画質）。他社は同じGPUのドスパラ機の中央値で推定 */
-PC.FPS_STEPS = [60, 120, 144, 165, 240];
+PC.FPS_STEPS = [60, 120, 144, 240];
 PC.RES = ['1080p', '1440p', '4K'];
 PC.fpsData = () => { const d = PC.ok('fps'); return d && d.models ? d : null; };
 PC.fpsGpu = () => {
@@ -1397,7 +1397,7 @@ dash.draw('ssFps', (el) => {
   PC.RES.forEach((r, i) => { const b = PC.el('button', 'seg' + (+(PC.ss.res || 0) === i ? ' on' : ''), r); b.type = 'button'; b.addEventListener('click', () => PC.ssSet({ res: String(i) })); res.append(b); });
   const box = PC.el('div', 'chips'); el.append(res, box);
   const rows = PC.ssFacet('fps'), recV = ((PC.fpsData() || {}).rec || {})[PC.ss.game];
-  const opts = [['rec', `推奨${recV}fps以上`], ...PC.FPS_STEPS.filter((n) => n !== recV).map((n) => [String(n), `${n}fps以上`])];
+  const opts = [...PC.FPS_STEPS.map((n) => [String(n), `${n}fps以上`]), ['rec', `推奨値（${recV}fps）以上`]];
   const save = PC.ss.fps;
   const items = opts.map(([v, lab]) => { PC.ss.fps = v; const n = rows.filter((p) => PC.fpsPass(p)).length; return [lab, n]; });
   PC.ss.fps = save;
