@@ -62,7 +62,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 
 /* 同スペック比較（左右2段） */
 .pc .ss { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 10px; align-items: start; }
-.pc .ss-f { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; display: grid; gap: 10px; }
+.pc .card.ss-f { position: sticky; top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); overflow: auto !important; overscroll-behavior: contain; display: grid; gap: 10px; }
+/* 上部メニューを固定（PC） */
+@media (min-width: 701px) {
+  .pc .topbar { position: sticky; top: 10px; z-index: 40; background: rgba(255, 255, 255, .96); }
+  .pc .side, .pc .tbl { scroll-margin-top: calc(var(--tbh, 60px) + 20px); }
+  .pc .side { top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); }
+  .pc th { top: 0; }
+}
 .pc .ss-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .pc .ss-h .clearbtn { height: 32px; font-size: 12px; }
 .pc .ss-g { border-top: 1px dashed var(--color-border-line); padding-top: 8px; }
@@ -102,7 +109,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 @media (max-width: 1200px) { .pc .ss-cols { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 700px) {
   .pc .ss { grid-template-columns: minmax(0, 1fr); }
-  .pc .ss-f { position: static; max-height: none; }
+  .pc .card.ss-f { position: static; max-height: none; overflow: visible !important; }
   .pc .ss .chips { flex-wrap: wrap; overflow: visible; }
 }
 
@@ -635,6 +642,10 @@ window.addEventListener('resize', PC.fitSoon);
   fs.addEventListener('input', on); pad.addEventListener('input', on);
   document.getElementById('pc-size-reset').addEventListener('click', () => apply(DEF));
 })();
+
+/* 上部メニューの高さを CSS 変数に（左メニューの固定位置に使う） */
+{ const tb = document.querySelector('.pc .topbar'), set = () => document.querySelector('.pc').style.setProperty('--tbh', tb.offsetHeight + 'px');
+  set(); if (window.ResizeObserver) new ResizeObserver(set).observe(tb); }
 
 const pcHash = location.hash.slice(1);
 if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'howto'].includes(pcHash)) pcTab(pcHash);
