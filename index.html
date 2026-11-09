@@ -441,6 +441,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     <div class="ss">
       <aside class="card ss-f">
         <div class="ss-h"><h2>同スペック比較</h2><button class="clearbtn pc-ss-clear" type="button">✕ 条件をクリア</button></div>
+        <label class="chk"><input type="checkbox" class="pc-ss-nopro" checked> Windows Pro 搭載モデルを除外</label>
         <label class="chk ss-dsonly"><input type="checkbox" class="pc-ss-same" checked> ドスパラに同じ構成（CPU×GPU×メモリ）があるモデルのみ</label>
         <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
@@ -634,7 +635,7 @@ const pcTab = (name) => {
   const sec = name.startsWith('same') ? 'same' : name;
   if (sec === 'same') {
     const nk = name === 'same-note' ? 'ノート' : 'デスクトップ';
-    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same, sb = PC.ss.sub; PC.ss = PC.ssNew(); PC.ss.same = sm; PC.ss.sub = sb; } }
+    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same, sb = PC.ss.sub, np = PC.ss.nopro; PC.ss = PC.ssNew(); PC.ss.same = sm; PC.ss.sub = sb; PC.ss.nopro = np; } }
     PC.sameKind = nk;
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
@@ -1246,16 +1247,17 @@ PC.MIRROR.dsRows = 'dsCards';
 /* ===== 同スペック比較（左：予算・CPU・GPU・メモリで絞り込み／右：各社のモデル一覧） ===== */
 PC.SS_BUDGET = { 'デスクトップ': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 600000], [600000, 1e9]],
   'ノート': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 1e9]] };
-PC.ssNew = () => ({ budget: '', fam: '', cpu: '', gpu: '', mem: '', game: '', fps: '', res: '0', same: true, open: {}, gshow: 8 });
+PC.ssNew = () => ({ budget: '', fam: '', cpu: '', gpu: '', mem: '', game: '', fps: '', res: '0', same: true, nopro: true, open: {}, gshow: 8 });
 PC.ss = PC.ssNew();
 PC.man = (v) => (v / 10000).toFixed(0) + '万';
 PC.budgetLabel = ([lo, hi]) => (lo === 0 ? `〜${PC.man(hi)}` : hi >= 1e9 ? `${PC.man(lo)}〜` : `${PC.man(lo)}〜${PC.man(hi)}`);
 // 区分内の対象モデル（「2社以上が出している構成のみ」は CPU×GPU×メモリ が2社以上にあるもの）
 PC.ssBase = () => {
   const d = PC.ok('products'); if (!d) return null;
-  const key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}`;
+  const key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}|${PC.ss.nopro}`;
   if (PC._ssb && PC._ssb.src === d && PC._ssb.key === key) return PC._ssb.rows;
   let rows = d.filter((p) => p.kind === PC.sameKind && p.price && p.gpu_key && p.mem_gb);
+  if (PC.ss.nopro) rows = rows.filter((p) => !/\bPro\b/i.test(p.os || ''));
   if (PC.cust) rows = rows.filter((p) => p.maker === 'ドスパラ');
   else if (PC.ss.same) {
     // ドスパラに同じ CPU×GPU×メモリ があるモデルだけ（ドスパラ自身を含む）
@@ -1491,8 +1493,9 @@ dash.draw('ssGroups', (el) => {
     el.append(b);
   }
 });
-document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same, sb = PC.ss.sub; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ss.sub = sb; PC.ssRedraw(); }));
+document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same, sb = PC.ss.sub, np = PC.ss.nopro; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ss.sub = sb; PC.ss.nopro = np; PC.ssRedraw(); }));
 document.querySelectorAll('.pc-ss-same').forEach((x) => x.addEventListener('change', () => PC.ssSet({ same: x.checked })));
+document.querySelectorAll('.pc-ss-nopro').forEach((x) => x.addEventListener('change', () => PC.ssSet({ nopro: x.checked })));
 
 /* 一覧 */
 PC.listRows = () => {

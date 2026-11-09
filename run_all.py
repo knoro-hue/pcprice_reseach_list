@@ -178,7 +178,7 @@ def write_xlsx(path, rows, info, cols=None):
     ws.append([h for _, h in cols])
     for r in rows:
         ws.append([r.get(k) for k, _ in cols])
-    widths = {"maker": 12, "id": 14, "kind": 11, "name": 40, "price": 13, "cpu": 30, "gpu": 32, "mem": 18,
+    widths = {"os": 18, "maker": 12, "id": 14, "kind": 11, "name": 40, "price": 13, "cpu": 30, "gpu": 32, "mem": 18,
               "mem_type": 14, "storage1": 26, "storage_cap": 10, "cooler": 26, "psu": 30, "url": 40}
     for i, (k, _) in enumerate(cols, start=1):
         cell = ws.cell(row=1, column=i)
