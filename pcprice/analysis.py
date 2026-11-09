@@ -146,6 +146,25 @@ def _brief(r, fps=None, est=False):
             "fps": fps, "est": est}
 
 
+def _mem_block(ds: list, pk: list, mem: int) -> dict:
+    """GPU内の指定メモリ容量での当社提案・パソコン工房比較（同CPUで突き合わせ）"""
+    d = [r for r in ds if r.get("mem_gb") == mem]
+    p = [r for r in pk if r.get("mem_gb") == mem]
+    by = {}
+    for r in d + p:
+        c = by.setdefault(r["cpu_key"], {})
+        if r["maker"] not in c or r["price"] < c[r["maker"]]["price"]:
+            c[r["maker"]] = r
+    pairs = [(k, v[DS], v[PK]) for k, v in by.items() if DS in v and PK in v]
+    item = lambda k, a, b: {"cpu": k, "mem": mem, "ds": _brief(a), "pk": _brief(b), "diff": a["price"] - b["price"]}
+    win = [item(*x) for x in sorted(pairs, key=lambda x: x[1]["price"] - x[2]["price"]) if x[1]["price"] < x[2]["price"]][:3]
+    lose = [item(*x) for x in sorted(pairs, key=lambda x: x[2]["price"] - x[1]["price"]) if x[1]["price"] > x[2]["price"]][:3]
+    return {"mem": mem, "ds_n": len(d), "pk_n": len(p), "ds_min": _brief(d[0]) if d else None, "pk_min": _brief(p[0]) if p else None,
+            "diff": (d[0]["price"] - p[0]["price"]) if d and p else None, "pairs": len(pairs),
+            "ds_win": sum(1 for _, a, b in pairs if a["price"] < b["price"]), "pk_win": sum(1 for _, a, b in pairs if a["price"] > b["price"]),
+            "win": win, "lose": lose}
+
+
 def recommend(rows: list, fps_data: dict | None, today: str) -> dict:
     """ゲーム×解像度×目標FPSごとのおすすめ（ドスパラ最安）と、GPUごとのおすすめ・パソコン工房との比較"""
     desk = [r for r in rows if r.get("kind") == "デスクトップ" and r.get("price") and r.get("gpu_key") and not _is_pro(r)
@@ -222,13 +241,14 @@ def recommend(rows: list, fps_data: dict | None, today: str) -> dict:
                        "ds_16": _brief(mid) if mid and mid is not ds[0] else None,
                        "pairs": len(pairs), "ds_win": sum(1 for _, d, p in pairs if d["price"] < p["price"]),
                        "pk_win": sum(1 for _, d, p in pairs if d["price"] > p["price"]),
-                       "lose": f(lose, 1), "win": f(win, -1)})
+                       "lose": f(lose, 1), "win": f(win, -1),
+                       "mems": [_mem_block(ds, pk, m) for m in (16, 32)]})
     order = {g: i for i, g in enumerate(["内蔵GPU", "RTX 3050", "RTX 5050", "RTX 5060", "RTX 5060 Ti", "RTX 5070", "RTX 5070 Ti",
                                          "RTX 5080", "RTX 5090", "RX 9060", "RX 9060 XT", "RX 9070", "RX 9070 GRE", "RX 9070 XT"])}
     by_gpu = [x for x in by_gpu if not re.search(r"PRO|^RTX A\d|Ada|Quadro", x["gpu"])]
     # 業務用GPUはおすすめ対象から外す（ゲーム別も）
     by_gpu.sort(key=lambda x: (order.get(x["gpu"], 50), x["ds_min"]["price"]))
-    return {"updated": today, "basis": "デスクトップ・Windows Pro除外。FPSはドスパラ「ゲーム性能」（最高画質）。パソコン工房はFPSの公表値がないため、同じGPUのドスパラ機の値を目安に条件判定（FPSは非表示）",
+    return {"updated": today, "basis": "デスクトップ・Windows Pro除外。同じGPU・CPU・メモリで両社の最安モデルを比較",
             "by_game": by_game, "by_gpu": by_gpu}
 
 
