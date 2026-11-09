@@ -200,6 +200,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .qchip:hover { border-color: var(--brand); background: #dceaff; }
 .pc .qchip.on { background: var(--brand); border-color: var(--brand); color: #fff; }
 .pc .qchip.on small { color: #cfe1fb; }
+.pc .qchip:disabled { opacity: .35; cursor: default; background: #f4f6f9; border-color: #e1e7ef; color: var(--color-fg-muted); }
 .pc .quickwrap { border-top: 1px dashed #b7cfee; padding-top: 8px; margin-bottom: 8px; }
 
 /* 使い方 */
@@ -558,7 +559,7 @@ PC.closeSame = () => { PC.sameSel = null; document.querySelectorAll('#same .same
 document.querySelectorAll('.pc-same-close').forEach((b) => b.addEventListener('click', () => PC.closeSame()));
 
 /* 検索・絞り込み */
-[['.pc-same-q', 'same', ['sameRows', 'sameCount']], ['.pc-list-q', 'list', ['listRows', 'listCount']]].forEach(([sel, k, draws]) => {
+[['.pc-same-q', 'same', ['sameRows', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips', 'memChips']], ['.pc-list-q', 'list', ['listRows', 'listCount']]].forEach(([sel, k, draws]) => {
   document.querySelectorAll(sel).forEach((el) => el.addEventListener('input', () => { PC.q[k] = el.value.trim().toLowerCase(); draws.forEach((d) => dash.draw(d)); }));
 });
 [['.pc-maker', 'maker', ['listRows', 'listCount']], ['.pc-lkind', 'lkind', ['listRows', 'listCount']], ['.pc-ctype', 'ctype', ['changeRows']], ['.pc-ckind', 'ckind', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']], ['.pc-cdate', 'cdate', ['changeRows', 'cnt0', 'cnt1', 'cnt2', 'cnt3']]].forEach(([sel, k, draws]) => {
@@ -685,27 +686,34 @@ PC.sameMem = () => {
 PC.sameBase = () => { const d = PC.sameUnit ? PC.sameMem() : PC.ok('same'); return d ? d.filter((r) => r.kind === PC.sameKind) : null; };
 PC.sameList = () => {
   const d = PC.sameBase(); if (!d) return null;
-  const q = PC.q.same;
-  return d.filter((r) => (!q || (r.cpu + ' ' + r.gpu + ' ' + (r.mem || '')).toLowerCase().includes(q))
-    && (!PC.f.cpu || r.cpu === PC.f.cpu) && (!PC.f.gpu || r.gpu === PC.f.gpu) && (!PC.f.fam || PC.fam(r.cpu) === PC.f.fam)
-    && (!PC.f.mem || !PC.sameUnit || String(r.mem_gb) === PC.f.mem));
+  return d.filter((r) => PC.sameMatch(r));
 };
+// 絞り込み条件の判定。skip に指定した条件は無視（各絞り込みの件数を「他の条件をかけた状態」で数えるため）
+PC.sameMatch = (r, skip) => {
+  const q = PC.q.same, f = PC.f;
+  return (!q || (r.cpu + ' ' + r.gpu + ' ' + (r.mem || '')).toLowerCase().includes(q))
+    && (skip === 'cpu' || !f.cpu || r.cpu === f.cpu) && (skip === 'gpu' || !f.gpu || r.gpu === f.gpu)
+    && (skip === 'fam' || !f.fam || PC.fam(r.cpu) === f.fam)
+    && (skip === 'mem' || !f.mem || !PC.sameUnit || String(r.mem_gb) === f.mem);
+};
+PC.facet = (skip) => { const d = PC.sameBase(); return d ? d.filter((r) => PC.sameMatch(r, skip)) : null; };
 PC.FDRAWS = ['sameRows', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips', 'memChips'];
 PC.setF = (patch) => { Object.assign(PC.f, patch); PC.FDRAWS.forEach((d) => dash.draw(d)); };
-PC.opts = (sel, rows, field, label) => {
-  const counts = d3.rollups(rows, (v) => v.length, (r) => r[field]).sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
-  sel.replaceChildren(new Option(label + '：すべて', ''), ...counts.map(([k, n]) => new Option(`${k}（${n}）`, k)));
-  sel.value = PC.f[field] || '';
-  sel.classList.toggle('on', !!PC.f[field]);
+// プルダウン：他の条件で絞った結果に存在する値だけを件数付きで表示（選択中の値は0件でも残す）
+PC.opts = (sel, field, label, fmt = (k) => k) => {
+  const rows = PC.facet(field); if (!rows) return sel.replaceChildren();
+  const counts = d3.rollups(rows, (v) => v.length, (r) => r[field === 'mem' ? 'mem_gb' : field]).sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
+  const cur = PC.f[field] || '';
+  if (cur && !counts.some(([k]) => String(k) === cur)) counts.push([cur, 0]);
+  sel.replaceChildren(new Option(label + '：すべて', ''), ...counts.map(([k, n]) => new Option(`${fmt(k)}（${n}）`, String(k))));
+  sel.value = cur; sel.classList.toggle('on', !!cur);
 };
-dash.draw('fCpu', (sel) => { const d = PC.sameBase(); if (!d) return sel.replaceChildren(); PC.opts(sel, d, 'cpu', 'CPU'); });
-dash.draw('fGpu', (sel) => { const d = PC.sameBase(); if (!d) return sel.replaceChildren(); PC.opts(sel, d, 'gpu', 'GPU'); });
+dash.draw('fCpu', (sel) => PC.opts(sel, 'cpu', 'CPU'));
+dash.draw('fGpu', (sel) => PC.opts(sel, 'gpu', 'GPU'));
 dash.draw('fMem', (sel) => {
   sel.style.display = PC.sameUnit ? '' : 'none';
-  const d = PC.sameBase(); if (!d || !PC.sameUnit) return sel.replaceChildren();
-  const counts = d3.rollups(d, (v) => v.length, (r) => r.mem_gb).sort((a, b) => a[0] - b[0]);
-  sel.replaceChildren(new Option('メモリ：すべて', ''), ...counts.map(([k, n]) => new Option(`${k}GB（${n}）`, String(k))));
-  sel.value = PC.f.mem || ''; sel.classList.toggle('on', !!PC.f.mem);
+  if (!PC.sameUnit) return sel.replaceChildren();
+  PC.opts(sel, 'mem', 'メモリ', (k) => k + 'GB');
 });
 document.querySelectorAll('.pc-fmem').forEach((el) => el.addEventListener('change', () => PC.setF({ mem: el.value })));
 document.querySelectorAll('.pc-sunit').forEach((el) => el.addEventListener('change', () => {
@@ -715,28 +723,31 @@ document.querySelectorAll('.pc-sunit').forEach((el) => el.addEventListener('chan
 }));
 PC.chips = (el, items, isOn, onClick) => {
   el.replaceChildren(...items.map(([k, n]) => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'qchip' + (isOn(k) ? ' on' : '');
+    const on = isOn(k), b = document.createElement('button'); b.type = 'button'; b.className = 'qchip' + (on ? ' on' : '');
     b.textContent = k; const sm = document.createElement('small'); sm.textContent = n; b.appendChild(sm);
+    if (n === 0 && !on) b.disabled = true; // 他の条件と組み合わせると存在しない
     b.addEventListener('click', () => onClick(k)); return b;
   }));
 };
+// ボタンの並びは全体（区分内）で固定し、件数だけ他の条件に合わせて変える
+PC.chipItems = (keys, rows, keyFn) => { const c = d3.rollup(rows, (v) => v.length, keyFn); return keys.map((k) => [k, c.get(k) || 0]); };
 dash.draw('gpuChips', (el) => {
   const d = PC.sameBase(); if (!d) return el.replaceChildren();
-  const top = d3.rollups(d, (v) => v.length, (r) => r.gpu).sort((a, b) => b[1] - a[1]).slice(0, 12)
-    .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
-  PC.chips(el, top, (k) => PC.f.gpu === k, (k) => PC.setF({ gpu: PC.f.gpu === k ? '' : k }));
+  const keys = d3.rollups(d, (v) => v.length, (r) => r.gpu).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([k]) => k)
+    .sort((a, b) => String(a).localeCompare(String(b), 'ja', { numeric: true }));
+  PC.chips(el, PC.chipItems(keys, PC.facet('gpu'), (r) => r.gpu), (k) => PC.f.gpu === k, (k) => PC.setF({ gpu: PC.f.gpu === k ? '' : k }));
 });
 dash.draw('memChips', (el) => {
   const row = el.closest('.memquick'); if (row) row.style.display = PC.sameUnit ? '' : 'none';
   const d = PC.sameBase(); if (!d || !PC.sameUnit) return el.replaceChildren();
-  const ms = d3.rollups(d, (v) => v.length, (r) => r.mem_gb).sort((a, b) => a[0] - b[0]).map(([k, n]) => [k + 'GB', n]);
-  PC.chips(el, ms, (k) => PC.f.mem === String(parseInt(k, 10)), (k) => { const v = String(parseInt(k, 10)); PC.setF({ mem: PC.f.mem === v ? '' : v }); });
+  const keys = [...new Set(d.map((r) => r.mem_gb))].sort((a, b) => a - b).map((k) => k + 'GB');
+  PC.chips(el, PC.chipItems(keys, PC.facet('mem'), (r) => r.mem_gb + 'GB'), (k) => PC.f.mem === String(parseInt(k, 10)), (k) => { const v = String(parseInt(k, 10)); PC.setF({ mem: PC.f.mem === v ? '' : v }); });
 });
 dash.draw('cpuChips', (el) => {
   const d = PC.sameBase(); if (!d) return el.replaceChildren();
-  const fams = d3.rollups(d, (v) => v.length, (r) => PC.fam(r.cpu)).filter(([k]) => k !== 'その他').sort((a, b) => b[1] - a[1]).slice(0, 10)
-    .sort((a, b) => String(a[0]).localeCompare(String(b[0]), 'ja', { numeric: true }));
-  PC.chips(el, fams, (k) => PC.f.fam === k, (k) => PC.setF({ fam: PC.f.fam === k ? '' : k }));
+  const keys = d3.rollups(d, (v) => v.length, (r) => PC.fam(r.cpu)).filter(([k]) => k !== 'その他').sort((a, b) => b[1] - a[1]).slice(0, 10).map(([k]) => k)
+    .sort((a, b) => String(a).localeCompare(String(b), 'ja', { numeric: true }));
+  PC.chips(el, PC.chipItems(keys, PC.facet('fam'), (r) => PC.fam(r.cpu)), (k) => PC.f.fam === k, (k) => PC.setF({ fam: PC.f.fam === k ? '' : k }));
 });
 dash.draw('sameCount', (el) => { const r = PC.sameList(); el.textContent = r ? d3.format(',')(r.length) : '—'; });
 PC.bestCls = (code) => (v, r) => (v == null ? 'n dim' : r.cheapest === PC.MAKERS.find((m) => m[0] === code)[1] ? 'n best' : 'n');
