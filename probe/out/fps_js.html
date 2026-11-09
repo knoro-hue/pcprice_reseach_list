@@ -1,0 +1,78 @@
+//【TW 1.0】#44291（ECPF-3403）対応 3Dmarkデザイン変更依頼 Start.
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // 韋駄天サイトの場合は3DMARKエリアを表示しない
+    if ($('body.idaten-site').length) {
+        return;
+    }
+
+    // FPS推奨スコアファイルを読み込み保持する
+    let fpsScore;
+    try {
+        const fpsScoreJson = await (await fetch($('#fpsScoreFile').val())).json();
+        fpsScore = JSON.stringify(fpsScoreJson);
+    } catch (e) {
+        fpsScore = null;
+    }
+
+    // FPSスコアデータファイルを読み込み、表示対象BTO商品のFPSスコアデータを保持する
+    let fpsData;
+    try {
+        const fpsDataJson = await (await fetch($('#fpsDataFile').val())).json();
+        fpsData = JSON.stringify(fpsDataJson[$('.productId').val().split('-')[0]]);
+    } catch (e) {
+        fpsData = null;
+    }
+
+    // 3DMARKエリア内のFPSスコア一覧を再表示する
+    function showFpsList(obj) {
+        if (!fpsData) {
+            // 表示対象BTO商品のFPSスコアデータがない場合は3DMARKエリアを表示しない
+            return;
+        }
+        $.spinner().start();
+        let form = {
+            resolution: obj.data("resolution"),
+            fpsScore: fpsScore,
+            fpsData: fpsData,
+        };
+        let url = obj.data("url");
+        if (url) {
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: form,
+                success: function (data) {
+                    // 3DMARKエリアを表示する
+                    $('.p-product-show-detail__benchmark-fps-wrapper').show();
+                    // 3DMARKエリア内のFPSスコア一覧を再表示する
+                    let newData = $(data).find('.p-product-show-detail__benchmark-fps-list');
+                    $('.p-product-show-detail__benchmark-fps-list').replaceWith(newData);
+                    $('.p-product-show-detail__benchmark-fps-button').removeClass('is-active');
+                    obj.addClass('is-active');
+                    $.spinner().stop();
+                },
+                error: function () {
+                    $.spinner().stop();
+                }
+            });
+        }
+    }
+
+    // 3DMARKエリア内の解像度ボタン押下処理
+    $(document).on('click', '.p-product-show-detail__benchmark-fps-button', function () {
+        showFpsList($(this));
+    });
+
+    // 初期表示は解像度1080pを選択した状態でFPSスコア一覧を表示する
+    if ($('.p-product-show-detail__benchmark-fps-button').length) {
+        showFpsList($('.p-product-show-detail__benchmark-fps-button:first'));
+    }
+
+    // FPSスコア説明モーダル表示処理
+    $(".js-product-show-detail__benchmark-fps-modal-trigger").modaal({
+        custom_class: "p-product-show-detail__benchmark-fps-modal",
+        overlay_opacity: "0.75",
+    });
+});
+//【TW 1.0】#44291（ECPF-3403）対応 3Dmarkデザイン変更依頼 End.
