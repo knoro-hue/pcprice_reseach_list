@@ -125,6 +125,7 @@ def gpu_key(s: str, kind: str) -> str:
         (r"GTX\s*(\d{4})\s*(Ti|SUPER)?", lambda m: f"GTX {m[1]}{' ' + _suf(m[2]) if m[2] else ''}"),
         (r"RX\s*(\d{4})\s*(XTX|XT|GRE)?", lambda m: f"RX {m[1]}{' ' + m[2].upper() if m[2] else ''}"),
         (r"Arc\s*(Pro\s*)?([AB]\d{2,3})", lambda m: f"Arc {'Pro ' if m[1] else ''}{m[2].upper()}"),
+        (r"Radeon\s*(AI\s*)?PRO\s*([RW]\d{4})", lambda m: f"Radeon {'AI ' if m[1] else ''}PRO {m[2].upper()}"),
     ]
     for p, f in pats:
         m = re.search(p, t, flags=re.I)

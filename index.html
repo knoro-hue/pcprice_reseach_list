@@ -225,26 +225,40 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 @media (max-width: 700px) { .pc .mk-rl { justify-content: flex-start; } }
 
 /* AI分析 */
-.pc .ai-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(320px, 1fr); gap: 10px; align-items: start; }
-@media (max-width: 1100px) { .pc .ai-grid { grid-template-columns: minmax(0, 1fr); } }
-.pc .ai-side { display: grid; gap: 10px; }
-.pc .md { font-size: 15px; line-height: 1.9; letter-spacing: .03em; color: #1b2538; max-width: 52em; }
-.pc .md p { margin: 4px 0; }
-.pc .md b { color: #0d1830; }
-.pc .md h3 { font-size: 16.5px; margin: 22px 0 8px; letter-spacing: .04em; padding: 4px 10px; border-left: 5px solid var(--brand); background: #eef5ff; border-radius: 4px; color: var(--brand); }
-.pc .md h3.good { border-color: var(--color-ok); background: color-mix(in srgb, var(--color-ok) 9%, #fff); color: var(--color-ok); }
-.pc .md h3.bad { border-color: var(--color-bad); background: color-mix(in srgb, var(--color-bad) 8%, #fff); color: var(--color-bad); }
-.pc .md ul, .pc .md ol { margin: 6px 0 10px; padding-left: 24px; } .pc .md li { margin: 6px 0; }
-.pc .ai-kpi { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
-.pc .ai-kpi div { background: #f4f8fe; border: 1px solid #d5e2f2; border-radius: 10px; padding: 8px; text-align: center; }
-.pc .ai-kpi b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; } .pc .ai-kpi small { font-size: 11.5px; color: var(--color-fg-muted); }
-.pc .ai-kpi .g b { color: var(--color-ok); } .pc .ai-kpi .r b { color: var(--color-bad); }
-.pc .ai-bar { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) 5.5rem; gap: 8px; align-items: center; font-size: 13.5px; padding: 5px 0; }
-.pc .ai-bar .tr { position: relative; height: 14px; background: #f1f4f9; border-radius: 3px; }
-.pc .ai-bar .tr::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: #9fb0c6; }
-.pc .ai-bar .fl { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
-.pc .ai-bar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
-.pc .ai-bar .v.g { color: var(--color-ok); } .pc .ai-bar .v.r { color: var(--color-bad); }
+.pc .ai-wrap { display: grid; gap: 10px; }
+.pc .ai-intro h2, .pc .ai-sec h2 { font-size: 17px; }
+.pc .ai-sec { display: flex; align-items: center; gap: 14px; margin-top: 6px; padding: 0 4px; }
+.pc .ai-sec h2 { color: var(--brand); border-left: 6px solid var(--brand); padding-left: 10px; }
+.pc .ai-seg { display: flex; gap: 4px; }
+.pc .ai-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr)); gap: 10px; align-items: start; }
+.pc .ai-card { padding: 12px 14px; }
+.pc .ai-card.br { border-left: 6px solid var(--bc); } .pc .ai-card.br .ai-h b { color: var(--bc); }
+.pc .ai-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 2px solid #e6eef9; }
+.pc .ai-h b { font-size: 18px; color: #0d1830; } .pc .ai-h small { font-size: 12px; color: var(--color-fg-muted); }
+.pc .ai-k { font-size: 11px; font-weight: 700; color: #fff; background: var(--brand); border-radius: 4px; padding: 1px 6px; }
+.pc .ai-row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 10px; padding: 9px 0; border-top: 1px dashed #e3e9f1; }
+.pc .ai-row:first-of-type { border-top: 0; }
+.pc .ai-row.rec .ai-cond { color: var(--color-ok); } .pc .ai-row.rec .ai-cond::after { content: "（推奨）"; font-size: 11px; }
+.pc .ai-cond { font-weight: 700; font-size: 14px; color: var(--brand); padding-top: 2px; }
+.pc .ai-cond.good { color: var(--color-ok); } .pc .ai-cond.bad { color: var(--color-bad); }
+.pc .ai-body { display: grid; gap: 6px; min-width: 0; }
+.pc .ai-m { display: grid; gap: 3px; }
+.pc .ai-mt { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 13px; }
+.pc .ai-p { font-size: 17px; font-variant-numeric: tabular-nums; }
+.pc .ai-m.ds .ai-p, .pc .ai-m.ds .ai-n { color: #004da1; }
+.pc .ai-tag { font-size: 12px; color: #33415c; background: #f1f5fb; border-radius: 4px; padding: 1px 6px; }
+.pc .ai-n { font-size: 13px; color: var(--color-fg); text-decoration: none; line-height: 1.5; } .pc .ai-n:hover { text-decoration: underline; }
+.pc .ai-v { justify-self: start; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+.pc .ai-v.win { color: var(--color-ok); background: color-mix(in srgb, var(--color-ok) 12%, #fff); }
+.pc .ai-v.lose { color: var(--color-bad); background: color-mix(in srgb, var(--color-bad) 10%, #fff); cursor: help; }
+.pc .ai-v.only { color: var(--color-fg-muted); background: #f1f4f9; }
+.pc .ai-same { font-size: 13px; color: var(--color-fg-muted); }
+.pc .ai-alt { font-size: 12px; color: var(--color-fg-muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.pc .ai-alt a { color: var(--brand); }
+.pc .ai-list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; }
+.pc .ai-list a { color: var(--brand); font-weight: 700; } .pc .ai-list b.good { color: var(--color-ok); } .pc .ai-list b.bad { color: var(--color-bad); }
+.pc .ai-comment h2 { font-size: 15px; margin-bottom: 4px; }
+@media (max-width: 700px) { .pc .ai-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
 
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
@@ -672,16 +686,13 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   </section>
 
   <section class="page" id="ai" hidden>
-    <div class="ai-grid">
-      <div class="card ai-text">
-        <div class="cardhead"><div><h2>AI分析：ドスパラ vs パソコン工房</h2></div><span class="note" style="margin:0" data-draw="aiMeta" data-source="ai"></span></div>
-        <div class="md" data-draw="aiText" data-source="ai"></div>
-      </div>
-      <div class="ai-side">
-        <div class="card"><h2>根拠データ</h2><p class="note" data-draw="aiBasis" data-source="aistats"></p><div class="ai-kpi" data-draw="aiKpi" data-source="aistats"></div></div>
-        <div class="card"><h2>GPU別（デスクトップ）</h2><div data-draw="aiGpu" data-source="aistats"></div></div>
-        <div class="card"><h2>価格帯別（デスクトップ）</h2><div data-draw="aiBand" data-source="aistats"></div></div>
-      </div>
+    <div class="ai-wrap">
+      <div class="card ai-intro"><h2>AI分析：お客様の希望別の提案と、パソコン工房との比較</h2><p class="note" style="margin:4px 0 0" data-draw="aiBasis" data-source="reco"></p></div>
+      <div class="card ai-comment" data-draw="aiComment" data-source="ai"></div>
+      <div class="ai-sec"><h2>ゲーム × 目標FPS で選ぶ</h2><div class="ai-seg" data-draw="aiResSel" data-source="reco"></div></div>
+      <div class="ai-cards" data-draw="aiGames" data-source="reco"></div>
+      <div class="ai-sec"><h2>GPU の希望で選ぶ</h2></div>
+      <div class="ai-cards" data-draw="aiGpus" data-source="reco"></div>
     </div>
   </section>
 
@@ -1787,36 +1798,94 @@ PC.mdHtml = (t) => {
   });
   close(); return html;
 };
-dash.draw('aiMeta', (el) => { const a = PC.ok('ai'); el.textContent = a && a.text ? `${a.updated} 時点・${a.model || 'Claude'}` : ''; });
-dash.draw('aiText', (el) => {
-  const a = PC.ok('ai');
-  if (!a || !a.text) { el.innerHTML = '<p>AI分析はまだありません。リポジトリの Settings → Secrets and variables → Actions に <b>ANTHROPIC_API_KEY</b> を登録すると、毎日の取得時に Claude が更新します。</p>'; return; }
-  el.innerHTML = PC.mdHtml(a.text);
-});
-dash.draw('aiBasis', (el) => { const s = PC.ok('aistats'); el.textContent = s && s.basis ? `${s.basis}（${s.updated}）` : ''; });
-dash.draw('aiKpi', (el) => {
-  el.replaceChildren(); const s = PC.ok('aistats'); if (!s || !s.total) return;
-  const t = s.total, k = (cls, v, lab) => { const d = PC.el('div', cls); d.append(PC.el('b', null, v), PC.el('small', null, lab)); return d; };
-  el.append(k('g', String(t.ds_cheaper), 'ドスパラが安い構成'), k('r', String(t.pk_cheaper), 'パソコン工房が安い構成'),
-    k(t.median_diff > 0 ? 'r' : 'g', (t.median_diff > 0 ? '+' : '') + PC.yen(t.median_diff) + '円', `差の中央値（${t.median_pct > 0 ? '+' : ''}${t.median_pct}%）`));
-});
-PC.aiBars = (el, obj, prefix, order) => {
-  el.replaceChildren(); if (!obj) return;
-  let ents = Object.entries(obj).filter(([k]) => k.startsWith(prefix)).map(([k, v]) => [k.slice(prefix.length), v]);
-  if (order) ents.sort((a, b) => order.indexOf(a[0]) - order.indexOf(b[0]));
-  const mx = Math.max(10, ...ents.map(([, v]) => Math.abs(v.median_pct)));
-  ents.forEach(([lab, v]) => {
-    const r = PC.el('div', 'ai-bar'), tr = PC.el('div', 'tr'), fl = PC.el('div', 'fl'), w = Math.min(50, Math.abs(v.median_pct) / mx * 50);
-    fl.style.cssText = `width:${w}%;${v.median_pct > 0 ? 'left:50%;background:var(--color-bad)' : `left:${50 - w}%;background:var(--color-ok)`}`;
-    tr.append(fl); tr.title = `${v.n}構成：ドスパラが安い${v.ds_cheaper}／パソコン工房が安い${v.pk_cheaper}`;
-    const lb = PC.el('span', 'bt', lab); PC.brandEl(lb, lab);
-    r.append(lb, tr, PC.el('span', 'v ' + (v.median_pct > 0 ? 'r' : 'g'), `${v.median_pct > 0 ? '+' : ''}${v.median_pct}%`));
-    el.append(r);
-  });
-  el.append(PC.el('p', 'note', '中央値の差（ドスパラ−パソコン工房）。緑＝ドスパラが安い、赤＝高い。バーにカーソルで構成数'));
+/* ===== AI分析（提案） ===== */
+PC.aiRes = 0;
+PC.gname2 = (g) => (PC.GAME_SHORT && PC.GAME_SHORT[g]) || g;
+PC.aiModel = (m, opt = {}) => {
+  const box = PC.el('div', 'ai-m' + (m.maker === 'ドスパラ' ? ' ds' : ''));
+  const top = PC.el('div', 'ai-mt');
+  top.append(PC.el('b', 'ai-p', PC.yen(m.price) + '円'));
+  const g = PC.el('span', 'bt', m.gpu); PC.brandEl(g, m.gpu); top.append(g);
+  const c = PC.el('span', 'bt', m.cpu); PC.brandEl(c, m.cpu); top.append(c);
+  if (m.mem) top.append(PC.el('span', 'ai-tag', `メモリ ${m.mem}GB`));
+  if (m.st) top.append(PC.el('span', 'ai-tag', PC.stLabel(m.st)));
+  if (opt.fps && m.fps != null) top.append(PC.el('span', 'fps-m ok' + (m.est ? ' est' : ''), `${m.est ? '≈' : ''}${m.fps}fps`));
+  const a = PC.el('a', 'ai-n', m.name); a.href = m.url; a.target = '_blank'; a.rel = 'noopener';
+  box.append(top, a); return box;
 };
-dash.draw('aiGpu', (el) => { const s = PC.ok('aistats'); PC.aiBars(el, s && s.by_gpu, 'デスクトップ|'); });
-dash.draw('aiBand', (el) => { const s = PC.ok('aistats'); PC.aiBars(el, s && s.by_band, 'デスクトップ|', ['〜15万', '15〜20万', '20〜25万', '25〜30万', '30〜40万', '40万〜']); });
+PC.aiVerdict = (diff, pk) => {
+  if (diff == null) return PC.el('span', 'ai-v only', '他社に同条件なし');
+  if (diff <= 0) return PC.el('span', 'ai-v win', diff === 0 ? '当社最安（同額）' : `当社最安（パソコン工房より ${PC.yen(-diff)}円 安い）`);
+  const v = PC.el('span', 'ai-v lose', `パソコン工房が ${PC.yen(diff)}円 安い`);
+  if (pk) v.title = `${pk.name}（${PC.yen(pk.price)}円・${pk.gpu}・${pk.cpu}）`;
+  return v;
+};
+dash.draw('aiComment', (el) => {
+  const a = PC.ok('ai'); el.replaceChildren();
+  if (!a || !a.text || !a.model || /初回作成/.test(a.model)) { el.style.display = 'none'; return; }
+  el.style.display = ''; el.append(PC.el('h2', null, '総評'), PC.el('div', 'md')); el.lastChild.innerHTML = PC.mdHtml(a.text);
+});
+dash.draw('aiBasis', (el) => { const r = PC.ok('reco'); el.textContent = r && r.basis ? `${r.basis}（${r.updated}）` : ''; });
+dash.draw('aiResSel', (el) => {
+  el.replaceChildren();
+  ['1080p', '1440p', '4K'].forEach((r, i) => { const b = PC.el('button', 'seg' + (PC.aiRes === i ? ' on' : ''), r); b.type = 'button'; b.addEventListener('click', () => { PC.aiRes = i; dash.draw('aiResSel'); dash.draw('aiGames'); }); el.append(b); });
+});
+dash.draw('aiGames', (el) => {
+  el.replaceChildren(); const r = PC.ok('reco'); if (!r || !r.by_game) return;
+  r.by_game.forEach((g) => {
+    const card = PC.el('div', 'card ai-card');
+    const h = PC.el('div', 'ai-h'); h.append(PC.el('span', 'ai-k', 'ゲーム'), PC.el('b', null, PC.gname2(g.game)));
+    if (g.rec) h.append(PC.el('small', null, `推奨 ${g.rec}fps`));
+    card.append(h);
+    const steps = g.res[PC.aiRes].steps;
+    steps.forEach((s, i) => {
+      // 前の段と同じ提案なら省略表示
+      const prev = steps[i - 1], same = prev && prev.ds && s.ds && prev.ds.url === s.ds.url;
+      const row = PC.el('div', 'ai-row' + (s.fps === g.rec ? ' rec' : ''));
+      row.append(PC.el('div', 'ai-cond', `${s.fps}fps以上なら`));
+      const body = PC.el('div', 'ai-body');
+      if (!s.ds) body.append(PC.el('span', 'ai-v only', '当社に該当モデルなし'));
+      else if (same) body.append(PC.el('span', 'ai-same', '↑ 同じモデルで達成'));
+      else {
+        body.append(PC.aiModel(s.ds, { fps: true }), PC.aiVerdict(s.diff, s.pk));
+        if (s.alt && s.alt.length) {
+          const alt = PC.el('div', 'ai-alt'); alt.append(PC.el('span', null, '次点：'));
+          s.alt.forEach((m) => { const a = PC.el('a', null, `${m.gpu} ${PC.yen(m.price)}円`); a.href = m.url; a.target = '_blank'; a.rel = 'noopener'; alt.append(a); });
+          body.append(alt);
+        }
+      }
+      row.append(body); card.append(row);
+    });
+    el.append(card);
+  });
+});
+dash.draw('aiGpus', (el) => {
+  el.replaceChildren(); const r = PC.ok('reco'); if (!r || !r.by_gpu) return;
+  r.by_gpu.forEach((g) => {
+    const card = PC.el('div', 'card ai-card'); PC.brandEl(card, g.gpu);
+    const h = PC.el('div', 'ai-h'); const t = PC.el('b', null, `${g.gpu} 希望`); h.append(PC.el('span', 'ai-k', 'GPU'), t);
+    h.append(PC.el('small', null, `当社 ${g.ds_n}機種／パソコン工房 ${g.pk_n}機種`));
+    if (g.pairs) h.append(PC.el('small', null, `同じCPU×メモリで比較 ${g.pairs}件：当社が安い ${g.ds_win}・パソコン工房が安い ${g.pk_win}`));
+    card.append(h);
+    const row = PC.el('div', 'ai-row'); row.append(PC.el('div', 'ai-cond', '提案（最安）'));
+    const b = PC.el('div', 'ai-body'); b.append(PC.aiModel(g.ds_min), PC.aiVerdict(g.diff, g.pk_min)); row.append(b); card.append(row);
+    if (g.ds_16) { const r2 = PC.el('div', 'ai-row'); r2.append(PC.el('div', 'ai-cond', 'メモリ16GB以上なら')); const b2 = PC.el('div', 'ai-body'); b2.append(PC.aiModel(g.ds_16)); r2.append(b2); card.append(r2); }
+    const lst = (title, cls, items) => {
+      if (!items || !items.length) return;
+      const r3 = PC.el('div', 'ai-row'); r3.append(PC.el('div', 'ai-cond ' + cls, title));
+      const ul = PC.el('ul', 'ai-list');
+      items.forEach((x) => {
+        const li = PC.el('li'); const a = PC.el('a', null, `${x.cpu}・メモリ${x.mem}GB`); a.href = x.ds.url; a.target = '_blank'; a.rel = 'noopener';
+        li.append(a, PC.el('span', null, `　当社 ${PC.yen(x.ds.price)}円 ／ パソコン工房 ${PC.yen(x.pk.price)}円　`), PC.el('b', cls, `${x.diff > 0 ? '+' : '−'}${PC.yen(Math.abs(x.diff))}円`));
+        ul.append(li);
+      });
+      r3.append(ul); card.append(r3);
+    };
+    lst('当社が有利', 'good', g.win);
+    lst('パソコン工房に不利', 'bad', g.lose);
+    el.append(card);
+  });
+});
 
 /* 一覧 */
 PC.listRows = () => {
@@ -1845,7 +1914,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
-    for (const [id, f] of [['ai', 'ai_analysis.json'], ['aistats', 'ai_stats.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
+    for (const [id, f] of [['ai', 'ai_analysis.json'], ['reco', 'ai_reco.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
     try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }
     try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
