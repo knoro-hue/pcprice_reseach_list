@@ -197,6 +197,40 @@ def focus(today: str, log=print) -> dict:
     return {"updated": today, "groups": groups}
 
 
+def fps(today: str, sample_url: str, log=print) -> dict | None:
+    """ドスパラ詳細ページの「ゲーム性能」データ（モデル別FPS）。
+    詳細ページの hidden input にある ul_fpsdate.json（全モデル分）と game_fps_score.json（推奨FPS）を取得し、
+    {models: {MC番号: {ゲーム: [1080p, 1440p, 4K]}}} に圧縮する（画質は「最高」＝サイト表示と同じ）"""
+    import json
+    http = Http(wait=0.5)
+    page = http.get(sample_url)
+    m_data = re.search(r'id="fpsDataFile" value="([^"]+)"', page)
+    m_score = re.search(r'id="fpsScoreFile" value="([^"]+)"', page)
+    if not m_data:
+        return None
+    raw = json.loads(http.get(BASE + m_data.group(1)).lstrip("\ufeff"))
+    rec = json.loads(http.get(BASE + m_score.group(1)).lstrip("\ufeff")) if m_score else {}
+    res = ["1080p/FHD", "1440p/WQHD", "2160p/4K"]
+
+    def n(v):
+        m = re.match(r"\s*(\d+)", str(v))
+        return int(m.group(1)) if m else None
+    models, games = {}, []
+    for mc, v in raw.items():
+        out = {}
+        for g, q in ((v or {}).get("game_list") or {}).items():
+            if g not in games:
+                games.append(g)
+            arr = [n((q.get("最高") or {}).get(r)) for r in res]
+            if any(x is not None for x in arr):
+                out[g] = arr
+        if out:
+            models[mc] = out
+    log(f"{MAKER} FPS: {len(models)}モデル")
+    return {"updated": today, "quality": "最高", "res": ["1080p", "1440p", "4K"], "games": games,
+            "rec": {g: (rec.get(g) or {}).get("1080p/FHD") for g in games}, "models": models}
+
+
 def _cap(s: str) -> str:
     g = gb(s)
     if g is None:
