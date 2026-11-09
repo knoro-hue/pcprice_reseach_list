@@ -878,6 +878,30 @@ if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'ai', 'howto'].inclu
 PC.setCust(PC.cust);
 
 /* 並び替え */
+/* 性能順の目安（GPU：世代・グレードの相対値、CPU：グレード×型番） */
+PC.GPU_PERF = { '内蔵GPU': 0, 'GTX 1650': 6, 'RTX 2050': 7, 'RTX 3050': 10, 'RTX A1000': 11, 'RTX 4050': 15, 'RTX 5050': 18, 'RX 9050': 19, 'RTX 3060': 20, 'RX 7600': 22,
+  'RTX 4060': 24, 'RTX 5060': 28, 'RX 9060': 29, 'RTX 4060 Ti': 30, 'RTX 5060 Ti': 34, 'RX 9060 XT': 35, 'RTX 4070': 40, 'RX 7800 XT': 42, 'RTX 4070 SUPER': 45,
+  'RTX 5070': 47, 'RX 9070 GRE': 46, 'RTX 4070 Ti': 48, 'RX 9070': 50, 'RTX 4070 Ti SUPER': 52, 'RX 9070 XT': 54, 'RTX 5070 Ti': 56, 'RX 7900 XTX': 58, 'RTX 4080': 60,
+  'RTX 4080 SUPER': 62, 'RTX 5080': 65, 'RTX 4090': 75, 'RTX 5090': 90 };
+PC.gpuPerf = (k) => {
+  if (k == null) return null; const t = String(k), lap = /Laptop/.test(t), base = t.replace(/\s*Laptop$/, '');
+  let v = PC.GPU_PERF[base];
+  if (v == null) { const m = base.match(/(\d{4})/); v = m ? (+m[1] % 1000) / 20 : 5; if (/PRO|Ada|^RTX A/.test(base)) v += 5; }
+  return lap ? v * 0.8 : v;
+};
+PC.CPU_TIER = [[/Celeron|^N\d|Pentium|Athlon/, 1], [/Core i3|Ryzen 3\b|Core 3\b/, 2], [/Core i5|Ryzen 5\b|Core 5\b/, 3], [/Core Ultra 5|Ryzen AI 5/, 3.5],
+  [/Core i7|Ryzen 7\b|Core 7\b/, 4], [/Core Ultra 7|Ryzen AI 7/, 4.5], [/Core i9|Ryzen 9\b/, 5], [/Core Ultra 9|Ryzen AI 9|Ryzen AI Max/, 5.5], [/Xeon/, 6], [/Threadripper/, 7]];
+PC.CPU_SCORE = {"N100": 5, "N150": 6, "Celeron G6900": 6, "Athlon 3000G": 5, "Ryzen 3 3200G": 10, "Ryzen 5 3400G": 12, "Core i3-14100": 20, "Core i3-1315U": 12, "Ryzen 5 4500": 20, "Ryzen 5 5500GT": 22, "Ryzen 5 5600GT": 24, "Core i5-12400": 26, "Ryzen 5 8500G": 27, "Ryzen 5 7500F": 31, "Ryzen 5 8600G": 29, "Core i5-14400": 32, "Core i5-14400F": 32, "Ryzen 5 9600X": 36, "Core Ultra 5 225": 34, "Core Ultra 5 225F": 34, "Core Ultra 5 245K": 42, "Core Ultra 5 245KF": 42, "Core Ultra 5 250K Plus": 45, "Core Ultra 5 250KF Plus": 45, "Core Ultra 5 325": 36, "Ryzen 7 5700X": 30, "Ryzen 7 5800X3D": 38, "Ryzen 7 8700G": 36, "Ryzen 7 7700": 42, "Ryzen 7 9700X": 46, "Ryzen 7 7700X3D": 47, "Ryzen 7 7800X3D": 50, "Ryzen 7 9800X3D": 56, "Ryzen 7 9850X3D": 58, "Core i7-14700": 52, "Core i7-14700F": 52, "Core i7-14700T": 40, "Core Ultra 7 265": 54, "Core Ultra 7 265F": 54, "Core Ultra 7 265K": 58, "Core Ultra 7 270K Plus": 61, "Core Ultra 7 355": 44, "Core i9-14900": 60, "Core i9-14900KF": 64, "Core Ultra 9 285": 62, "Core Ultra 9 285K": 66, "Ryzen 9 9900X": 62, "Ryzen 9 9900X3D": 66, "Ryzen 9 9950X": 70, "Ryzen 9 9950X3D": 74, "Ryzen 9 9950X3D2": 76, "Ryzen AI Max+ 395": 60, "Xeon w3-2423": 40, "Xeon w5-2555X": 65, "Xeon 634": 55, "Xeon 676X": 85, "Xeon 698X": 95, "Ryzen Threadripper 9960X": 90, "Ryzen Threadripper 9980X": 100, "Ryzen Threadripper PRO 9995WX": 110};
+PC.cpuPerf = (k) => {
+  if (k == null) return null; const t = String(k);
+  if (PC.CPU_SCORE[t] != null) return PC.CPU_SCORE[t];
+  const tier = (PC.CPU_TIER.slice().reverse().find(([re]) => re.test(t)) || [0, 0])[1];
+  const m = t.match(/(\d{3,5})/); let n = m ? +m[1] : 0; if (n < 1000) n *= 10; // 265 → 2650 と 14700 を同列に扱う
+  n = Math.min(n, 99999) / 100000;
+  const suf = /X3D/.test(t) ? 0.05 : /\d(K|X)\b/.test(t) || /\dX\b/.test(t) ? 0.02 : /\dF\b/.test(t) ? -0.005 : 0;
+  return (tier + n * 0.9 + suf + (/Plus/.test(t) ? 0.01 : 0)) * 11; // 一覧にないCPU（主にノート）は目安値
+};
+PC.perfField = (f) => (f === 'gpu_key' || f === 'gpu' ? PC.gpuPerf : f === 'cpu_key' || f === 'cpu' ? PC.cpuPerf : null);
 PC.cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja', { numeric: true }));
 PC.sortRows = (name, rows) => {
   const st = PC.sort[name];
@@ -886,7 +910,8 @@ PC.sortRows = (name, rows) => {
     const a = x[st.field], b = y[st.field];
     const na = a == null || a === '', nb = b == null || b === '';
     if (na || nb) return na && nb ? 0 : na ? 1 : -1;
-    return st.dir * PC.cmp(a, b);
+    const pf = PC.perfField(st.field);
+    return st.dir * (pf ? pf(a) - pf(b) || PC.cmp(a, b) : PC.cmp(a, b));
   });
 };
 document.querySelectorAll('.pc table').forEach((table) => {
@@ -1460,7 +1485,7 @@ dash.draw('ssFam', (el) => {
 });
 dash.draw('ssCpu', (el) => {
   el.replaceChildren(); const b = PC.ssBase(); if (!b || !PC.ss.fam) return;
-  const ks = [...new Set(b.filter((p) => PC.fam(p.cpu_key) === PC.ss.fam).map((p) => p.cpu_key))].sort(PC.natural);
+  const ks = [...new Set(b.filter((p) => PC.fam(p.cpu_key) === PC.ss.fam).map((p) => p.cpu_key))].sort((x, y) => PC.cpuPerf(x) - PC.cpuPerf(y) || PC.natural(x, y));
   if (ks.length < 2) return;
   el.append(PC.el('div', 'ss-fl', `${PC.ss.fam} の型番で絞る`));
   const box = PC.el('div', 'chips'); el.append(box);
@@ -1471,7 +1496,7 @@ PC.minorGpu = (k) => /PRO|^RTX A\d|Ada|Quadro|Radeon Pro|^GTX|^RTX [234]0/i.test
 PC.gpuMore = false;
 dash.draw('ssGpu', (el) => {
   const b = PC.ssBase(); if (!b) return el.replaceChildren();
-  const all = [...new Set(b.map((p) => p.gpu_key))].sort(PC.natural), minor = all.filter((k) => PC.minorGpu(k) && k !== PC.ss.gpu);
+  const all = [...new Set(b.map((p) => p.gpu_key))].sort((x, y) => PC.gpuPerf(x) - PC.gpuPerf(y) || PC.natural(x, y)), minor = all.filter((k) => PC.minorGpu(k) && k !== PC.ss.gpu);
   PC.ssChips(el, 'gpu', PC.gpuMore ? all : all.filter((k) => !minor.includes(k)), (k) => k, (p) => p.gpu_key);
   if (minor.length) {
     const t = PC.el('button', 'ss-gmore2', PC.gpuMore ? '業務用・旧世代を隠す' : `＋業務用・旧世代GPU（${minor.length}種）`); t.type = 'button';
@@ -1739,7 +1764,8 @@ PC.ssListView = (el, list) => {
   const rows = list.slice().sort((a, b) => {
     const x = val(a, PC.lsort.f), y = val(b, PC.lsort.f);
     if (x == null || y == null) return x == null ? (y == null ? 0 : 1) : -1;
-    return PC.lsort.d * (typeof x === 'number' ? x - y : PC.natural(x, y)) || a.price - b.price;
+    const pf = PC.perfField(PC.lsort.f);
+    return PC.lsort.d * (pf ? pf(x) - pf(y) || PC.natural(x, y) : typeof x === 'number' ? x - y : PC.natural(x, y)) || a.price - b.price;
   });
   const tb = PC.el('tbody');
   rows.slice(0, 1000).forEach((p) => {
