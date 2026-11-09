@@ -123,6 +123,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .fps-m.est { opacity: .75; border: 1px dashed rgba(255,255,255,.7); }
 .pc .fps-b { padding: 2px 10px; border-radius: 999px; background: linear-gradient(135deg, #7b2ff7, #0a7cd6); color: #fff; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+/* GPU＞CPU＞ストレージ＞電源 */
+.pc .sm-cpu { display: flex; align-items: baseline; gap: 10px; padding: 7px 12px; background: linear-gradient(90deg, #dce9fb, #f1f6fd); border-top: 2px solid #b7cfee; }
+.pc .sm-cpu b { font-size: 14.5px; color: var(--brand); } .pc .sm-cpu small { font-size: 12px; color: var(--color-fg-muted); }
+.pc .sm-l b.dup { color: #b7c3d4; font-weight: 400; }
+.pc .sm-psu { font-size: 12.5px; font-weight: 700; color: #33415c; }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -1308,7 +1314,7 @@ dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChi
 dash.draw('ssSummary', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
   const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
-  const ng = new Set(list.map((p) => `${p.gpu_key}|${p.mem_gb}`)).size;
+  const ng = new Set(list.map((p) => (f.sub === 'tree' ? p.gpu_key : `${p.gpu_key}|${p.mem_gb}`))).size;
   el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(ng)), PC.el('span', null, 'グループ'), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
   if (f.cpu && f.gpu && !PC.cust) {
     const btn = PC.el('button', 'tbtn', '📈 価格推移で見る'); btn.type = 'button';
@@ -1317,8 +1323,8 @@ dash.draw('ssSummary', (el) => {
   }
 });
 /* 内訳（ストレージ・電源）でサブグループ化 */
-PC.SUBS = [['', 'なし'], ['st', 'ストレージ'], ['psu', '電源'], ['st_psu', 'ストレージ×電源']];
-PC.ss.sub = 'st';
+PC.SUBS = [['tree', 'GPU＞CPU＞ストレージ＞電源'], ['', 'なし'], ['st', 'ストレージ'], ['psu', '電源'], ['st_psu', 'ストレージ×電源']];
+PC.ss.sub = 'tree';
 PC.psuW = (p) => { const m = String(p.psu || '').match(/(\d{2,4})\s*W/i); return m ? +m[1] : null; };
 PC.psuGrade = (p) => { const m = String(p.psu || '').match(/(TITANIUM|PLATINUM|GOLD|SILVER|BRONZE|STANDARD)/i); return m ? m[1].toUpperCase() : ''; };
 PC.stLabel = (gb) => (gb == null ? 'ストレージ不明' : gb >= 1000 ? `SSD ${+(gb / 1000).toFixed(1)}TB` : `SSD ${gb}GB`);
@@ -1326,6 +1332,7 @@ PC.subKey = (p, mode) => {
   const st = p.storage_gb ?? -1, w = PC.psuW(p) ?? -1;
   return mode === 'st' ? [st] : mode === 'psu' ? [w] : [st, w];
 };
+PC.cpuRank = new Map();
 PC.subLabel = (k, mode) => {
   const st = (v) => (v < 0 ? 'ストレージ不明' : PC.stLabel(v)), ps = (v) => (v < 0 ? '電源不明' : `電源 ${v}W`);
   return mode === 'st' ? st(k[0]) : mode === 'psu' ? ps(k[0]) : `${st(k[0])} × ${ps(k[1])}`;
@@ -1340,14 +1347,31 @@ PC.SUB_SHOW = 3;
 // サブグループのマトリクス（行＝ストレージ等、列＝3社）
 PC.subMatrix = (g, mode, gi) => {
   const f = PC.ss, box = PC.el('div', 'sm'); box.style.setProperty('--n', PC.VM().length);
-  const head = PC.el('div', 'sm-row sm-head'); head.append(PC.el('div', 'sm-l', PC.SUBS.find((s) => s[0] === mode)[1]));
+  const head = PC.el('div', 'sm-row sm-head'); head.append(PC.el('div', 'sm-l', mode === 'tree' ? 'CPU ＞ ストレージ ＞ 電源' : PC.SUBS.find((s) => s[0] === mode)[1]));
   PC.VM().forEach(([, n]) => { const c = PC.el('div', 'sm-mh', n); c.style.setProperty('--c', PC.mcol(n)); head.append(c); });
   box.append(head);
-  const subs = d3.groups(g.ps, (p) => PC.subKey(p, mode).join('|')).map(([k, ps]) => ({ k: k.split('|').map(Number), ps, min: d3.min(ps, (p) => p.price) }))
-    .sort((a, b) => d3.ascending(a.k[0] < 0 ? 1e9 : a.k[0], b.k[0] < 0 ? 1e9 : b.k[0]) || d3.ascending(a.k[1] < 0 ? 1e9 : a.k[1], b.k[1] < 0 ? 1e9 : b.k[1]));
+  const tree = mode === 'tree', km = tree ? 'st_psu' : mode;
+  const cpuMin = tree ? d3.rollup(g.ps, (v) => d3.min(v, (p) => p.price), (p) => p.cpu_key) : null;
+  const subs = d3.groups(g.ps, (p) => (tree ? p.cpu_key + '|' : '') + PC.subKey(p, km).join('|')).map(([k, ps]) => {
+    const parts = k.split('|'), cpu = tree ? parts.shift() : null;
+    return { cpu, k: parts.map(Number), ps, min: d3.min(ps, (p) => p.price) };
+  }).sort((a, b) => (tree ? d3.ascending(cpuMin.get(a.cpu), cpuMin.get(b.cpu)) || PC.natural(a.cpu, b.cpu) : 0)
+    || d3.ascending(a.k[0] < 0 ? 1e9 : a.k[0], b.k[0] < 0 ? 1e9 : b.k[0]) || d3.ascending(a.k[1] < 0 ? 1e9 : a.k[1], b.k[1] < 0 ? 1e9 : b.k[1]));
+  let prevCpu = null, prevSt = null;
   subs.forEach((sg) => {
+    if (tree && sg.cpu !== prevCpu) {
+      prevCpu = sg.cpu; prevSt = null;
+      const n = g.ps.filter((p) => p.cpu_key === sg.cpu).length;
+      const ch = PC.el('div', 'sm-cpu'); ch.append(PC.el('b', null, sg.cpu), PC.el('small', null, `${n}機種・最安 ${PC.yen(cpuMin.get(sg.cpu))}円`));
+      box.append(ch);
+    }
     const row = PC.el('div', 'sm-row');
-    const l = PC.el('div', 'sm-l'); l.append(PC.el('b', null, PC.subLabel(sg.k, mode)), PC.el('small', null, `${sg.ps.length}機種`));
+    const l = PC.el('div', 'sm-l');
+    if (tree) {
+      const stl = sg.k[0] < 0 ? 'ストレージ不明' : PC.stLabel(sg.k[0]);
+      l.append(PC.el('b', sg.k[0] === prevSt ? 'dup' : null, stl), PC.el('span', 'sm-psu', sg.k[1] < 0 ? '電源不明' : `電源 ${sg.k[1]}W`), PC.el('small', null, `${sg.ps.length}機種`));
+      prevSt = sg.k[0];
+    } else l.append(PC.el('b', null, PC.subLabel(sg.k, mode)), PC.el('small', null, `${sg.ps.length}機種`));
     const dsMin = d3.min(sg.ps.filter((p) => p.maker === 'ドスパラ'), (p) => p.price);
     if (dsMin != null && !PC.cust) { const df = dsMin - sg.min; l.append(PC.el('span', 'sm-ds ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}` : 'ドスパラ最安')); }
     row.append(l);
@@ -1355,16 +1379,17 @@ PC.subMatrix = (g, mode, gi) => {
       const cell = PC.el('div', 'sm-c'); cell.style.setProperty('--c', PC.mcol(name));
       cell.dataset.mk = name;
       const mine = sg.ps.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
-      const key = `${g.k}|${sg.k.join('|')}|${name}`, open = !!f.open[key];
+      const key = `${g.k}|${sg.cpu || ''}|${sg.k.join('|')}|${name}`, open = !!f.open[key];
       if (!mine.length) cell.append(PC.el('span', 'sm-na', '—'));
       (open ? mine : mine.slice(0, PC.SUB_SHOW)).forEach((p) => {
         const it = PC.el('a', 'sm-it' + (p.price === sg.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
         const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
         if (f.game) { const fb = PC.fpsBadge(p); if (fb) top.append(fb); }
-        if (mode === 'st') top.append(PC.psuBadge(p));
+        if (mode === 'st' || tree) top.append(PC.psuBadge(p));
         else if (mode === 'psu') top.append(PC.stBadge(p));
         it.append(top, PC.el('span', 'sm-n', p.name));
-        if (!f.cpu) it.append(PC.el('span', 'sm-s', p.cpu_key));
+        if (tree) it.append(PC.el('span', 'sm-s', `メモリ ${p.mem_gb}GB`));
+        else if (!f.cpu) it.append(PC.el('span', 'sm-s', p.cpu_key));
         cell.append(it);
       });
       if (mine.length > PC.SUB_SHOW) {
@@ -1448,16 +1473,17 @@ PC.SS_SHOW = 3;
 dash.draw('ssGroups', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
   const f = PC.ss;
-  const groups = d3.groups(list, (p) => `${p.gpu_key}|${p.mem_gb}`).map(([k, ps]) => {
+  const tree = f.sub === 'tree';
+  const groups = d3.groups(list, (p) => (tree ? p.gpu_key : `${p.gpu_key}|${p.mem_gb}`)).map(([k, ps]) => {
     const by = {}; PC.MAKERS.forEach(([, n]) => { by[n] = ps.filter((p) => p.maker === n).sort((a, b) => a.price - b.price); });
     const min = d3.min(ps, (p) => p.price), makers = PC.MAKERS.filter(([, n]) => by[n].length).length;
     return { k, gpu: ps[0].gpu_key, mem: ps[0].mem_gb, ps, by, min, makers };
-  }).sort((a, b) => b.makers - a.makers || a.min - b.min);
+  }).sort((a, b) => (tree ? a.min - b.min : b.makers - a.makers || a.min - b.min));
   if (!groups.length) { el.append(PC.el('div', 'tempty', '条件に合うモデルがありません')); return; }
   groups.slice(0, f.gshow).forEach((g) => {
     const card = PC.el('div', 'ssg');
     const h = PC.el('div', 'ssg-h');
-    h.append(PC.el('span', 'ssg-t', `${g.gpu} × メモリ${g.mem}GB`), PC.el('span', 'ssg-n', PC.cust ? `${g.ps.length}機種` : `${g.ps.length}機種・${g.makers}社`));
+    h.append(PC.el('span', 'ssg-t', tree ? g.gpu : `${g.gpu} × メモリ${g.mem}GB`), PC.el('span', 'ssg-n', PC.cust ? `${g.ps.length}機種` : `${g.ps.length}機種・${g.makers}社`));
     const bestMk = PC.MAKERS.find(([, n]) => g.by[n].length && g.by[n][0].price === g.min)[1];
     const best = PC.el('span', 'ssg-best'), tg = PC.el('span', 'tagm', PC.cust ? '最安' : '最安 ' + bestMk);
     tg.style.setProperty('--c', PC.mcol(bestMk));
