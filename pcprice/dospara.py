@@ -101,6 +101,7 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
         rows.append(finish({
             "maker": MAKER, "id": t["id"], "kind": kind, "name": t["name"], "price": t["price"],
             "cpu": sp.get("CPU") or d.get("cpu", ""), "gpu": sp.get("グラフィックス") or d.get("gpu", ""),
+            "os": sp.get("OS", ""),
             "mem": re.split(r"\s*\((?:LP)?DDR", mem_src)[0] if mem_src else "",
             "mem_type": mem_type(mem_src) or mem_type(sp.get("メモリ", "")),
             "storage1": st, "storage_cap": _cap(st),

@@ -115,6 +115,7 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
             "maker": MAKER, "id": t["id"], "kind": t["kind"], "name": t["name"], "price": t["price"],
             "cpu": d.get("cpu") or _pick(sp, r"Core|Ryzen|Xeon|Celeron|プロセッサ"),
             "gpu": d.get("gpu") or _pick(sp, r"GeForce|Radeon|Arc|グラフィックス|RTX"),
+            "os": _pick(sp, r"Windows|Chrome|Linux|OS[な無]し|OSなし"),
             "mem": d.get("mem") or _pick(sp, r"GB \(.*(?:チャネル|×)"),
             "mem_type": mem_type(d.get("mem_type", "")) or d.get("mem_type", ""),
             "storage1": st, "storage_cap": _cap(st),

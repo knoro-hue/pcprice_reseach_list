@@ -14,7 +14,7 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
 FIELDS = [
     ("maker", "メーカー"), ("id", "商品ID"), ("kind", "区分"), ("name", "型番"),
     ("price", "販売価格(税込)"), ("cpu", "CPU型番"), ("gpu", "グラフィックス"),
-    ("mem", "メモリ容量"), ("mem_type", "メモリ規格"), ("storage1", "1stストレージ"),
+    ("os", "OS"), ("mem", "メモリ容量"), ("mem_type", "メモリ規格"), ("storage1", "1stストレージ"),
     ("storage_cap", "ストレージ容量"), ("cooler", "クーラー"), ("psu", "電源"), ("url", "商品URL"),
 ]
 DESK, NOTE = "デスクトップ", "ノート"
