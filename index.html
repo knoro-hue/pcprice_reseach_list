@@ -76,7 +76,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 }
 .pc .ss-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .pc .ss-h .clearbtn { height: 32px; font-size: 12px; }
-.pc .ss-g { border-top: 1px dashed var(--color-border-line); padding-top: 9px; }
+.pc .ss-g { border: 1px solid #dbe5f2; border-radius: 10px; padding: 9px 11px 10px; background: #f7faff; }
+.pc .ss-g.alt { background: #e6eefa; border-color: #cddcf0; }
+.pc .ss-g:not(.alt) { background: #fbfdff; }
 /* 左メニューはボタンを小さめにして1画面に収める */
 .pc .ss-f .chips { gap: 5px 5px; }
 .pc .ss-f .qchip { font-size: 12px; padding: 3px 10px; line-height: 1.35; }
@@ -505,9 +507,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <label class="chk"><input type="checkbox" class="pc-ss-nopro" checked> Windows Pro 搭載モデルを除外</label>
         <label class="chk ss-dsonly"><input type="checkbox" class="pc-ss-same" checked> ドスパラに同じ構成（CPU×GPU×メモリ）があるモデルのみ</label>
         <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div></div>
-        <div class="ss-g"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
-        <div class="ss-g"><div class="ss-l">CPU</div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
+        <div class="ss-g alt"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">GPU</div><div class="chips" data-draw="ssGpu" data-source="products"></div></div>
+        <div class="ss-g alt"><div class="ss-l">CPU</div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">メモリ</div><div class="chips" data-draw="ssMem" data-source="products"></div></div>
         
       </aside>
