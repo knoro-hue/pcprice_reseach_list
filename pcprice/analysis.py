@@ -127,3 +127,141 @@ def ai_summary(stats: dict, log=print) -> dict | None:
         return None
     text = "".join(b.text for b in res.content if b.type == "text").strip()
     return {"updated": stats["updated"], "model": res.model, "text": text} if text else None
+
+
+# ===== 提案（ゲーム×FPS別、GPU別） =====
+FPS_STEPS = [60, 120, 144, 240]
+RES = ["1080p", "1440p", "4K"]
+
+
+def _is_pro(r):
+    return bool(re.search(r"\bPro\b", r.get("os") or "", re.I))
+
+
+def _brief(r, fps=None, est=False):
+    if not r:
+        return None
+    return {"maker": r["maker"], "name": r["name"], "price": r["price"], "cpu": r["cpu_key"], "gpu": r["gpu_key"],
+            "mem": r.get("mem_gb"), "st": r.get("storage_gb"), "psu": _psu_w(r), "grade": _grade(r), "url": r.get("url"),
+            "fps": fps, "est": est}
+
+
+def recommend(rows: list, fps_data: dict | None, today: str) -> dict:
+    """ゲーム×解像度×目標FPSごとのおすすめ（ドスパラ最安）と、GPUごとのおすすめ・パソコン工房との比較"""
+    desk = [r for r in rows if r.get("kind") == "デスクトップ" and r.get("price") and r.get("gpu_key") and not _is_pro(r)
+            and r["maker"] in (DS, PK) and not re.search(r"PRO|^RTX A\d|Ada|Quadro", r["gpu_key"])]
+    models = (fps_data or {}).get("models") or {}
+    games = (fps_data or {}).get("games") or []
+    rec_fps = (fps_data or {}).get("rec") or {}
+    # GPU別のFPS中央値（ドスパラ実測）→ パソコン工房やFPS未掲載モデルの推定に使う
+    acc = {}
+    for r in desk:
+        m = models.get(r["id"].split("-")[0]) if r["maker"] == DS else None
+        for g, arr in (m or {}).items():
+            for i, v in enumerate(arr):
+                if v is not None:
+                    acc.setdefault((r["gpu_key"], g, i), []).append(v)
+    med = {k: statistics.median(v) for k, v in acc.items()}
+
+    def fps_of(r, g, i):
+        m = models.get(r["id"].split("-")[0]) if r["maker"] == DS else None
+        if m and g in m and m[g][i] is not None:
+            return m[g][i], False
+        v = med.get((r["gpu_key"], g, i))
+        return (int(round(v / 5) * 5), True) if v is not None else (None, True)
+
+    by_game = []
+    for g in games:
+        res_out = []
+        for i, res in enumerate(RES):
+            steps = []
+            for t in FPS_STEPS:
+                ok = [(r, *fps_of(r, g, i)) for r in desk]
+                ok = [(r, f, e) for r, f, e in ok if f is not None and f >= t]
+                ds = sorted((x for x in ok if x[0]["maker"] == DS), key=lambda x: x[0]["price"])
+                pk = sorted((x for x in ok if x[0]["maker"] == PK), key=lambda x: x[0]["price"])
+                d, p = (ds[0] if ds else None), (pk[0] if pk else None)
+                alt = []  # 別GPUの次点（ドスパラ）
+                seen = {d[0]["gpu_key"]} if d else set()
+                for x in ds[1:]:
+                    if x[0]["gpu_key"] not in seen:
+                        seen.add(x[0]["gpu_key"])
+                        alt.append(_brief(x[0], x[1], x[2]))
+                    if len(alt) >= 2:
+                        break
+                steps.append({"fps": t, "ds": _brief(d[0], d[1], d[2]) if d else None,
+                              "pk": _brief(p[0], p[1], p[2]) if p else None,
+                              "diff": (d[0]["price"] - p[0]["price"]) if d and p else None,
+                              "ds_count": len(ds), "alt": alt})
+            res_out.append({"res": res, "steps": steps})
+        by_game.append({"game": g, "rec": rec_fps.get(g), "res": res_out})
+
+    # GPU別
+    gpus = sorted({r["gpu_key"] for r in desk if r["maker"] == DS})
+    by_gpu = []
+    for gk in gpus:
+        ds = sorted((r for r in desk if r["maker"] == DS and r["gpu_key"] == gk), key=lambda r: r["price"])
+        pk = sorted((r for r in desk if r["maker"] == PK and r["gpu_key"] == gk), key=lambda r: r["price"])
+        # 同じ CPU×メモリ での比較
+        cmp = {}
+        for r in ds + pk:
+            k = (r["cpu_key"], r.get("mem_gb"))
+            c = cmp.setdefault(k, {})
+            if r["maker"] not in c or r["price"] < c[r["maker"]]["price"]:
+                c[r["maker"]] = r
+        pairs = [(k, v[DS], v[PK]) for k, v in cmp.items() if DS in v and PK in v]
+        lose = sorted(pairs, key=lambda x: x[2]["price"] - x[1]["price"])[:3]
+        win = sorted(pairs, key=lambda x: x[1]["price"] - x[2]["price"])[:3]
+        f = lambda lst, sign: [{"cpu": k[0], "mem": k[1], "ds": _brief(d), "pk": _brief(p), "diff": d["price"] - p["price"]}
+                               for k, d, p in lst if (d["price"] - p["price"]) * sign > 0]
+        # 用途別の提案：最安・コスパ（同GPU内でメモリ16GB以上の最安）・上位CPU（同GPU内の最上位帯で最安）
+        mid = next((r for r in ds if (r.get("mem_gb") or 0) >= 16), None)
+        by_gpu.append({"gpu": gk, "ds_n": len(ds), "pk_n": len(pk),
+                       "ds_min": _brief(ds[0]), "pk_min": _brief(pk[0]) if pk else None,
+                       "diff": (ds[0]["price"] - pk[0]["price"]) if pk else None,
+                       "ds_16": _brief(mid) if mid and mid is not ds[0] else None,
+                       "pairs": len(pairs), "ds_win": sum(1 for _, d, p in pairs if d["price"] < p["price"]),
+                       "pk_win": sum(1 for _, d, p in pairs if d["price"] > p["price"]),
+                       "lose": f(lose, 1), "win": f(win, -1)})
+    order = {g: i for i, g in enumerate(["内蔵GPU", "RTX 3050", "RTX 5050", "RTX 5060", "RTX 5060 Ti", "RTX 5070", "RTX 5070 Ti",
+                                         "RTX 5080", "RTX 5090", "RX 9060", "RX 9060 XT", "RX 9070", "RX 9070 GRE", "RX 9070 XT"])}
+    by_gpu = [x for x in by_gpu if not re.search(r"PRO|^RTX A\d|Ada|Quadro", x["gpu"])]
+    # 業務用GPUはおすすめ対象から外す（ゲーム別も）
+    by_gpu.sort(key=lambda x: (order.get(x["gpu"], 50), x["ds_min"]["price"]))
+    return {"updated": today, "basis": "デスクトップ・Windows Pro除外。FPSはドスパラ「ゲーム性能」（最高画質）。パソコン工房は同じGPUのドスパラ機の中央値で推定（≈）",
+            "by_game": by_game, "by_gpu": by_gpu}
+
+
+PROMPT2 = """あなたはドスパラ（自社）の販売アドバイザーです。以下のJSONは、ゲーム×目標FPS別のおすすめ（自社最安と競合パソコン工房の最安）と、GPU別の自社・競合比較です。
+販売担当者が接客で使える「総評」を日本語で5行以内の箇条書きで書いてください。数値はJSONから引用し、推測は「推測」と明記。見出しは不要。
+
+JSON:
+"""
+
+
+def ai_comment(reco: dict, log=print) -> dict | None:
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return None
+    import anthropic
+
+    slim = {"by_gpu": [{k: g[k] for k in ("gpu", "ds_n", "pk_n", "diff", "ds_win", "pk_win")} for g in reco["by_gpu"]],
+            "by_game_1080p": [{"game": g["game"], "steps": [{"fps": s["fps"], "ds": (s["ds"] or {}).get("price"), "ds_gpu": (s["ds"] or {}).get("gpu"),
+                                                          "pk": (s["pk"] or {}).get("price"), "diff": s["diff"]} for s in g["res"][0]["steps"]]}
+                              for g in reco["by_game"]]}
+    client = anthropic.Anthropic()
+    try:
+        res = client.beta.messages.create(
+            model="claude-opus-5-5", max_tokens=16000, output_config={"effort": "medium"},
+            betas=["server-side-fallback-2026-07-01"], fallbacks="default",
+            messages=[{"role": "user", "content": PROMPT2 + json.dumps(slim, ensure_ascii=False)}],
+        )
+    except anthropic.APIConnectionError as e:
+        log(f"AI総評: 接続エラー {e}")
+        return None
+    except anthropic.APIStatusError as e:
+        log(f"AI総評: APIエラー {e.status_code} {e.message}")
+        return None
+    if res.stop_reason == "refusal":
+        return None
+    text = "".join(b.text for b in res.content if b.type == "text").strip()
+    return {"updated": reco["updated"], "model": res.model, "text": text} if text else None

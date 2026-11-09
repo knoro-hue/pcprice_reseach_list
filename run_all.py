@@ -292,9 +292,9 @@ def main():
         except Exception as e:  # noqa: BLE001
             warnings.append(f"ドスパラ注力ページの取得失敗（前回分を使用）: {e}")
     # ドスパラ vs パソコン工房の比較統計と AI 分析（APIキーがあるときだけ AI 文章を更新）
-    stats = analysis.compare(uniq, today)
-    save(f"{DATA}/ai_stats.json", stats)
-    ai = analysis.ai_summary(stats)
+    reco = analysis.recommend(uniq, load(f"{DATA}/ds_fps.json", {}), today)
+    save(f"{DATA}/ai_reco.json", reco)
+    ai = analysis.ai_comment(reco)
     if ai:
         save(f"{DATA}/ai_analysis.json", ai)
     save(f"{DATA}/status.json", status)
