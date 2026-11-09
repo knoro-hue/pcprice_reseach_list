@@ -61,8 +61,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc table.nomem .memcol { display: none; }
 
 /* 同スペック比較（左右2段） */
-.pc .ss { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 10px; align-items: start; }
-.pc .card.ss-f { position: sticky; top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); overflow: auto !important; overscroll-behavior: contain; display: grid; gap: 10px; }
+.pc .ss { display: grid; grid-template-columns: minmax(340px, 470px) minmax(0, 1fr); gap: 10px; align-items: start; }
+.pc .card.ss-f { position: sticky; top: calc(var(--tbh, 60px) + 20px); max-height: calc(100vh - var(--tbh, 60px) - 30px); overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior: contain; display: grid; gap: 7px; padding: 10px 12px; }
 /* 上部メニューを固定（PC） */
 @media (min-width: 701px) {
   .pc .topbar { position: sticky; top: 10px; z-index: 40; background: rgba(255, 255, 255, .96); }
@@ -72,9 +72,19 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 }
 .pc .ss-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .pc .ss-h .clearbtn { height: 32px; font-size: 12px; }
-.pc .ss-g { border-top: 1px dashed var(--color-border-line); padding-top: 8px; }
-.pc .ss-l { font-size: 12px; font-weight: 700; color: var(--brand); letter-spacing: .08em; margin-bottom: 6px; }
-.pc .ss-sub:not(:empty) { margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: #eef5ff; border: 1px solid #cfe1fb; }
+.pc .ss-g { border-top: 1px dashed var(--color-border-line); padding-top: 6px; }
+/* 左メニューはボタンを小さめにして1画面に収める */
+.pc .ss-f .chips { gap: 4px; }
+.pc .ss-f .qchip { font-size: 11.5px; padding: 3px 9px; }
+.pc .ss-f .qchip small { margin-left: 3px; font-size: 10.5px; }
+.pc .ss-f .chk { font-size: 12px; white-space: normal; }
+.pc .ss-f .ss-h h2 { font-size: 13px; }
+.pc .ss-f .seg { padding: 3px 12px; font-size: 12px; }
+.pc .ss-f .ss-res { margin-bottom: 4px; }
+.pc .ss-f .ss-fps { margin-top: 4px; padding-top: 4px; }
+.pc .ss-gmore2 { font: inherit; font-size: 11px; border: 0; background: none; color: var(--brand); cursor: pointer; text-decoration: underline; padding: 3px 4px; }
+.pc .ss-l { font-size: 12px; font-weight: 700; color: var(--brand); letter-spacing: .08em; margin-bottom: 4px; }
+.pc .ss-sub:not(:empty) { margin-top: 5px; padding: 5px 8px; border-radius: 10px; background: #eef5ff; border: 1px solid #cfe1fb; }
 .pc .ss-sub .ss-fl { font-size: 11px; color: var(--brand); font-weight: 700; margin-bottom: 6px; }
 .pc .ss-sub .qchip { font-size: 11.5px; padding: 4px 10px; background: #fff; }
 .pc .ss-sub .qchip.on { background: var(--brand); }
@@ -219,7 +229,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 /* 表示調整スライダー */
 .pc .sizer { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--brand); padding: 4px 12px; border-radius: 999px; background: #f4f8fe; border: 1px solid #b7cfee; }
 .pc .sizer label { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: var(--cds-font-weight-medium); }
-.pc .sizer input[type=range] { width: 90px; accent-color: var(--brand); cursor: pointer; }
+.pc .sizer input[type=range] { width: 64px; accent-color: var(--brand); cursor: pointer; }
 .pc .sizer output { min-width: 2.6em; font-variant-numeric: tabular-nums; color: var(--color-fg-muted); font-weight: 400; }
 .pc .sizer button { font: inherit; font-size: 11px; border: 1px solid #8fb3e0; background: #fff; color: var(--brand); border-radius: 999px; padding: 2px 8px; cursor: pointer; }
 
@@ -1333,7 +1343,18 @@ dash.draw('ssCpu', (el) => {
   const box = PC.el('div', 'chips'); el.append(box);
   PC.ssChips(box, 'cpu', ks, (k) => k, (p) => p.cpu_key);
 });
-dash.draw('ssGpu', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'gpu', [...new Set(b.map((p) => p.gpu_key))].sort(PC.natural), (k) => k, (p) => p.gpu_key); });
+// 業務用（RTX PRO・RTX A○○・Ada・Quadro・Radeon Pro）は「その他」に畳む。選択中なら表示
+PC.minorGpu = (k) => /PRO|^RTX A\d|Ada|Quadro|Radeon Pro|^GTX|^RTX [234]0/i.test(k);
+PC.gpuMore = false;
+dash.draw('ssGpu', (el) => {
+  const b = PC.ssBase(); if (!b) return el.replaceChildren();
+  const all = [...new Set(b.map((p) => p.gpu_key))].sort(PC.natural), minor = all.filter((k) => PC.minorGpu(k) && k !== PC.ss.gpu);
+  PC.ssChips(el, 'gpu', PC.gpuMore ? all : all.filter((k) => !minor.includes(k)), (k) => k, (p) => p.gpu_key);
+  if (minor.length) {
+    const t = PC.el('button', 'ss-gmore2', PC.gpuMore ? '業務用・旧世代を隠す' : `＋業務用・旧世代GPU（${minor.length}種）`); t.type = 'button';
+    t.addEventListener('click', () => { PC.gpuMore = !PC.gpuMore; dash.draw('ssGpu'); }); el.append(t);
+  }
+});
 dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'mem', [...new Set(b.map((p) => String(p.mem_gb)))].sort((a, c) => a - c), (k) => k + 'GB', (p) => String(p.mem_gb)); });
 dash.draw('ssSummary', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
