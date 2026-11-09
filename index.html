@@ -1655,12 +1655,12 @@ PC.levelInto = (box, ps, li, path) => {
     if (last) PC.makerRows(box, node, p2, li); else PC.levelInto(box, node.ps, li + 1, p2);
   });
 };
-PC.view = (() => { try { return localStorage.getItem('pc-view') || 'group'; } catch (e) { return 'group'; } })();
+PC.view = (() => { try { return localStorage.getItem('pc-view2') || 'list'; } catch (e) { return 'list'; } })();
 dash.draw('ssView', (el) => {
   el.replaceChildren();
   [['group', '▤ グループ表示'], ['list', '☰ 一覧表示']].forEach(([v, lab]) => {
     const b = PC.el('button', 'vbtn' + (PC.view === v ? ' on' : ''), lab); b.type = 'button';
-    b.addEventListener('click', () => { PC.view = v; try { localStorage.setItem('pc-view', v); } catch (e) {} dash.draw('ssView'); dash.draw('ssGroups'); dash.draw('ssSub'); });
+    b.addEventListener('click', () => { PC.view = v; try { localStorage.setItem('pc-view2', v); } catch (e) {} dash.draw('ssView'); dash.draw('ssGroups'); dash.draw('ssSub'); });
     el.append(b);
   });
 });
