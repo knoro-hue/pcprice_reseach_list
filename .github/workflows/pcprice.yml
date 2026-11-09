@@ -50,9 +50,11 @@ jobs:
           python-version: "3.12"
 
       - name: 依存ライブラリ
-        run: pip install openpyxl==3.1.5
+        run: pip install openpyxl==3.1.5 anthropic
 
       - name: 3社を取得して集計・Excel出力
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python run_all.py --only "${{ github.event.inputs.only || 'pk,ds,ms' }}"
 
       - name: 日付付きExcelをダウンロード用に保存（30日間）

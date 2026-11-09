@@ -9,6 +9,7 @@
   data/history.json       日別×社×区分の機種数・中央値
   data/spec_history.json  日別×区分×CPU×GPU×社の最安値（価格推移グラフ用、直近365日）
   data/status.json        社ごとの取得結果
+  data/ai_stats.json      ドスパラ vs パソコン工房の比較統計 / data/ai_analysis.json  AI分析（Claude）
   data/ds_fps.json        ドスパラ詳細ページの「ゲーム性能」FPS（モデル別・最高画質・1080p/1440p/4K）
   data/ds_featured.json   ドスパラ注力ページ（TC30/TC143/general_desk/general_note）のランキング・注力枠の掲載モデル
   output/pc_price_latest.xlsx, output/pckoubou_pc_latest.xlsx
@@ -28,7 +29,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from pcprice import dospara, mouse, pckoubou
+from pcprice import analysis, dospara, mouse, pckoubou
 from pcprice.common import DESK, FIELDS, NOTE
 
 JST = timezone(timedelta(hours=9))
@@ -290,6 +291,12 @@ def main():
                 save(f"{DATA}/ds_fps.json", f)
         except Exception as e:  # noqa: BLE001
             warnings.append(f"ドスパラ注力ページの取得失敗（前回分を使用）: {e}")
+    # ドスパラ vs パソコン工房の比較統計と AI 分析（APIキーがあるときだけ AI 文章を更新）
+    stats = analysis.compare(uniq, today)
+    save(f"{DATA}/ai_stats.json", stats)
+    ai = analysis.ai_summary(stats)
+    if ai:
+        save(f"{DATA}/ai_analysis.json", ai)
     save(f"{DATA}/status.json", status)
 
     info = [["取得日時", started.strftime("%Y-%m-%d %H:%M") + " JST"]]
