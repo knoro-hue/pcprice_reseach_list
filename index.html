@@ -156,6 +156,22 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .sm-l b.dup { color: #b7c3d4; font-weight: 400; }
 .pc .sm-psu { font-size: 12.5px; font-weight: 700; color: #33415c; }
 
+/* 階層グループ */
+.pc .lv-chip { display: inline-flex; align-items: center; gap: 2px; border: 1.5px solid var(--lc); color: var(--lc); background: color-mix(in srgb, var(--lc) 8%, #fff); border-radius: 999px; padding: 1px 3px; cursor: grab; font-size: 12.5px; user-select: none; }
+.pc .lv-chip b { padding: 0 4px; } .pc .lv-chip.drag { opacity: .4; }
+.pc .lv-mv { font: inherit; font-size: 9px; border: 0; background: none; color: inherit; cursor: pointer; padding: 2px 3px; opacity: .7; }
+.pc .lv-mv:disabled { opacity: .15; cursor: default; }
+.pc .lv-arrow { color: #8fa3bf; font-size: 12px; }
+.pc .ssg-l0 { font-size: 11px; font-weight: 700; color: #fff; background: var(--bc); border-radius: 4px; padding: 1px 6px; }
+.pc .lv-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; padding: 6px 12px 6px calc(12px + var(--d) * 18px);
+  border-top: 1px solid color-mix(in srgb, var(--lc) 30%, #fff); border-left: 5px solid var(--lc);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--lc) calc(16% - var(--d) * 4%), #fff), #fff 70%); }
+.pc .lv-h b { color: var(--lc); font-size: calc(15px - var(--d) * 1px); }
+.pc .lv-h small { font-size: 11.5px; color: var(--color-fg-muted); }
+.pc .lv-n { font-size: 10px; font-weight: 700; color: var(--lc); border: 1px solid color-mix(in srgb, var(--lc) 45%, #fff); border-radius: 4px; padding: 0 5px; background: #fff; }
+.pc .lv-leaf .sm-l { border-left: 5px solid var(--lc); padding-left: calc(10px + var(--d) * 6px); }
+.pc .lv-leaf .sm-l b { color: var(--lc); }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -1358,7 +1374,7 @@ dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChi
 dash.draw('ssSummary', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
   const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
-  const ng = new Set(list.map((p) => (f.sub === 'tree' ? p.gpu_key : `${p.gpu_key}|${p.mem_gb}`))).size;
+  const ng = new Set(list.map((p) => PC.LV[PC.order[0]].key(p))).size;
   el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(ng)), PC.el('span', null, 'グループ'), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
   if (false) {
     const btn = PC.el('button', 'tbtn', '📈 価格推移で見る'); btn.type = 'button';
@@ -1446,14 +1462,6 @@ PC.subMatrix = (g, mode, gi) => {
   });
   return box;
 };
-dash.draw('ssSub', (el) => {
-  el.replaceChildren(PC.el('span', 'ss-subl', '内訳'));
-  PC.SUBS.forEach(([v, lab]) => {
-    const b = PC.el('button', 'seg' + (PC.ss.sub === v ? ' on' : ''), lab); b.type = 'button';
-    b.addEventListener('click', () => { PC.ss.sub = v; PC.ss.open = {}; dash.draw('ssSub'); dash.draw('ssGroups'); });
-    el.append(b);
-  });
-});
 /* ゲーム別FPS：ドスパラ詳細ページの「ゲーム性能」（モデル別・最高画質）。他社は同じGPUのドスパラ機の中央値で推定 */
 PC.FPS_STEPS = [60, 120, 144, 240];
 PC.RES = ['1080p', '1440p', '4K'];
@@ -1514,54 +1522,112 @@ PC.VM = () => (PC.cust ? PC.MAKERS.filter(([, n]) => n === 'ドスパラ') : PC.
 PC.mcol = (n) => PC.COLORS[PC.MAKERS.findIndex(([, x]) => x === n)];
 PC.SS_SHOW = 3;
 // 右：GPU×メモリごとのグループ。各グループの中に3社のモデルを安い順に3機種ずつ
+/* ===== 階層グループ（並び順は手動で入替可、既定 GPU＞CPU＞メモリ＞ストレージ＞電源） ===== */
+PC.LV = {
+  gpu: { name: 'GPU', key: (p) => p.gpu_key, label: (k) => k, sort: 'min', color: (k) => PC.brandOf(k) && PC.BRAND[PC.brandOf(k)][1] },
+  cpu: { name: 'CPU', key: (p) => p.cpu_key, label: (k) => k, sort: 'min', color: (k) => PC.brandOf(k) && PC.BRAND[PC.brandOf(k)][1] },
+  mem: { name: 'メモリ', key: (p) => p.mem_gb ?? -1, label: (k) => (k < 0 ? 'メモリ不明' : `メモリ ${k}GB`), sort: 'num', color: () => '#7a4fd0' },
+  st: { name: 'ストレージ', key: (p) => p.storage_gb ?? -1, label: (k) => (k < 0 ? 'ストレージ不明' : PC.stLabel(k)), sort: 'num', color: () => '#0f8b8d' },
+  psu: { name: '電源', key: (p) => PC.psuW(p) ?? -1, label: (k) => (k < 0 ? '電源不明' : `電源 ${k}W`), sort: 'num', color: () => '#8a5a2b' },
+};
+PC.ORDER_DEF = ['gpu', 'cpu', 'mem', 'st', 'psu'];
+PC.order = (() => { try { const o = JSON.parse(localStorage.getItem('pc-order')); if (Array.isArray(o) && o.length === 5 && PC.ORDER_DEF.every((x) => o.includes(x))) return o; } catch (e) {} return PC.ORDER_DEF.slice(); })();
+PC.setOrder = (o) => { PC.order = o; try { localStorage.setItem('pc-order', JSON.stringify(o)); } catch (e) {} PC.ss.open = {}; PC.ss.gshow = 8; dash.draw('ssSub'); dash.draw('ssSummary'); dash.draw('ssGroups'); };
+// 並び順エディタ（ドラッグ or ◀▶）
+dash.draw('ssSub', (el) => {
+  el.replaceChildren(PC.el('span', 'ss-subl', 'グループ順'));
+  let drag = null;
+  PC.order.forEach((lv, i) => {
+    if (i) el.append(PC.el('span', 'lv-arrow', '＞'));
+    const c = PC.el('span', 'lv-chip'); c.draggable = true; c.style.setProperty('--lc', PC.LV[lv].color('') || 'var(--brand)');
+    if (lv === 'gpu') c.style.setProperty('--lc', '#4f8a00'); if (lv === 'cpu') c.style.setProperty('--lc', '#0068b5');
+    const mv = (d) => { const o = PC.order.slice(), j = i + d; if (j < 0 || j >= o.length) return; [o[i], o[j]] = [o[j], o[i]]; PC.setOrder(o); };
+    const l = PC.el('button', 'lv-mv', '◀'); l.type = 'button'; l.disabled = i === 0; l.addEventListener('click', () => mv(-1));
+    const r = PC.el('button', 'lv-mv', '▶'); r.type = 'button'; r.disabled = i === PC.order.length - 1; r.addEventListener('click', () => mv(1));
+    c.append(l, PC.el('b', null, PC.LV[lv].name), r);
+    c.addEventListener('dragstart', () => { drag = i; c.classList.add('drag'); });
+    c.addEventListener('dragend', () => c.classList.remove('drag'));
+    c.addEventListener('dragover', (e) => e.preventDefault());
+    c.addEventListener('drop', (e) => { e.preventDefault(); if (drag == null || drag === i) return; const o = PC.order.slice(); const [x] = o.splice(drag, 1); o.splice(i, 0, x); PC.setOrder(o); });
+    el.append(c);
+  });
+  if (PC.order.join() !== PC.ORDER_DEF.join()) { const b = PC.el('button', 'seg', '初期に戻す'); b.type = 'button'; b.addEventListener('click', () => PC.setOrder(PC.ORDER_DEF.slice())); el.append(b); }
+});
+PC.groupBy = (ps, lv) => {
+  const L = PC.LV[lv];
+  return d3.groups(ps, L.key).map(([k, v]) => ({ k, ps: v, min: d3.min(v, (p) => p.price) }))
+    .sort((a, b) => (L.sort === 'min' ? a.min - b.min || PC.natural(a.k, b.k) : (a.k < 0 ? 1e12 : a.k) - (b.k < 0 ? 1e12 : b.k)));
+};
+PC.dsDiffEl = (ps, min, cls) => {
+  if (PC.cust) return null;
+  const dsMin = d3.min(ps.filter((p) => p.maker === 'ドスパラ'), (p) => p.price); if (dsMin == null) return null;
+  const df = dsMin - min; return PC.el('span', cls + ' ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}円` : 'ドスパラ最安');
+};
+// 最下層の行：左にラベル、右に3社のモデル
+PC.leafRow = (node, lv, path, depth) => {
+  const f = PC.ss, row = PC.el('div', 'sm-row lv-leaf'); row.style.setProperty('--d', depth);
+  const l = PC.el('div', 'sm-l'); l.style.setProperty('--lc', PC.LV[lv].color(node.k) || '#5f6c80');
+  l.append(PC.el('b', null, PC.LV[lv].label(node.k)), PC.el('small', null, `${node.ps.length}機種`));
+  const dd = PC.dsDiffEl(node.ps, node.min, 'sm-ds'); if (dd) l.append(dd);
+  row.append(l);
+  PC.VM().forEach(([, name]) => {
+    const cell = PC.el('div', 'sm-c'); cell.style.setProperty('--c', PC.mcol(name)); cell.dataset.mk = name;
+    const mine = node.ps.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
+    const key = `${path}|${name}`, open = !!f.open[key];
+    if (!mine.length) cell.append(PC.el('span', 'sm-na', '—'));
+    (open ? mine : mine.slice(0, PC.SUB_SHOW)).forEach((p) => {
+      const it = PC.el('a', 'sm-it' + (p.price === node.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
+      const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
+      if (f.game) { const fb = PC.fpsBadge(p); if (fb) top.append(fb); }
+      top.append(PC.psuBadge(p));
+      it.append(top, PC.el('span', 'sm-n', p.name)); cell.append(it);
+    });
+    if (mine.length > PC.SUB_SHOW) {
+      const b = PC.el('button', 'sm-more', open ? '閉じる' : `+${mine.length - PC.SUB_SHOW}機種`); b.type = 'button';
+      b.addEventListener('click', () => { f.open[key] = !open; dash.draw('ssGroups'); }); cell.append(b);
+    }
+    row.append(cell);
+  });
+  return row;
+};
+// 中間階層：見出し帯（深さに応じて字下げ）＋子要素
+PC.levelInto = (box, ps, li, path) => {
+  const lv = PC.order[li], last = li === PC.order.length - 1;
+  PC.groupBy(ps, lv).forEach((node) => {
+    const p2 = `${path}|${lv}:${node.k}`;
+    if (last) { box.append(PC.leafRow(node, lv, p2, li)); return; }
+    const hd = PC.el('div', 'lv-h'); hd.style.setProperty('--d', li - 1); hd.style.setProperty('--lc', PC.LV[lv].color(node.k) || '#5f6c80');
+    hd.append(PC.el('span', 'lv-n', PC.LV[lv].name), PC.el('b', null, PC.LV[lv].label(node.k)), PC.el('small', null, `${node.ps.length}機種・最安 ${PC.yen(node.min)}円`));
+    const dd = PC.dsDiffEl(node.ps, node.min, 'sm-ds'); if (dd) hd.append(dd);
+    box.append(hd);
+    PC.levelInto(box, node.ps, li + 1, p2);
+  });
+};
 dash.draw('ssGroups', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
-  const f = PC.ss;
-  const tree = f.sub === 'tree';
-  const groups = d3.groups(list, (p) => (tree ? p.gpu_key : `${p.gpu_key}|${p.mem_gb}`)).map(([k, ps]) => {
-    const by = {}; PC.MAKERS.forEach(([, n]) => { by[n] = ps.filter((p) => p.maker === n).sort((a, b) => a.price - b.price); });
-    const min = d3.min(ps, (p) => p.price), makers = PC.MAKERS.filter(([, n]) => by[n].length).length;
-    return { k, gpu: ps[0].gpu_key, mem: ps[0].mem_gb, ps, by, min, makers };
-  }).sort((a, b) => (tree ? a.min - b.min : b.makers - a.makers || a.min - b.min));
+  const f = PC.ss, lv0 = PC.order[0], L0 = PC.LV[lv0];
+  const groups = PC.groupBy(list, lv0);
   if (!groups.length) { el.append(PC.el('div', 'tempty', '条件に合うモデルがありません')); return; }
   groups.slice(0, f.gshow).forEach((g) => {
-    const card = PC.el('div', 'ssg');
+    const card = PC.el('div', 'ssg'); card.classList.add('br'); card.style.setProperty('--bc', L0.color(g.k) || 'var(--brand)');
     const h = PC.el('div', 'ssg-h');
-    PC.brandEl(card, g.gpu);
-    h.append(PC.el('span', 'ssg-t', tree ? g.gpu : `${g.gpu} × メモリ${g.mem}GB`), PC.el('span', 'ssg-n', PC.cust ? `${g.ps.length}機種` : `${g.ps.length}機種・${g.makers}社`));
-    const bestMk = PC.MAKERS.find(([, n]) => g.by[n].length && g.by[n][0].price === g.min)[1];
+    const makers = PC.MAKERS.filter(([, n]) => g.ps.some((p) => p.maker === n)).length;
+    h.append(PC.el('span', 'ssg-l0', L0.name), PC.el('span', 'ssg-t', L0.label(g.k)), PC.el('span', 'ssg-n', PC.cust ? `${g.ps.length}機種` : `${g.ps.length}機種・${makers}社`));
+    const bestMk = PC.MAKERS.find(([, n]) => g.ps.some((p) => p.maker === n && p.price === g.min))[1];
     const best = PC.el('span', 'ssg-best'), tg = PC.el('span', 'tagm', PC.cust ? '最安' : '最安 ' + bestMk);
-    tg.style.setProperty('--c', PC.mcol(bestMk));
-    best.append(tg, PC.el('b', null, PC.yen(g.min) + '円'));
-    const ds = g.by['ドスパラ'][0];
-    if (ds && !PC.cust) { const df = ds.price - g.min; best.append(PC.el('span', 'ssg-ds ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}円` : 'ドスパラが最安')); }
+    tg.style.setProperty('--c', PC.mcol(bestMk)); best.append(tg, PC.el('b', null, PC.yen(g.min) + '円'));
+    const dd = PC.dsDiffEl(g.ps, g.min, 'ssg-ds'); if (dd) best.append(dd);
     h.append(best); card.append(h);
-    if (f.sub) { card.append(PC.subMatrix(g, f.sub)); el.append(card); return; }
-    const cols = PC.el('div', 'ss-cols'); cols.style.setProperty('--n', PC.VM().length);
-    PC.VM().forEach(([, name]) => {
-      const mine = g.by[name], key = g.k + '|' + name, open = !!f.open[key];
-      const col = PC.el('div', 'mk ss-col'); col.style.setProperty('--c', PC.mcol(name));
-      const mh = PC.el('div', 'mk-h'); mh.append(PC.el('span', null, name), PC.el('span', 'c', mine.length ? `${mine.length}機種` : '該当なし')); col.append(mh);
-      (open ? mine.slice(0, 100) : mine.slice(0, PC.SS_SHOW)).forEach((p) => {
-        const it = PC.el('div', 'it' + (p.price === g.min ? ' top' : ''));
-        const a = PC.el('a', null, p.name); a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
-        const spec = [!f.cpu && p.cpu_key, p.storage_cap && 'SSD ' + p.storage_cap, p.psu && '電源 ' + p.psu].filter(Boolean).join(' ・ ');
-        const prs = PC.el('span', 'pr', PC.yen(p.price) + '円'); if (f.game) { const fb = PC.fpsBadge(p); if (fb) { prs.append(document.createElement('br'), fb); } }
-        it.append(prs, a, PC.el('span', 'sub', spec)); col.append(it);
-      });
-      if (mine.length > PC.SS_SHOW) {
-        const b = PC.el('button', 'ss-more', open ? '閉じる' : `すべて表示（${mine.length}機種）`); b.type = 'button';
-        b.addEventListener('click', () => { f.open[key] = !open; dash.draw('ssGroups'); });
-        col.append(b);
-      }
-      cols.append(col);
-    });
-    card.append(cols); el.append(card);
+    const box = PC.el('div', 'sm'); box.style.setProperty('--n', PC.VM().length);
+    const head = PC.el('div', 'sm-row sm-head'); head.append(PC.el('div', 'sm-l', PC.order.slice(1).map((x) => PC.LV[x].name).join(' ＞ ')));
+    PC.VM().forEach(([, n]) => { const c = PC.el('div', 'sm-mh', n); c.style.setProperty('--c', PC.mcol(n)); head.append(c); });
+    box.append(head);
+    PC.levelInto(box, g.ps, 1, `${lv0}:${g.k}`);
+    card.append(box); el.append(card);
   });
   if (groups.length > f.gshow) {
     const b = PC.el('button', 'ss-gmore', `さらに表示（残り ${groups.length - f.gshow} グループ）`); b.type = 'button';
-    b.addEventListener('click', () => { f.gshow += 8; dash.draw('ssGroups'); });
-    el.append(b);
+    b.addEventListener('click', () => { f.gshow += 8; dash.draw('ssGroups'); }); el.append(b);
   }
 });
 document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same, sb = PC.ss.sub, np = PC.ss.nopro; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ss.sub = sb; PC.ss.nopro = np; PC.ssRedraw(); }));
