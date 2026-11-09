@@ -177,7 +177,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .mk-rl { display: flex; flex-direction: column; gap: 1px; border-left: 4px solid var(--c); padding-left: 8px; }
 .pc .mk-rl b { color: var(--c); font-size: 13.5px; } .pc .mk-rl small { font-size: 11px; color: var(--color-fg-muted); }
 .pc .mk-best { font-size: 11px; font-weight: 700; color: var(--color-ok); } .pc .mk-df { font-size: 11px; font-weight: 700; color: var(--color-bad); }
-.pc .mk-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 8px; align-items: start; }
+.pc .mk-items { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; align-items: start; }
+/* モデルは1行ずつ：価格｜FPS・電源｜型番 */
+.pc .mk-items .sm-it { display: grid; grid-template-columns: 300px minmax(0, 1fr); align-items: center; gap: 2px 12px; padding: 4px 8px; }
+.pc .mk-items .sm-t { flex-wrap: nowrap; }
+.pc .mk-items .sm-n { font-size: 12.5px; }
+@media (max-width: 900px) { .pc .mk-items .sm-it { grid-template-columns: minmax(0, 1fr); } .pc .mk-items .sm-t { flex-wrap: wrap; } }
 .pc .mk-items .sm-more { grid-column: 1 / -1; justify-self: start; padding: 3px 14px; border-color: color-mix(in srgb, var(--c) 45%, #fff); color: var(--c); }
 @media (max-width: 700px) { .pc .mk-row { grid-template-columns: minmax(0, 1fr); padding-left: 10px; } .pc .mk-rl { flex-direction: row; align-items: baseline; gap: 8px; } }
 
