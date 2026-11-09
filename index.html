@@ -230,13 +230,16 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .ai-sec { display: flex; align-items: center; gap: 14px; margin-top: 6px; padding: 0 4px; }
 .pc .ai-sec h2 { color: var(--brand); border-left: 6px solid var(--brand); padding-left: 10px; }
 .pc .ai-seg { display: flex; gap: 4px; }
-.pc .ai-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 560px), 1fr)); gap: 10px; align-items: start; }
-.pc .ai-card { padding: 12px 14px; }
+.pc .ai-cards { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.pc .ai-card { padding: 14px 18px; }
 .pc .ai-card.br { border-left: 6px solid var(--bc); } .pc .ai-card.br .ai-h b { color: var(--bc); }
 .pc .ai-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 2px solid #e6eef9; }
 .pc .ai-h b { font-size: 18px; color: #0d1830; } .pc .ai-h small { font-size: 12px; color: var(--color-fg-muted); }
 .pc .ai-k { font-size: 11px; font-weight: 700; color: #fff; background: var(--brand); border-radius: 4px; padding: 1px 6px; }
-.pc .ai-row { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 10px; padding: 9px 0; border-top: 1px dashed #e3e9f1; }
+.pc .ai-row { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 14px; padding: 12px 4px; border-top: 1px dashed #d5e2f2; }
+.pc .ai-row:nth-of-type(even) { background: #f8fbff; }
+.pc .ai-why { margin: 2px 0 0; font-size: 14px; line-height: 1.85; letter-spacing: .02em; color: #1b2538; max-width: 70em; }
+.pc .ai-why.lead { padding: 10px 14px; background: #f4f8fe; border-radius: 8px; border-left: 4px solid var(--brand); margin: 6px 0 4px; }
 .pc .ai-row:first-of-type { border-top: 0; }
 .pc .ai-row.rec .ai-cond { color: var(--color-ok); } .pc .ai-row.rec .ai-cond::after { content: "（推奨）"; font-size: 11px; }
 .pc .ai-cond { font-weight: 700; font-size: 14px; color: var(--brand); padding-top: 2px; }
@@ -1830,6 +1833,71 @@ dash.draw('aiResSel', (el) => {
   el.replaceChildren();
   ['1080p', '1440p', '4K'].forEach((r, i) => { const b = PC.el('button', 'seg' + (PC.aiRes === i ? ' on' : ''), r); b.type = 'button'; b.addEventListener('click', () => { PC.aiRes = i; dash.draw('aiResSel'); dash.draw('aiGames'); }); el.append(b); });
 });
+// 理由の文章（データから組み立て）
+// 当社(a)と他社(b)の構成差を「当社が上／他社が上／その他」に分ける
+PC.specCmp = (a, b) => {
+  const up = [], down = [], other = [];
+  const st = (v) => PC.stLabel(v).replace('SSD ', '');
+  if (a.gpu !== b.gpu) other.push(`GPU は当社 ${a.gpu}・パソコン工房 ${b.gpu}`);
+  if (a.cpu !== b.cpu) other.push(`CPU は当社 ${a.cpu}・パソコン工房 ${b.cpu}`);
+  const num = (x, y, lab, f) => { if (x && y && x !== y) (x > y ? up : down).push(`${lab}（当社 ${f(x)}・パソコン工房 ${f(y)}）`); };
+  num(a.mem, b.mem, 'メモリ容量', (v) => v + 'GB');
+  num(a.st, b.st, 'ストレージ容量', st);
+  num(a.psu, b.psu, '電源容量', (v) => v + 'W');
+  const gr = { BRONZE: 1, SILVER: 2, GOLD: 3, PLATINUM: 4, TITANIUM: 5 };
+  if (a.grade && b.grade && a.grade !== b.grade) (gr[a.grade] > gr[b.grade] ? up : down).push(`電源グレード（当社 ${a.grade}・パソコン工房 ${b.grade}）`);
+  return { up, down, other };
+};
+PC.cmpText = (d, p, lose) => {
+  const c = PC.specCmp(d, p), t = [];
+  if (c.other.length) t.push(`構成の違いとして、${c.other.join('、')}です。`);
+  if (lose) {
+    if (c.up.length) t.push(`当社は ${c.up.join('、')} が上回っており、価格差の説明材料になります。`);
+    if (c.down.length) t.push(`一方でパソコン工房は ${c.down.join('、')} が上回っており、${c.up.length ? '' : '価格だけでなく'}構成面でも不利です。`);
+    if (!c.up.length && !c.down.length && !c.other.length) t.push('構成はほぼ同じため純粋な価格差で、値下げやクーポンの検討余地があります。');
+    else if (!c.up.length) t.push('当社側に価格差を正当化できる上位要素がないため、価格見直しの優先度が高い構成です。');
+  } else {
+    if (c.up.length) t.push(`さらに当社は ${c.up.join('、')} も上回っており、安さと構成の両面で優位です。`);
+    if (c.down.length) t.push(`ただしパソコン工房は ${c.down.join('、')} が上回るため、そこを重視するお客様には説明が必要です。`);
+  }
+  return t.join('');
+};
+PC.reasonStep = (g, res, s, prev) => {
+  const t = [], gn = PC.gname2(g.game), d = s.ds, p = s.pk;
+  if (!d) return `${gn} を ${res} で ${s.fps}fps 以上出せるモデルは、当社のデスクトップには現在ありません（最高画質の公表値ベース）。` + (p ? `パソコン工房では ${p.name}（${PC.yen(p.price)}円・${p.gpu}）が該当します。` : '');
+  t.push(`${gn} を ${res}・最高画質で ${s.fps}fps 以上出すための当社最安は、${d.gpu} と ${d.cpu} を積んだ ${d.name}（${PC.yen(d.price)}円）です。`);
+  if (d.fps != null) t.push(`${d.est ? '同じGPUの当社機の公表値から推定すると' : '当社の公表値で'}約 ${d.fps}fps 出るため、目標の ${s.fps}fps に対して${d.fps >= s.fps * 1.5 ? 'かなり余裕があります' : d.fps >= s.fps * 1.15 ? 'ほどよく余裕があります' : 'ほぼぎりぎりです'}。`);
+  if (g.rec && s.fps < g.rec && d.fps >= g.rec) t.push(`ドスパラの推奨値（${g.rec}fps）も満たしています。`);
+  if (!p) t.push('パソコン工房には同条件を満たすモデルがないため、比較対象はありません。');
+  else if (s.diff <= 0) {
+    t.push(`パソコン工房で同じ条件を満たす最安は ${p.name}（${PC.yen(p.price)}円・${p.gpu}）で、当社の方が ${PC.yen(-s.diff)}円 安く、価格面で優位です。`);
+    t.push(PC.cmpText(d, p, false));
+  } else {
+    t.push(`パソコン工房で同じ条件を満たす最安は ${p.name}（${PC.yen(p.price)}円・${p.gpu}）で、当社より ${PC.yen(s.diff)}円 安くなっています。`);
+    if (p.fps != null && d.gpu !== p.gpu) t.push(`性能面ではパソコン工房機が推定約 ${p.fps}fps で、当社の約 ${d.fps}fps に対して${p.fps > d.fps ? '上回ります' : p.fps < d.fps ? '下回ります' : '同等です'}。`);
+    t.push(PC.cmpText(d, p, true));
+  }
+  if (s.alt && s.alt.length) t.push(`1段上の性能を求めるお客様には、${s.alt.map((m) => `${m.gpu} 搭載の ${PC.yen(m.price)}円のモデル`).join('、')}も提案できます。`);
+  return t.join('');
+};
+PC.reasonGpu = (g) => {
+  const t = [];
+  t.push(`${g.gpu} 搭載のデスクトップは、当社 ${g.ds_n}機種、パソコン工房 ${g.pk_n}機種です。`);
+  t.push(`当社の最安は ${g.ds_min.name}（${PC.yen(g.ds_min.price)}円・${g.ds_min.cpu}・メモリ${g.ds_min.mem}GB）です。`);
+  if (g.pk_min) {
+    t.push(g.diff <= 0 ? `パソコン工房の最安（${PC.yen(g.pk_min.price)}円）より ${PC.yen(-g.diff)}円 安く、入口価格では当社が有利です。`
+      : `パソコン工房の最安は ${g.pk_min.name}（${PC.yen(g.pk_min.price)}円・${g.pk_min.cpu}・メモリ${g.pk_min.mem}GB）で、当社より ${PC.yen(g.diff)}円 安くなっています。`);
+    if (g.diff > 0) t.push(PC.cmpText(g.ds_min, g.pk_min, true));
+  } else t.push('パソコン工房には同じGPUのモデルがなく、当社の独自ラインです。');
+  if (g.pairs) {
+    t.push(`同じCPU・メモリで比べられる ${g.pairs}構成のうち、当社が安いのは ${g.ds_win}構成、パソコン工房が安いのは ${g.pk_win}構成です。`);
+    t.push(g.ds_win > g.pk_win ? '全体として当社が価格で優位なGPUです。' : g.ds_win < g.pk_win ? '全体としてパソコン工房が価格で優位なGPUで、当社は苦戦しています。' : '両社ほぼ互角です。');
+  }
+  if (g.win && g.win.length) t.push(`特に ${g.win.slice(0, 2).map((x) => `${x.cpu}・メモリ${x.mem}GB（当社が ${PC.yen(-x.diff)}円 安い）`).join('、')}は当社の強みです。`);
+  if (g.lose && g.lose.length) t.push(`一方、${g.lose.slice(0, 2).map((x) => `${x.cpu}・メモリ${x.mem}GB（パソコン工房が ${PC.yen(x.diff)}円 安い）`).join('、')}は不利で、価格見直しの候補です。`);
+  if (g.ds_16) t.push(`メモリ16GB以上を希望されるお客様には ${g.ds_16.name}（${PC.yen(g.ds_16.price)}円）を提案できます。`);
+  return t.join('');
+};
 dash.draw('aiGames', (el) => {
   el.replaceChildren(); const r = PC.ok('reco'); if (!r || !r.by_game) return;
   r.by_game.forEach((g) => {
@@ -1845,7 +1913,7 @@ dash.draw('aiGames', (el) => {
       row.append(PC.el('div', 'ai-cond', `${s.fps}fps以上なら`));
       const body = PC.el('div', 'ai-body');
       if (!s.ds) body.append(PC.el('span', 'ai-v only', '当社に該当モデルなし'));
-      else if (same) body.append(PC.el('span', 'ai-same', '↑ 同じモデルで達成'));
+      else if (same) body.append(PC.el('span', 'ai-same', `↑ 上と同じモデルで達成できます（約 ${s.ds.fps}fps）。`));
       else {
         body.append(PC.aiModel(s.ds, { fps: true }), PC.aiVerdict(s.diff, s.pk));
         if (s.alt && s.alt.length) {
@@ -1853,6 +1921,7 @@ dash.draw('aiGames', (el) => {
           s.alt.forEach((m) => { const a = PC.el('a', null, `${m.gpu} ${PC.yen(m.price)}円`); a.href = m.url; a.target = '_blank'; a.rel = 'noopener'; alt.append(a); });
           body.append(alt);
         }
+        body.append(PC.el('p', 'ai-why', PC.reasonStep(g, ['1080p', '1440p', '4K'][PC.aiRes], s)));
       }
       row.append(body); card.append(row);
     });
@@ -1867,6 +1936,7 @@ dash.draw('aiGpus', (el) => {
     h.append(PC.el('small', null, `当社 ${g.ds_n}機種／パソコン工房 ${g.pk_n}機種`));
     if (g.pairs) h.append(PC.el('small', null, `同じCPU×メモリで比較 ${g.pairs}件：当社が安い ${g.ds_win}・パソコン工房が安い ${g.pk_win}`));
     card.append(h);
+    card.append(PC.el('p', 'ai-why lead', PC.reasonGpu(g)));
     const row = PC.el('div', 'ai-row'); row.append(PC.el('div', 'ai-cond', '提案（最安）'));
     const b = PC.el('div', 'ai-body'); b.append(PC.aiModel(g.ds_min), PC.aiVerdict(g.diff, g.pk_min)); row.append(b); card.append(row);
     if (g.ds_16) { const r2 = PC.el('div', 'ai-row'); r2.append(PC.el('div', 'ai-cond', 'メモリ16GB以上なら')); const b2 = PC.el('div', 'ai-body'); b2.append(PC.aiModel(g.ds_16)); r2.append(b2); card.append(r2); }
