@@ -1618,11 +1618,12 @@ dash.draw('ssFps', (el) => {
     (lab) => { const v = opts.find((o) => o[1] === lab)[0]; PC.ssSet({ fps: PC.ss.fps === v ? '' : v }); });
 });
 PC.fpsBadge = (p) => {
+  if (p.maker !== 'ドスパラ') return null; // 他社はFPSの公表値がないため表示しない（絞り込みには同GPUのドスパラ機の値を目安として使用）
   const x = PC.fpsOf(p, PC.ss.game); if (!x) return null;
   const ok = x.v >= (((PC.fpsData() || {}).rec || {})[PC.ss.game] || 0);
   return PC.el('span', 'fps-m' + (ok ? ' ok' : '') + (x.est ? ' est' : ''), `${x.est ? '≈' : ''}${x.v}fps`);
 };
-dash.draw('ssFpsNote', (el) => { el.textContent = PC.fpsData() ? '（ドスパラ「ゲーム性能」最高画質。他社は同GPUの推定≈）' : ''; });
+dash.draw('ssFpsNote', (el) => { el.textContent = PC.fpsData() ? '（ドスパラ「ゲーム性能」最高画質。他社は公表値なし・同GPUのドスパラ値で判定）' : ''; });
 // 表示する社（お客様表示はドスパラのみ）
 PC.VM = () => (PC.cust ? PC.MAKERS.filter(([, n]) => n === 'ドスパラ') : PC.MAKERS);
 PC.mcol = (n) => PC.COLORS[PC.MAKERS.findIndex(([, x]) => x === n)];
@@ -1815,7 +1816,7 @@ PC.aiModel = (m, opt = {}) => {
   const c = PC.el('span', 'bt', m.cpu); PC.brandEl(c, m.cpu); top.append(c);
   if (m.mem) top.append(PC.el('span', 'ai-tag', `メモリ ${m.mem}GB`));
   if (m.st) top.append(PC.el('span', 'ai-tag', PC.stLabel(m.st)));
-  if (opt.fps && m.fps != null) top.append(PC.el('span', 'fps-m ok' + (m.est ? ' est' : ''), `${m.est ? '≈' : ''}${m.fps}fps`));
+  if (opt.fps && m.fps != null && m.maker === 'ドスパラ') top.append(PC.el('span', 'fps-m ok' + (m.est ? ' est' : ''), `${m.est ? '≈' : ''}${m.fps}fps`));
   const a = PC.el('a', 'ai-n', m.name); a.href = m.url; a.target = '_blank'; a.rel = 'noopener';
   box.append(top, a); return box;
 };
@@ -1868,7 +1869,7 @@ PC.reasonStep = (g, res, s) => {
     pts.push(c.up.length ? `構成も当社優位：${c.up.join('、')}` : c.down.length ? `構成は他社優位：${c.down.join('、')}` : '構成はほぼ同等');
   } else {
     const c = PC.short(d, p);
-    pts.push(`パソコン工房最安（${p.gpu}${p.gpu !== d.gpu && p.fps != null ? `・約${p.fps}fps` : ''}）が${PC.yen(s.diff)}円安`);
+    pts.push(`パソコン工房最安（${p.gpu}）が${PC.yen(s.diff)}円安`);
     pts.push(c.up.length ? `説明材料：${c.up.join('、')}${c.down.length ? `／弱み：${c.down.join('、')}` : ''}` : c.down.length ? `弱み：${c.down.join('、')} → 価格見直し候補` : '構成同等の純粋な価格差 → 値下げ・クーポン候補');
   }
   return pts.slice(0, 3);

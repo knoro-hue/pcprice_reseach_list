@@ -228,7 +228,7 @@ def recommend(rows: list, fps_data: dict | None, today: str) -> dict:
     by_gpu = [x for x in by_gpu if not re.search(r"PRO|^RTX A\d|Ada|Quadro", x["gpu"])]
     # 業務用GPUはおすすめ対象から外す（ゲーム別も）
     by_gpu.sort(key=lambda x: (order.get(x["gpu"], 50), x["ds_min"]["price"]))
-    return {"updated": today, "basis": "デスクトップ・Windows Pro除外。FPSはドスパラ「ゲーム性能」（最高画質）。パソコン工房は同じGPUのドスパラ機の中央値で推定（≈）",
+    return {"updated": today, "basis": "デスクトップ・Windows Pro除外。FPSはドスパラ「ゲーム性能」（最高画質）。パソコン工房はFPSの公表値がないため、同じGPUのドスパラ機の値を目安に条件判定（FPSは非表示）",
             "by_game": by_game, "by_gpu": by_gpu}
 
 
