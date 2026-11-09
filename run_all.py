@@ -9,6 +9,7 @@
   data/history.json       日別×社×区分の機種数・中央値
   data/spec_history.json  日別×区分×CPU×GPU×社の最安値（価格推移グラフ用、直近365日）
   data/status.json        社ごとの取得結果
+  data/ds_fps.json        ドスパラ詳細ページの「ゲーム性能」FPS（モデル別・最高画質・1080p/1440p/4K）
   data/ds_featured.json   ドスパラ注力ページ（TC30/TC143/general_desk/general_note）のランキング・注力枠の掲載モデル
   output/pc_price_latest.xlsx, output/pckoubou_pc_latest.xlsx
 使い方: python run_all.py [--only pckoubou,dospara,mouse]
@@ -283,6 +284,10 @@ def main():
     if any(s["maker"] == dospara.MAKER and s["state"] == "取得成功" for s in status):
         try:
             save(f"{DATA}/ds_featured.json", dospara.focus(today))
+            sample = next((r["url"] for r in uniq if r["maker"] == dospara.MAKER and "/TC30/" in r["url"]), None)
+            f = dospara.fps(today, sample) if sample else None
+            if f:
+                save(f"{DATA}/ds_fps.json", f)
         except Exception as e:  # noqa: BLE001
             warnings.append(f"ドスパラ注力ページの取得失敗（前回分を使用）: {e}")
     save(f"{DATA}/status.json", status)

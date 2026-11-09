@@ -113,6 +113,16 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .ss .chips { flex-wrap: wrap; overflow: visible; }
 }
 
+/* ゲーム・FPS */
+.pc .ss-l small { font-weight: 400; color: var(--color-fg-muted); letter-spacing: 0; font-size: 10.5px; }
+.pc .ss-fps { margin-top: 6px; padding-top: 6px; border-top: 1px dotted #cfe1fb; }
+.pc .ss-hint { font-size: 11.5px; color: var(--color-fg-muted); }
+.pc .ss-res { display: flex; gap: 4px; margin-bottom: 6px; }
+.pc .fps-m { padding: 1px 8px; border-radius: 6px; background: #5b6b82; color: #fff; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pc .fps-m.ok { background: linear-gradient(135deg, #7b2ff7, #0a7cd6); }
+.pc .fps-m.est { opacity: .75; border: 1px dashed rgba(255,255,255,.7); }
+.pc .fps-b { padding: 2px 10px; border-radius: 999px; background: linear-gradient(135deg, #7b2ff7, #0a7cd6); color: #fff; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
 /* 内訳マトリクス */
 .pc .ss-sum { flex-direction: column; align-items: stretch; gap: 8px; }
 .pc .ss-sumt { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; }
@@ -419,7 +429,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     <div class="ss">
       <aside class="card ss-f">
         <div class="ss-h"><h2>同スペック比較</h2><button class="clearbtn pc-ss-clear" type="button">✕ 条件をクリア</button></div>
-        <label class="chk"><input type="checkbox" class="pc-ss-same" checked> 2社以上が同じCPU×GPU×メモリを出している構成のみ</label>
+        <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">CPU</div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">GPU</div><div class="chips" data-draw="ssGpu" data-source="products"></div></div>
@@ -543,7 +553,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <h2>各タブの見方</h2>
         <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
         <ul class="howlist">
-          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左で予算・CPU（ファミリー→型番）・GPU・メモリを選ぶと、右に「GPU×メモリ」ごとのグループで3社の該当モデルを安い順に表示（各社3機種、「すべて表示」で全機種）。（ ）の数は他の条件をかけた機種数で、組み合わせのないものはグレー。</div></li>
+          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左でゲームと目標FPS（ドスパラ公表のGPU別FPS）・予算・CPU（ファミリー→型番）・GPU・メモリを選ぶと、右に「GPU×メモリ」ごとのグループで3社の該当モデルを安い順に表示（各社3機種、「すべて表示」で全機種）。（ ）の数は他の条件をかけた機種数で、組み合わせのないものはグレー。</div></li>
           <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。注力ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）のおすすめランキング・注力枠（CPU×GPU表、ラインアップ等）に載っているモデルだけを掲載順に表示。行をクリックすると他社の該当モデル一覧</div></li>
           <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>区分・CPU・GPUをプルダウンで選んで最大8件追加すると、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
           <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
@@ -616,7 +626,7 @@ const pcTab = (name) => {
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+  ['ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
@@ -1210,7 +1220,7 @@ PC.MIRROR.dsRows = 'dsCards';
 /* ===== 同スペック比較（左：予算・CPU・GPU・メモリで絞り込み／右：各社のモデル一覧） ===== */
 PC.SS_BUDGET = { 'デスクトップ': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 600000], [600000, 1e9]],
   'ノート': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 1e9]] };
-PC.ssNew = () => ({ budget: '', fam: '', cpu: '', gpu: '', mem: '', same: true, open: {}, gshow: 8 });
+PC.ssNew = () => ({ budget: '', fam: '', cpu: '', gpu: '', mem: '', game: '', fps: '', res: '0', same: false, open: {}, gshow: 8 });
 PC.ss = PC.ssNew();
 PC.man = (v) => (v / 10000).toFixed(0) + '万';
 PC.budgetLabel = ([lo, hi]) => (lo === 0 ? `〜${PC.man(hi)}` : hi >= 1e9 ? `${PC.man(lo)}〜` : `${PC.man(lo)}〜${PC.man(hi)}`);
@@ -1231,12 +1241,13 @@ PC.ssMatch = (p, skip) => {
   const f = PC.ss;
   return (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'fam' || !f.fam || PC.fam(p.cpu_key) === f.fam)
     && (skip === 'cpu' || skip === 'fam' || !f.cpu || p.cpu_key === f.cpu)
-    && (skip === 'gpu' || !f.gpu || p.gpu_key === f.gpu) && (skip === 'mem' || !f.mem || String(p.mem_gb) === f.mem);
+    && (skip === 'gpu' || !f.gpu || p.gpu_key === f.gpu) && (skip === 'mem' || !f.mem || String(p.mem_gb) === f.mem)
+    && (skip === 'game' || !f.game || PC.fpsPass(p, skip === 'fps'));
 };
 PC.ssFacet = (skip) => { const b = PC.ssBase(); return b ? b.filter((p) => PC.ssMatch(p, skip)) : null; };
 PC.ssList = () => PC.ssFacet(null);
 PC.ssSet = (patch) => { Object.assign(PC.ss, patch, { open: {}, gshow: 8 }); PC.ssRedraw(); };
-PC.ssRedraw = () => ['ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+PC.ssRedraw = () => ['ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
 // 1グループ分のボタン（並びは固定、件数は他の条件を反映、0件は押せない）
 PC.ssChips = (el, field, keys, labelFn, keyFn) => {
   const rows = PC.ssFacet(field); if (!rows) return el.replaceChildren();
@@ -1266,7 +1277,7 @@ dash.draw('ssGpu', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChi
 dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'mem', [...new Set(b.map((p) => String(p.mem_gb)))].sort((a, c) => a - c), (k) => k + 'GB', (p) => String(p.mem_gb)); });
 dash.draw('ssSummary', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
-  const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB'].filter(Boolean);
+  const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
   const ng = new Set(list.map((p) => `${p.gpu_key}|${p.mem_gb}`)).size;
   el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(ng)), PC.el('span', null, 'グループ'), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
   if (f.cpu && f.gpu) {
@@ -1319,6 +1330,7 @@ PC.subMatrix = (g, mode, gi) => {
       (open ? mine : mine.slice(0, PC.SUB_SHOW)).forEach((p) => {
         const it = PC.el('a', 'sm-it' + (p.price === sg.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
         const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
+        if (f.game) { const fb = PC.fpsBadge(p); if (fb) top.append(fb); }
         if (mode === 'st') top.append(PC.psuBadge(p));
         else if (mode === 'psu') top.append(PC.stBadge(p));
         it.append(top, PC.el('span', 'sm-n', p.name));
@@ -1343,6 +1355,61 @@ dash.draw('ssSub', (el) => {
     el.append(b);
   });
 });
+/* ゲーム別FPS：ドスパラ詳細ページの「ゲーム性能」（モデル別・最高画質）。他社は同じGPUのドスパラ機の中央値で推定 */
+PC.FPS_STEPS = [60, 120, 144, 165, 240];
+PC.RES = ['1080p', '1440p', '4K'];
+PC.fpsData = () => { const d = PC.ok('fps'); return d && d.models ? d : null; };
+PC.fpsGpu = () => {
+  const fd = PC.fpsData(), pr = PC.ok('products'); if (!fd || !pr) return null;
+  if (PC._fg && PC._fg.src === fd && PC._fg.pr === pr) return PC._fg.map;
+  const acc = new Map();
+  pr.forEach((p) => {
+    const m = p.maker === 'ドスパラ' && fd.models[p.id.split('-')[0]]; if (!m) return;
+    Object.entries(m).forEach(([g, arr]) => arr.forEach((v, i) => {
+      if (v == null) return; const k = `${p.kind}|${p.gpu_key}|${g}|${i}`; (acc.get(k) || acc.set(k, []).get(k)).push(v);
+    }));
+  });
+  const map = new Map(); acc.forEach((v, k) => map.set(k, d3.median(v)));
+  PC._fg = { src: fd, pr, map }; return map;
+};
+// 戻り値 { v: fps, est: 推定か }
+PC.fpsOf = (p, game, ri = +(PC.ss.res || 0)) => {
+  const fd = PC.fpsData(); if (!fd || !game) return null;
+  if (p.maker === 'ドスパラ') { const m = fd.models[p.id.split('-')[0]]; if (m && m[game] && m[game][ri] != null) return { v: m[game][ri], est: false }; }
+  const gm = PC.fpsGpu(), v = gm && gm.get(`${p.kind}|${p.gpu_key}|${game}|${ri}`);
+  return v != null ? { v: Math.round(v / 5) * 5, est: true } : null;
+};
+PC.fpsTarget = () => (PC.ss.fps === 'rec' ? ((PC.fpsData() || {}).rec || {})[PC.ss.game] || 0 : +PC.ss.fps || 0);
+PC.fpsPass = (p, skipFps) => { const x = PC.fpsOf(p, PC.ss.game); return !!x && (skipFps || !PC.ss.fps || x.v >= PC.fpsTarget()); };
+PC.GAME_SHORT = { 'Monster Hunter Wilds': 'モンハンワイルズ', 'グランド・セフト・オートＶ': 'GTA V', 'League of Legends': 'LoL', 'Escape from Tarkov': 'Tarkov' };
+PC.gname = (g) => PC.GAME_SHORT[g] || g;
+dash.draw('ssGame', (el) => {
+  const fd = PC.fpsData(), b = PC.ssBase(); if (!fd || !b) return el.replaceChildren();
+  const rows = PC.ssFacet('game'), save = PC.ss.game;
+  const items = fd.games.map((g) => { PC.ss.game = g; const n = rows.filter((p) => PC.fpsPass(p)).length; return [PC.gname(g), n]; });
+  PC.ss.game = save;
+  PC.chips(el, items, (lab) => PC.ss.game && PC.gname(PC.ss.game) === lab,
+    (lab) => { const g = fd.games.find((x) => PC.gname(x) === lab); PC.ssSet({ game: PC.ss.game === g ? '' : g }); });
+});
+dash.draw('ssFps', (el) => {
+  el.replaceChildren(); if (!PC.ss.game) { el.append(PC.el('span', 'ss-hint', 'ゲームを選ぶと、解像度と目標FPSで絞れます')); return; }
+  const res = PC.el('div', 'ss-res');
+  PC.RES.forEach((r, i) => { const b = PC.el('button', 'seg' + (+(PC.ss.res || 0) === i ? ' on' : ''), r); b.type = 'button'; b.addEventListener('click', () => PC.ssSet({ res: String(i) })); res.append(b); });
+  const box = PC.el('div', 'chips'); el.append(res, box);
+  const rows = PC.ssFacet('fps'), recV = ((PC.fpsData() || {}).rec || {})[PC.ss.game];
+  const opts = [['rec', `推奨${recV}fps以上`], ...PC.FPS_STEPS.filter((n) => n !== recV).map((n) => [String(n), `${n}fps以上`])];
+  const save = PC.ss.fps;
+  const items = opts.map(([v, lab]) => { PC.ss.fps = v; const n = rows.filter((p) => PC.fpsPass(p)).length; return [lab, n]; });
+  PC.ss.fps = save;
+  PC.chips(box, items, (lab) => !!PC.ss.fps && opts.find((o) => o[0] === PC.ss.fps)[1] === lab,
+    (lab) => { const v = opts.find((o) => o[1] === lab)[0]; PC.ssSet({ fps: PC.ss.fps === v ? '' : v }); });
+});
+PC.fpsBadge = (p) => {
+  const x = PC.fpsOf(p, PC.ss.game); if (!x) return null;
+  const ok = x.v >= (((PC.fpsData() || {}).rec || {})[PC.ss.game] || 0);
+  return PC.el('span', 'fps-m' + (ok ? ' ok' : '') + (x.est ? ' est' : ''), `${x.est ? '≈' : ''}${x.v}fps`);
+};
+dash.draw('ssFpsNote', (el) => { el.textContent = PC.fpsData() ? '（ドスパラ「ゲーム性能」最高画質。他社は同GPUの推定≈）' : ''; });
 PC.SS_SHOW = 3;
 // 右：GPU×メモリごとのグループ。各グループの中に3社のモデルを安い順に3機種ずつ
 dash.draw('ssGroups', (el) => {
@@ -1375,7 +1442,8 @@ dash.draw('ssGroups', (el) => {
         const it = PC.el('div', 'it' + (p.price === g.min ? ' top' : ''));
         const a = PC.el('a', null, p.name); a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
         const spec = [!f.cpu && p.cpu_key, p.storage_cap && 'SSD ' + p.storage_cap, p.psu && '電源 ' + p.psu].filter(Boolean).join(' ・ ');
-        it.append(PC.el('span', 'pr', PC.yen(p.price) + '円'), a, PC.el('span', 'sub', spec)); col.append(it);
+        const prs = PC.el('span', 'pr', PC.yen(p.price) + '円'); if (f.game) { const fb = PC.fpsBadge(p); if (fb) { prs.append(document.createElement('br'), fb); } }
+        it.append(prs, a, PC.el('span', 'sub', spec)); col.append(it);
       });
       if (mine.length > PC.SS_SHOW) {
         const b = PC.el('button', 'ss-more', open ? '閉じる' : `すべて表示（${mine.length}機種）`); b.type = 'button';
@@ -1422,6 +1490,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
+    try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }
     try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
     // 「最安とドスパラとの価格差」= ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）。古いデータにも適用
