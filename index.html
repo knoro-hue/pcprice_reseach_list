@@ -60,6 +60,42 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 /* 同スペック比較：メモリ列（CPU×GPU単位のときは隠す） */
 .pc table.nomem .memcol { display: none; }
 
+/* 同スペック比較（左右2段） */
+.pc .ss { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 10px; align-items: start; }
+.pc .ss-f { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; display: grid; gap: 10px; }
+.pc .ss-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.pc .ss-h .clearbtn { height: 32px; font-size: 12px; }
+.pc .ss-g { border-top: 1px dashed var(--color-border-line); padding-top: 8px; }
+.pc .ss-l { font-size: 12px; font-weight: 700; color: var(--brand); letter-spacing: .08em; margin-bottom: 6px; }
+.pc .ss-scroll { max-height: 260px; overflow: auto; padding-right: 4px; }
+.pc .ss-fam { display: grid; grid-template-columns: 6.5rem 1fr; gap: 6px; align-items: start; margin-bottom: 6px; }
+.pc .ss-fl { font-size: 11px; color: var(--color-fg-muted); padding-top: 6px; }
+.pc .ss-r { display: grid; gap: 10px; min-width: 0; }
+.pc .ss-sum { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; padding: 10px 14px; }
+.pc .ss-sum::before { display: none; }
+.pc .ss-cond { font-weight: 700; color: var(--brand); margin-right: auto; }
+.pc .ss-n { font-size: 22px; font-variant-numeric: tabular-nums; }
+.pc .ss-sum .tbtn { font: inherit; font-size: 12px; border: 1px solid #8fb3e0; background: #f4f8fe; color: var(--brand); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.pc .ss-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: start; }
+.pc .ss-cols .ss-col { margin: 0; background: color-mix(in srgb, var(--c) 5%, #fff); border-color: color-mix(in srgb, var(--c) 35%, #fff); padding: 10px 12px; }
+.pc .ss-cols .ss-col .it { line-height: 1.5; padding: 9px 0; row-gap: 3px; }
+.pc .ss-cols .ss-col .it a { line-height: 1.45; }
+.pc .ss-cols .ss-col .it .sub { font-size: 11.5px; line-height: 1.5; }
+.pc .ss-cols .ss-col .it.top .pr::after { display: block; width: max-content; margin: 2px 0 0; }
+.pc .ss-min { font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-bottom: 4px; }
+.pc .ss-min b { font-size: 17px; font-variant-numeric: tabular-nums; } .pc .ss-min b.best { color: var(--color-ok); }
+.pc .ss-min small { font-weight: 700; } .pc .ss-min small.up { color: var(--color-bad); } .pc .ss-min small.down { color: var(--color-ok); }
+.pc .ss-cols .ss-col .it { grid-template-columns: 5.8rem 1fr; }
+.pc .ss-more { width: 100%; margin-top: 6px; font: inherit; font-size: 13px; padding: 8px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--c) 40%, #fff); background: #fff; color: var(--c); cursor: pointer; font-weight: 700; }
+.pc .ss-more:hover { background: color-mix(in srgb, var(--c) 8%, #fff); }
+@media (max-width: 1200px) { .pc .ss-cols { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) {
+  .pc .ss { grid-template-columns: minmax(0, 1fr); }
+  .pc .ss-f { position: static; max-height: none; }
+  .pc .ss-scroll { max-height: 180px; }
+  .pc .ss .chips { flex-wrap: wrap; overflow: visible; }
+}
+
 /* ドスパラ基準比較 */
 .pc tbody tr.grp td { background: #e6eef9 !important; color: var(--brand); font-weight: 700; padding-top: 8px; padding-bottom: 6px; border-bottom: 1px solid #b7cfee; }
 .pc td.cat span { background: #e6eef9; color: var(--brand); border-color: #b7cfee; font-size: .9em; }
@@ -326,37 +362,19 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   </header>
 
   <section class="page" id="same">
-    <div class="samewrap">
-      <div class="card">
-        <div class="cardhead">
-          <div><div class="kicker">Same-spec benchmark</div><h2>同スペックの最安比較（CPU×GPU×メモリ）</h2></div>
-          <span class="note" style="margin:0">2社以上が出している構成だけ。見出しで並び替え、行クリックで各社の該当モデルとリンク</span>
-        </div>
-        <div class="filters">
-          <label class="bigsearch"><span class="mg">⌕</span><input class="pc-same-q" type="search" placeholder="フリーワード検索（例：5070、9800X3D、Core Ultra 7）" aria-label="フリーワード検索"></label>
-          <select class="dash-select fsel pc-fcpu" data-draw="fCpu" data-source="same" aria-label="CPUで絞り込み"></select>
-          <select class="dash-select fsel pc-fgpu" data-draw="fGpu" data-source="same" aria-label="GPUで絞り込み"></select>
-          <select class="dash-select fsel pc-fmem" data-draw="fMem" data-source="same" aria-label="メモリで絞り込み"></select>
-          <select class="dash-select fsel pc-sunit" aria-label="比較の単位"><option value="mem">比較：CPU×GPU×メモリ</option><option value="">比較：CPU×GPU</option></select>
-          <button class="clearbtn pc-fclear" type="button">✕ 条件をクリア</button>
-          <select class="dash-select fsel msort pc-msort" data-for="sameRows" aria-label="並び替え"><option value="">並び：構成の多い順</option><option value="min:1">最安が安い順</option><option value="min:-1">最安が高い順</option><option value="spread:-1">ドスパラとの差が大きい順</option><option value="spread:1">ドスパラとの差が小さい順</option></select>
-          <span class="count"><b data-draw="sameCount" data-source="same">—</b>構成</span>
-        </div>
-        <div class="quickwrap">
-          <div class="quick"><span class="ql">GPU</span><div class="chips" data-draw="gpuChips" data-source="same"></div></div>
-          <div class="quick"><span class="ql">CPU</span><div class="chips" data-draw="cpuChips" data-source="same"></div></div>
-          <div class="quick memquick"><span class="ql">メモリ</span><div class="chips" data-draw="memChips" data-source="same"></div></div>
-        </div>
-        <div class="tbl"><table data-source="same" data-row-key="kind,spec">
-          <thead><tr><th data-field="cpu">CPU</th><th data-field="gpu">GPU</th><th data-field="mem_gb" class="c memcol">メモリ</th><th data-field="pk_min" class="mk0">パソコン工房</th><th data-field="ds_min" class="mk1">ドスパラ</th><th data-field="ms_min" class="mk2">マウス</th><th data-field="cheapest" class="c">最安</th><th data-field="spread" class="n">最安とドスパラとの価格差</th></tr></thead>
-          <tbody data-draw="sameRows"></tbody>
-        </table></div>
-        <div class="mcards" data-draw="sameCards" data-source="same"></div>
-      </div>
-      <div class="sheet-bg pc-same-close"></div>
-      <div class="card side" id="same-models">
-        <button class="closebtn pc-same-close" type="button">✕ 閉じる</button>
-        <div data-draw="sameModels" data-source="products"></div>
+    <div class="ss">
+      <aside class="card ss-f">
+        <div class="ss-h"><h2>同スペック比較</h2><button class="clearbtn pc-ss-clear" type="button">✕ 条件をクリア</button></div>
+        <label class="chk"><input type="checkbox" class="pc-ss-same" checked> 2社以上が同じCPU×GPU×メモリを出している構成のみ</label>
+        <div class="ss-g"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
+        <div class="ss-g"><div class="ss-l">CPU</div><div class="ss-scroll" data-draw="ssCpu" data-source="products"></div></div>
+        <div class="ss-g"><div class="ss-l">GPU</div><div class="chips ss-scroll" data-draw="ssGpu" data-source="products"></div></div>
+        <div class="ss-g"><div class="ss-l">メモリ</div><div class="chips" data-draw="ssMem" data-source="products"></div></div>
+        <p class="note" style="margin:8px 0 0">（ ）は他の条件をかけた状態の機種数。グレーは組み合わせなし</p>
+      </aside>
+      <div class="ss-r">
+        <div class="card ss-sum" data-draw="ssSummary" data-source="products"></div>
+        <div class="ss-cols" data-draw="ssCols" data-source="products"></div>
       </div>
     </div>
   </section>
@@ -471,7 +489,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <h2>各タブの見方</h2>
         <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
         <ul class="howlist">
-          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じCPU・GPU・メモリ容量の組み合わせを2社以上が出している構成を一覧（「比較：CPU×GPU」に切り替えるとメモリを問わず比較）。緑の丸枠がその構成の最安。行をクリックすると右側に各社の該当モデル（安い順・各社8件まで）と公式ページへのリンクを表示</div></li>
+          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左で予算・CPU・GPU・メモリを選ぶと、右に3社それぞれの該当モデルを安い順に表示（最初は各社3機種、「すべて表示」で全機種）。（ ）の数は他の条件をかけた機種数で、組み合わせのないものはグレー。</div></li>
           <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。注力ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）のおすすめランキング・注力枠（CPU×GPU表、ラインアップ等）に載っているモデルだけを掲載順に表示。行をクリックすると他社の該当モデル一覧</div></li>
           <li><span class="ic">📈</span><div><b>価格推移（価格変動タブ上部）</b>区分・CPU・GPUをプルダウンで選んで最大8件追加すると、各社の最安値の推移を折れ線で表示。グラフにカーソルを合わせると、その日の各社価格と「ドスパラ−最安」を表示。同スペック比較の右パネルの「価格推移で見る」からも追加できます。選んだ組み合わせはブラウザに記憶</div></li>
           <li><span class="ic">↕</span><div><b>価格変動</b>前日以前の取得結果との差。日付・区分・種類で絞り込み。差額がマイナスは値下げ。取得開始の翌日から表示され、直近60日分を保持</div></li>
@@ -539,12 +557,12 @@ const pcTab = (name) => {
   const sec = name.startsWith('same') ? 'same' : name;
   if (sec === 'same') {
     const nk = name === 'same-note' ? 'ノート' : 'デスクトップ';
-    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); }
+    if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same; PC.ss = PC.ssNew(); PC.ss.same = sm; } }
     PC.sameKind = nk;
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['sameRows', 'sameModels', 'sameCount', 'fCpu', 'fGpu', 'fMem', 'gpuChips', 'cpuChips', 'memChips'].forEach((d) => dash.draw(d));
+  ['ssBudget', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssCols'].forEach((d) => dash.draw(d));
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
@@ -1130,6 +1148,100 @@ document.querySelectorAll('.pc-ds-only').forEach((x) => x.addEventListener('chan
 document.querySelectorAll('.pc-ds-others').forEach((x) => x.addEventListener('change', () => { PC.ds.others = x.checked; if (!x.checked && PC.ds.cat === PC.DSCAT_OTHER) PC.ds.cat = ''; PC.dsRedraw(); dash.draw('dsCat'); }));
 PC.dsRedraw = () => ['dsRows', 'dsCount'].forEach((d) => dash.draw(d));
 PC.MIRROR.dsRows = 'dsCards';
+
+/* ===== 同スペック比較（左：予算・CPU・GPU・メモリで絞り込み／右：各社のモデル一覧） ===== */
+PC.SS_BUDGET = { 'デスクトップ': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 600000], [600000, 1e9]],
+  'ノート': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 1e9]] };
+PC.ssNew = () => ({ budget: '', cpu: '', gpu: '', mem: '', same: true, open: {} });
+PC.ss = PC.ssNew();
+PC.man = (v) => (v / 10000).toFixed(0) + '万';
+PC.budgetLabel = ([lo, hi]) => (lo === 0 ? `〜${PC.man(hi)}` : hi >= 1e9 ? `${PC.man(lo)}〜` : `${PC.man(lo)}〜${PC.man(hi)}`);
+// 区分内の対象モデル（「2社以上が出している構成のみ」は CPU×GPU×メモリ が2社以上にあるもの）
+PC.ssBase = () => {
+  const d = PC.ok('products'); if (!d) return null;
+  const key = `${PC.sameKind}|${PC.ss.same}`;
+  if (PC._ssb && PC._ssb.src === d && PC._ssb.key === key) return PC._ssb.rows;
+  let rows = d.filter((p) => p.kind === PC.sameKind && p.price && p.gpu_key && p.mem_gb);
+  if (PC.ss.same) {
+    const mk = new Map(); rows.forEach((p) => { const k = `${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`; (mk.get(k) || mk.set(k, new Set()).get(k)).add(p.maker); });
+    rows = rows.filter((p) => mk.get(`${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`).size >= 2);
+  }
+  PC._ssb = { src: d, key, rows }; return rows;
+};
+PC.ssIn = (p, b) => { const [lo, hi] = PC.SS_BUDGET[PC.sameKind][+b]; return p.price >= lo && p.price < hi; };
+PC.ssMatch = (p, skip) => {
+  const f = PC.ss;
+  return (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'cpu' || !f.cpu || p.cpu_key === f.cpu)
+    && (skip === 'gpu' || !f.gpu || p.gpu_key === f.gpu) && (skip === 'mem' || !f.mem || String(p.mem_gb) === f.mem);
+};
+PC.ssFacet = (skip) => { const b = PC.ssBase(); return b ? b.filter((p) => PC.ssMatch(p, skip)) : null; };
+PC.ssList = () => PC.ssFacet(null);
+PC.ssSet = (patch) => { Object.assign(PC.ss, patch, { open: {} }); PC.ssRedraw(); };
+PC.ssRedraw = () => ['ssBudget', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssCols'].forEach((d) => dash.draw(d));
+// 1グループ分のボタン（並びは固定、件数は他の条件を反映、0件は押せない）
+PC.ssChips = (el, field, keys, labelFn, keyFn) => {
+  const rows = PC.ssFacet(field); if (!rows) return el.replaceChildren();
+  const c = d3.rollup(rows, (v) => v.length, keyFn);
+  PC.chips(el, keys.map((k) => [labelFn(k), c.get(k) || 0]), (lab) => PC.ss[field] !== '' && labelFn(PC.ss[field]) === lab,
+    (lab) => { const k = keys.find((x) => labelFn(x) === lab); PC.ssSet({ [field]: PC.ss[field] === String(k) ? '' : String(k) }); });
+};
+dash.draw('ssBudget', (el) => { const n = PC.SS_BUDGET[PC.sameKind].length; PC.ssChips(el, 'budget', d3.range(n).map(String), (i) => PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+i]), (p) => String(PC.SS_BUDGET[PC.sameKind].findIndex(([lo, hi]) => p.price >= lo && p.price < hi))); });
+// CPU はファミリー（Core Ultra 7 など）ごとに段を分ける
+dash.draw('ssCpu', (el) => {
+  const b = PC.ssBase(); if (!b) return el.replaceChildren();
+  const rows = PC.ssFacet('cpu'), c = d3.rollup(rows, (v) => v.length, (p) => p.cpu_key);
+  const fams = d3.groups([...new Set(b.map((p) => p.cpu_key))].sort(PC.natural), (k) => PC.fam(k)).sort((a, b2) => PC.natural(a[0], b2[0]));
+  el.replaceChildren(...fams.map(([fam, ks]) => {
+    const row = PC.el('div', 'ss-fam'); row.append(PC.el('span', 'ss-fl', fam));
+    const box = PC.el('div', 'chips'); PC.chips(box, ks.map((k) => [k, c.get(k) || 0]), (k) => PC.ss.cpu === k, (k) => PC.ssSet({ cpu: PC.ss.cpu === k ? '' : k }));
+    row.append(box); return row;
+  }));
+});
+dash.draw('ssGpu', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'gpu', [...new Set(b.map((p) => p.gpu_key))].sort(PC.natural), (k) => k, (p) => p.gpu_key); });
+dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'mem', [...new Set(b.map((p) => String(p.mem_gb)))].sort((a, c) => a - c), (k) => k + 'GB', (p) => String(p.mem_gb)); });
+dash.draw('ssSummary', (el) => {
+  el.replaceChildren(); const list = PC.ssList(); if (!list) return;
+  const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu, f.gpu, f.mem && f.mem + 'GB'].filter(Boolean);
+  el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
+  if (f.cpu && f.gpu) {
+    const btn = PC.el('button', 'tbtn', '📈 価格推移で見る'); btn.type = 'button';
+    btn.addEventListener('click', () => { PC.tkind = PC.sameKind; document.querySelectorAll('.pc-tkind').forEach((x) => { x.value = PC.sameKind; }); PC.tadd(`${PC.sameKind}|${f.cpu}|${f.gpu}`); pcTab('changes'); window.scrollTo(0, 0); });
+    el.append(btn);
+  }
+});
+PC.SS_SHOW = 3;
+dash.draw('ssCols', (el) => {
+  el.replaceChildren(); const list = PC.ssList(); if (!list) return;
+  const f = PC.ss, mins = {};
+  PC.MAKERS.forEach(([, name]) => { const m = d3.min(list.filter((p) => p.maker === name), (p) => p.price); mins[name] = m; });
+  const overall = d3.min(Object.values(mins).filter((v) => v != null));
+  PC.MAKERS.forEach(([, name], i) => {
+    const mine = list.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
+    const col = PC.el('div', 'mk ss-col'); col.style.setProperty('--c', PC.COLORS[i]);
+    const h = PC.el('div', 'mk-h'); h.append(PC.el('span', null, name), PC.el('span', 'c', mine.length ? `${mine.length}機種` : '該当なし')); col.append(h);
+    if (mine.length) {
+      const sub = PC.el('div', 'ss-min'); sub.append('最安 ', PC.el('b', mins[name] === overall ? 'best' : '', PC.yen(mins[name]) + '円'));
+      if (name !== 'ドスパラ' && mins['ドスパラ'] != null) { const df = mins['ドスパラ'] - mins[name]; sub.append(PC.el('small', df > 0 ? 'up' : df < 0 ? 'down' : '', `ドスパラ最安は${PC.diffTxt(df)}円`)); }
+      col.append(sub);
+    }
+    const open = !!f.open[name], show = open ? mine.slice(0, 200) : mine.slice(0, PC.SS_SHOW);
+    show.forEach((p) => {
+      const it = PC.el('div', 'it' + (p.price === overall ? ' top' : ''));
+      const a = PC.el('a', null, p.name); a.href = p.url; a.target = '_blank'; a.rel = 'noopener';
+      const spec = [!f.cpu && p.cpu_key, !f.gpu && p.gpu_key, !f.mem && p.mem_gb + 'GB', p.storage_cap && 'SSD ' + p.storage_cap, p.psu && '電源 ' + p.psu].filter(Boolean).join(' ・ ');
+      it.append(PC.el('span', 'pr', PC.yen(p.price) + '円'), a, PC.el('span', 'sub', spec)); col.append(it);
+    });
+    if (mine.length > PC.SS_SHOW) {
+      const b = PC.el('button', 'ss-more', open ? '閉じる' : `すべて表示（${mine.length}機種）`); b.type = 'button';
+      b.addEventListener('click', () => { f.open[name] = !open; dash.draw('ssCols'); });
+      col.append(b);
+      if (open && mine.length > 200) col.append(PC.el('div', 'more', `先頭200機種まで表示。条件を追加して絞り込んでください`));
+    }
+    el.append(col);
+  });
+});
+document.querySelectorAll('.pc-ss-clear').forEach((b) => b.addEventListener('click', () => { const s = PC.ss.same; PC.ss = PC.ssNew(); PC.ss.same = s; PC.ssRedraw(); }));
+document.querySelectorAll('.pc-ss-same').forEach((x) => x.addEventListener('change', () => PC.ssSet({ same: x.checked })));
 
 /* 一覧 */
 PC.listRows = () => {
