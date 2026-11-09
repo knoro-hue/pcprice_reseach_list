@@ -1633,7 +1633,7 @@ PC.makerRows = (box, node, path, depth) => {
       const it = PC.el('a', 'sm-it' + (p.price === node.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
       const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
       if (f.game) { const fb = PC.fpsBadge(p); if (fb) top.append(fb); }
-      top.append(PC.psuBadge(p));
+      if (PC.sameKind !== 'ノート') top.append(PC.psuBadge(p));
       it.append(top, PC.el('span', 'sm-n', p.name)); items.append(it);
     });
     if (mine.length > PC.SUB_SHOW) {
@@ -1668,7 +1668,7 @@ PC.lsort = { f: 'price', d: 1 };
 PC.LCOLS = [['gpu_key', 'GPU'], ['cpu_key', 'CPU'], ['mem_gb', 'メモリ'], ['storage_gb', 'ストレージ'], ['psuw', '電源'], ['price', '金額'], ['maker', 'メーカー'], ['name', 'モデル名']];
 PC.ssListView = (el, list) => {
   const f = PC.ss, wrap = PC.el('div', 'card lv-tbl'), t = PC.el('table', 'xl');
-  const cols = PC.LCOLS.filter(([k]) => !(PC.cust && k === 'maker'));
+  const cols = PC.LCOLS.filter(([k]) => !(PC.cust && k === 'maker') && !(PC.sameKind === 'ノート' && k === 'psuw'));
   if (f.game) cols.splice(5, 0, ['fps', 'FPS']);
   const val = (p, k) => (k === 'psuw' ? PC.psuW(p) : k === 'fps' ? (PC.fpsOf(p, f.game) || {}).v : p[k]);
   const thead = PC.el('thead'), tr = PC.el('tr');
