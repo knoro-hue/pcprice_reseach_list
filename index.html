@@ -172,6 +172,15 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .lv-leaf .sm-l { border-left: 5px solid var(--lc); padding-left: calc(10px + var(--d) * 6px); }
 .pc .lv-leaf .sm-l b { color: var(--lc); }
 
+/* 社ごとの行 */
+.pc .mk-row { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 8px; padding: 6px 10px 6px calc(12px + var(--d) * 18px); border-top: 1px dashed #e3e9f1; background: color-mix(in srgb, var(--c) 3%, #fff); }
+.pc .mk-rl { display: flex; flex-direction: column; gap: 1px; border-left: 4px solid var(--c); padding-left: 8px; }
+.pc .mk-rl b { color: var(--c); font-size: 13.5px; } .pc .mk-rl small { font-size: 11px; color: var(--color-fg-muted); }
+.pc .mk-best { font-size: 11px; font-weight: 700; color: var(--color-ok); } .pc .mk-df { font-size: 11px; font-weight: 700; color: var(--color-bad); }
+.pc .mk-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 4px 8px; align-items: start; }
+.pc .mk-items .sm-more { grid-column: 1 / -1; justify-self: start; padding: 3px 14px; border-color: color-mix(in srgb, var(--c) 45%, #fff); color: var(--c); }
+@media (max-width: 700px) { .pc .mk-row { grid-template-columns: minmax(0, 1fr); padding-left: 10px; } .pc .mk-rl { flex-direction: row; align-items: baseline; gap: 8px; } }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -1563,44 +1572,43 @@ PC.dsDiffEl = (ps, min, cls) => {
   const dsMin = d3.min(ps.filter((p) => p.maker === 'ドスパラ'), (p) => p.price); if (dsMin == null) return null;
   const df = dsMin - min; return PC.el('span', cls + ' ' + (df > 0 ? 'up' : 'zero'), df > 0 ? `ドスパラ +${PC.yen(df)}円` : 'ドスパラ最安');
 };
-// 最下層の行：左にラベル、右に3社のモデル
-PC.leafRow = (node, lv, path, depth) => {
-  const f = PC.ss, row = PC.el('div', 'sm-row lv-leaf'); row.style.setProperty('--d', depth);
-  const l = PC.el('div', 'sm-l'); l.style.setProperty('--lc', PC.LV[lv].color(node.k) || '#5f6c80');
-  l.append(PC.el('b', null, PC.LV[lv].label(node.k)), PC.el('small', null, `${node.ps.length}機種`));
-  const dd = PC.dsDiffEl(node.ps, node.min, 'sm-ds'); if (dd) l.append(dd);
-  row.append(l);
-  PC.VM().forEach(([, name]) => {
-    const cell = PC.el('div', 'sm-c'); cell.style.setProperty('--c', PC.mcol(name)); cell.dataset.mk = name;
+// 最下層の下：社ごとの行（ドスパラ→パソコン工房→マウス）。モデルは横に並べる
+PC.ROW_MAKERS = ['ドスパラ', 'パソコン工房', 'マウス'];
+PC.makerRows = (box, node, path, depth) => {
+  const f = PC.ss;
+  PC.ROW_MAKERS.filter((n) => !PC.cust || n === 'ドスパラ').forEach((name) => {
     const mine = node.ps.filter((p) => p.maker === name).sort((a, b) => a.price - b.price);
+    if (!mine.length) return;
+    const row = PC.el('div', 'mk-row'); row.style.setProperty('--d', depth); row.style.setProperty('--c', PC.mcol(name));
+    const l = PC.el('div', 'mk-rl'); l.append(PC.el('b', null, name), PC.el('small', null, `${mine.length}機種`));
+    if (mine[0].price === node.min) l.append(PC.el('span', 'mk-best', '最安'));
+    else if (!PC.cust) l.append(PC.el('span', 'mk-df', `+${PC.yen(mine[0].price - node.min)}円`));
+    const items = PC.el('div', 'mk-items');
     const key = `${path}|${name}`, open = !!f.open[key];
-    if (!mine.length) cell.append(PC.el('span', 'sm-na', '—'));
     (open ? mine : mine.slice(0, PC.SUB_SHOW)).forEach((p) => {
       const it = PC.el('a', 'sm-it' + (p.price === node.min ? ' best' : '')); it.href = p.url; it.target = '_blank'; it.rel = 'noopener';
       const top = PC.el('span', 'sm-t'); top.append(PC.el('b', 'sm-p', PC.yen(p.price) + '円'));
       if (f.game) { const fb = PC.fpsBadge(p); if (fb) top.append(fb); }
       top.append(PC.psuBadge(p));
-      it.append(top, PC.el('span', 'sm-n', p.name)); cell.append(it);
+      it.append(top, PC.el('span', 'sm-n', p.name)); items.append(it);
     });
     if (mine.length > PC.SUB_SHOW) {
       const b = PC.el('button', 'sm-more', open ? '閉じる' : `+${mine.length - PC.SUB_SHOW}機種`); b.type = 'button';
-      b.addEventListener('click', () => { f.open[key] = !open; dash.draw('ssGroups'); }); cell.append(b);
+      b.addEventListener('click', () => { f.open[key] = !open; dash.draw('ssGroups'); }); items.append(b);
     }
-    row.append(cell);
+    row.append(l, items); box.append(row);
   });
-  return row;
 };
 // 中間階層：見出し帯（深さに応じて字下げ）＋子要素
 PC.levelInto = (box, ps, li, path) => {
   const lv = PC.order[li], last = li === PC.order.length - 1;
   PC.groupBy(ps, lv).forEach((node) => {
     const p2 = `${path}|${lv}:${node.k}`;
-    if (last) { box.append(PC.leafRow(node, lv, p2, li)); return; }
     const hd = PC.el('div', 'lv-h'); hd.style.setProperty('--d', li - 1); hd.style.setProperty('--lc', PC.LV[lv].color(node.k) || '#5f6c80');
     hd.append(PC.el('span', 'lv-n', PC.LV[lv].name), PC.el('b', null, PC.LV[lv].label(node.k)), PC.el('small', null, `${node.ps.length}機種・最安 ${PC.yen(node.min)}円`));
     const dd = PC.dsDiffEl(node.ps, node.min, 'sm-ds'); if (dd) hd.append(dd);
     box.append(hd);
-    PC.levelInto(box, node.ps, li + 1, p2);
+    if (last) PC.makerRows(box, node, p2, li); else PC.levelInto(box, node.ps, li + 1, p2);
   });
 };
 dash.draw('ssGroups', (el) => {
@@ -1618,10 +1626,7 @@ dash.draw('ssGroups', (el) => {
     tg.style.setProperty('--c', PC.mcol(bestMk)); best.append(tg, PC.el('b', null, PC.yen(g.min) + '円'));
     const dd = PC.dsDiffEl(g.ps, g.min, 'ssg-ds'); if (dd) best.append(dd);
     h.append(best); card.append(h);
-    const box = PC.el('div', 'sm'); box.style.setProperty('--n', PC.VM().length);
-    const head = PC.el('div', 'sm-row sm-head'); head.append(PC.el('div', 'sm-l', PC.order.slice(1).map((x) => PC.LV[x].name).join(' ＞ ')));
-    PC.VM().forEach(([, n]) => { const c = PC.el('div', 'sm-mh', n); c.style.setProperty('--c', PC.mcol(n)); head.append(c); });
-    box.append(head);
+    const box = PC.el('div', 'sm');
     PC.levelInto(box, g.ps, 1, `${lv0}:${g.k}`);
     card.append(box); el.append(card);
   });
