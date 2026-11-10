@@ -1,8 +1,3 @@
-{"ds_immunity": "https://www.dospara.co.jp/5info/cts_immunity.html",
- "ds_robots": "https://www.dospara.co.jp/robots.txt",
- "pk_terms": "https://www.pc-koubou.jp/info/terms.php",
- "pk_agree": "https://www.pc-koubou.jp/shop_guide/agree.php",
- "pk_robots": "https://www.pc-koubou.jp/robots.txt",
- "ms_top": "https://www.mouse-jp.co.jp/",
- "ms_robots": "https://www.mouse-jp.co.jp/robots.txt",
- "ms_terms": "https://www.mouse-jp.co.jp/store/contents/guide/"}
+{"ms_agree": "https://www.mouse-jp.co.jp/store/agreement/agreement.aspx",
+ "ms_policy": "https://www.mouse-jp.co.jp/store/contents/site_policy/",
+ "ms_policy2": "https://www.mouse-jp.co.jp/company/site_policy/"}
