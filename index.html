@@ -270,6 +270,16 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .ai-comment h2 { font-size: 15px; margin-bottom: 4px; }
 @media (max-width: 700px) { .pc .ai-row { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
 
+/* 使い方 */
+#howto .card { padding: 18px 22px; }
+#howto h2 { font-size: 17px; margin-bottom: 6px; }
+#howto .note { font-size: 13px; margin-bottom: 12px; }
+#howto .howlist { gap: 14px; }
+#howto .howlist li { font-size: 13.5px; line-height: 1.75; color: #33415c; }
+#howto .howlist li b { font-size: 15px; margin-bottom: 2px; }
+#howto .terms { gap: 10px 20px; font-size: 13.5px; line-height: 1.7; }
+#howto .howgrid { margin-bottom: 10px; }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -579,7 +589,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     </div>
     <div class="links">
       <button class="chip custbtn pc-cust" type="button">👁 お客様表示（ドスパラのみ）</button>
-      <a class="chip primary" href="https://github.com/knoro-hue/pcprice_reseach_list/raw/main/output/pc_price_latest.xlsx" target="_blank" rel="noopener">⬇ Excel</a>
+      <a class="chip primary" href="output/pc_price_latest.xlsx" download>⬇ Excel</a>
     </div>
   </header>
 
@@ -707,40 +717,37 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   <section class="page" id="howto" hidden>
     <div class="howgrid">
       <div class="card">
-        <div class="kicker">Update schedule</div>
-        <h2>いつ更新されるか</h2>
-        <p class="note">毎日自動で更新されます。土日祝も同じです</p>
-        <div class="lastrun">最終取得 <b data-draw="fetched2" data-source="status">—</b></div>
-        <div class="timeline">
-          <div class="step"><div class="tm">8:47</div><div class="dot"></div><div class="bd"><b>3社の公式通販を取得</b><span>GitHub上で全PCの価格・スペックを取得し、前日との差（値下げ・値上げ・新登場・終売）を計算。Excelもこの時点で更新されます。所要5〜20分</span></div></div>
-          <div class="step"><div class="tm">9:00頃</div><div class="dot"></div><div class="bd"><b>このページに反映</b><span>このページは取得完了と同時に最新になります（8:47の取得が終わる9時前後）。管理者のスマホには9:40に要約が届きます</span></div></div>
-          <div class="step"><div class="tm">随時</div><div class="dot"></div><div class="bd"><b>手動で取り直したいとき</b><span>管理者がGitHubで取得をやり直すと、数分後にこのページにも反映されます（ページを再読み込み）</span></div></div>
-        </div>
+        <h2>このページでできること</h2>
+        <p class="note">パソコン工房・ドスパラ・マウスコンピューターの公式通販のPCを、毎朝自動で集めて比べられます</p>
+        <div class="lastrun">データ更新日時 <b data-draw="fetched2" data-source="status">—</b></div>
+        <ul class="howlist" style="margin-top:12px">
+          <li><span class="ic">①</span><div><b>左で条件を選ぶ</b>遊びたいゲームと目標のFPS、予算、GPU、CPU、メモリをボタンで選びます。選ぶと他のボタンの数字（機種数）も変わり、組み合わせのないボタンはグレーになります</div></li>
+          <li><span class="ic">②</span><div><b>右で各社のモデルを比べる</b>「一覧表示」は表で並び替えながら比較。「グループ表示」はGPU→CPU→メモリ→ストレージの順にまとめて、社ごとに安い順で表示します</div></li>
+          <li><span class="ic">③</span><div><b>気になるモデルを開く</b>モデル名をクリックすると、その会社の公式ページが開きます。最終的な仕様・価格は公式ページでご確認ください</div></li>
+        </ul>
       </div>
       <div class="card">
-        <div class="kicker">How to use</div>
         <h2>各タブの見方</h2>
-        <p class="note">表はすべて見出しクリックで並び替え（↑昇順 ↓降順）。空欄は常に下に並びます</p>
+        <p class="note">表は見出しをクリックすると並び替えできます（もう一度押すと逆順）</p>
         <ul class="howlist">
-          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左でゲームと目標FPS（ドスパラ公表のGPU別FPS）・予算・CPU（ファミリー→型番）・GPU・メモリを選ぶと、右に「GPU×メモリ」ごとのグループで3社の該当モデルを安い順に表示（各社3機種、「すべて表示」で全機種）。（ ）の数は他の条件をかけた機種数で、組み合わせのないものはグレー。</div></li>
-          <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラの各モデルに対し、同じCPU×GPUのパソコン工房・マウスの最安値と差（ドスパラ−他社、＋ならドスパラが高い）を表示。注力ページ（ゲーミングデスク TC30／ゲーミングノート TC143／個人向けデスク／スタンダードノート）のおすすめランキング・注力枠（CPU×GPU表、ラインアップ等）に載っているモデルだけを掲載順に表示。行をクリックすると他社の該当モデル一覧</div></li>
-          <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種。メーカー・区分・キーワード（型番・CPU・GPU）で絞り込み。画面は先頭300件まで、全件はExcelで</div></li>
-          <li><span class="ic">⬇</span><div><b>Excel</b>上の「Excelをダウンロード」から3社まとめの最新版（メーカー・型番・価格・CPU・GPU・メモリ・ストレージ・クーラー・電源・URL）</div></li>
+          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>同じ条件のPCを3社で比べる基本の画面です</div></li>
+          <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラのおすすめ・ランキング掲載モデルと、同じ構成の他社モデルの価格差を確認できます</div></li>
+          <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種をキーワードやメーカーで探せます</div></li>
+          <li><span class="ic">★</span><div><b>AI分析</b>GPU・メモリ別に、ドスパラのおすすめモデルとパソコン工房との比較をまとめています</div></li>
+          <li><span class="ic">👁</span><div><b>お客様表示</b>右上のボタンで、ドスパラのモデルだけを表示する画面に切り替わります。お客様へのご案内にお使いください</div></li>
+          <li><span class="ic">⬇</span><div><b>Excel</b>右上のボタンから、3社まとめの最新データをダウンロードできます</div></li>
         </ul>
       </div>
     </div>
     <div class="card">
-      <div class="kicker">Definitions</div>
-      <h2>データの決まりごと</h2>
-      <p class="note">比較するときに知っておきたい前提</p>
+      <h2>ご利用にあたって</h2>
       <dl class="terms">
-        <dt>対象</dt><dd>パソコン工房・ドスパラ・マウスコンピューター（mouse／NEXTGEAR／G TUNE／DAIV／MousePro）の公式通販に掲載中のデスクトップPC・ノートPC全機種。中古・パーツ単体は含みません（パソコン工房の「組立キット」系はPC一覧に載っているため含みます）</dd>
-        <dt>価格</dt><dd>税込。BTOは基本構成（最安構成）の価格。マウスはセール中ならセール価格</dd>
-        <dt>同スペックの基準</dt><dd>CPU・GPUの型番とメモリ容量が同じものを同スペックとしています（切り替えでCPU×GPUのみも可）。ストレージ・電源などは機種ごとに異なるため、右側のモデル一覧で確認してください。ノート向けGPUは「Laptop」付きで区別</dd>
-        <dt>内蔵GPU</dt><dd>グラフィックボードを積まず、CPU内蔵のグラフィックスを使う機種</dd>
-        <dt>終売・掲載終了</dt><dd>前日まで掲載があり、当日の取得で見つからなかった機種。在庫切れで一時的に消えた場合も含みます</dd>
-        <dt>取得に失敗した社</dt><dd>サイトの不調などで取得できなかった社は前回のデータを表示し、その社の変動は計算しません（通知で知らせます）</dd>
-        <dt>データ元</dt><dd>各社公式サイトの公開情報。仕様の細部（クーラー・電源など）は商品ページの記載を自動で読み取っているため、最終確認は公式ページで</dd>
+        <dt>更新</dt><dd>毎朝9時ごろに最新の情報へ更新されます（土日祝も同様）</dd>
+        <dt>価格</dt><dd>税込。カスタマイズできるモデルは標準構成の価格です。セール中はセール価格を表示します</dd>
+        <dt>同スペック</dt><dd>CPU・GPU・メモリ容量が同じものを同スペックとして比べています。ストレージや電源はモデルごとに異なります</dd>
+        <dt>FPS</dt><dd>ドスパラが公表している参考値（最高画質）です。他社モデルには公表値がないため表示していません</dd>
+        <dt>内蔵GPU</dt><dd>グラフィックボードを搭載せず、CPU内蔵のグラフィックスを使うモデルです</dd>
+        <dt>ご注意</dt><dd>各社公式サイトの公開情報をもとにしています。在庫や価格は変わることがあるため、最新情報は各社の公式ページでご確認ください</dd>
       </dl>
     </div>
   </section>
