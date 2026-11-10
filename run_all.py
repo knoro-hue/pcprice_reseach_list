@@ -119,6 +119,35 @@ def spec_min(rows):
     return out
 
 
+def add_ds_history(hist, date, rows, keep_days=365):
+    """ドスパラ全モデルの日別価格 {dates:[...], models:{id:{n,k,c,g,m,s,u,p:[...]}}}（同じ日は上書き）"""
+    dates, models = hist.setdefault("dates", []), hist.setdefault("models", {})
+    if date in dates:
+        i = dates.index(date)
+    else:
+        dates.append(date)
+        dates.sort()
+        i = dates.index(date)
+        for m in models.values():
+            m["p"].insert(i, None)
+    for m in models.values():
+        m["p"][i] = None
+    for r in rows:
+        if r["maker"] != dospara.MAKER or not r.get("price"):
+            continue
+        m = models.setdefault(r["id"], {"p": [None] * len(dates)})
+        m.update({"n": r["name"], "k": r["kind"], "c": r.get("cpu_key", ""), "g": r.get("gpu_key", ""),
+                  "m": r.get("mem_gb"), "s": r.get("storage_gb"), "u": r.get("url", "")})
+        m["p"][i] = r["price"]
+    cut = max(0, len(dates) - keep_days)
+    if cut:
+        del dates[:cut]
+        for m in models.values():
+            del m["p"][:cut]
+    hist["models"] = {k: m for k, m in models.items() if any(v is not None for v in m["p"])}
+    return hist
+
+
 def add_spec_history(hist, date, rows, keep_days=365):
     """列形式 {dates:[...], series:{key:[[pk...],[ds...],[ms...]]}} に1日分を追加（同じ日は上書き）"""
     dates, series = hist.setdefault("dates", []), hist.setdefault("series", {})
@@ -281,6 +310,7 @@ def main():
     save(f"{DATA}/changes.json", changes)
     save(f"{DATA}/history.json", history)
     save(f"{DATA}/spec_history.json", add_spec_history(load(f"{DATA}/spec_history.json", {}), today, uniq))
+    save(f"{DATA}/ds_history.json", add_ds_history(load(f"{DATA}/ds_history.json", {}), today, uniq))
     # ドスパラ特集ページの掲載商品（ドスパラ基準比較タブの並び順に使う）。失敗時は前回分を残す
     if any(s["maker"] == dospara.MAKER and s["state"] == "取得成功" for s in status):
         try:

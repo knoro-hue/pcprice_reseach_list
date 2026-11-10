@@ -51,6 +51,7 @@ def _row(item, kind) -> dict:
         "name": clean(item.get("name") or item.get("title")),
         "price": num(item.get("price02_min_inctax")) or num(item.get("number33")),
         "cpu": s.get("CPU型番", ""), "gpu": s.get("グラフィックス", ""), "os": s.get("OS", ""),
+        "delivery": "短納期対象" if "短納期" in str(item.get("product_tags") or "") else "", "delivery_days": None,
         "mem": s.get("メモリ容量", ""), "mem_type": s.get("メモリ規格", ""),
         "storage1": s.get("1stストレージ", ""), "storage_cap": s.get("1stストレージ容量", ""),
         "cooler": s.get("CPUクーラー", ""), "psu": s.get("電源", ""),
