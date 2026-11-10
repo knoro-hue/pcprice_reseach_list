@@ -1,2 +1,8 @@
-{"pk_api": "https://www.pc-koubou.jp/search/npsearch.php?fmt=json&s2b=%E9%80%9A%E5%B8%B8&limit=30&o=0&sort=Itemid&s86b=%E3%83%87%E3%82%B9%E3%82%AF",
- "ms_list": "https://www.mouse-jp.co.jp/store/r/ra2010000/"}
+{"ds_immunity": "https://www.dospara.co.jp/5info/cts_immunity.html",
+ "ds_robots": "https://www.dospara.co.jp/robots.txt",
+ "pk_terms": "https://www.pc-koubou.jp/info/terms.php",
+ "pk_agree": "https://www.pc-koubou.jp/shop_guide/agree.php",
+ "pk_robots": "https://www.pc-koubou.jp/robots.txt",
+ "ms_top": "https://www.mouse-jp.co.jp/",
+ "ms_robots": "https://www.mouse-jp.co.jp/robots.txt",
+ "ms_terms": "https://www.mouse-jp.co.jp/store/contents/guide/"}
