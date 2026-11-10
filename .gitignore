@@ -1,2 +1,3 @@
 output/pc_price_2*.xlsx
 __pycache__/
+site/

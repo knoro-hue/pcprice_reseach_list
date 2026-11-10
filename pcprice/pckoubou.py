@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import json
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor
 
 from .common import DESK, NOTE, Http, clean, finish, num
 
@@ -60,7 +59,7 @@ def _row(item, kind) -> dict:
 
 
 def collect(log=print) -> tuple[list, dict, list]:
-    http = Http(wait=0.3)
+    http = Http(wait=15)  # robots.txt の Crawl-delay: 15 に従う
     rows, totals, warnings = [], {}, []
     for kind in (DESK, NOTE):
         totals[kind] = int(_page(http, kind, limit=1)[0].get("hitnum", 0))
@@ -79,9 +78,8 @@ def collect(log=print) -> tuple[list, dict, list]:
             else:
                 mid = (lo + hi) // 2
                 probes += [(mid + 1, hi), (lo, mid)]
-        with ThreadPoolExecutor(2) as ex:
-            for page in ex.map(lambda t: _page(http, kind, t[0], t[1], t[2])[1], tasks):
-                items += page
+        for t in tasks:  # 間隔を守るため1本ずつ
+            items += _page(http, kind, t[0], t[1], t[2])[1]
         rows += [_row(it, kind) for it in items]
-        log(f"{MAKER} {kind}: {len(items)}件（サイト {totals[kind]}件）")
+        log(f"{MAKER} {kind}: {len(items)}件（サイト {totals[kind]}件 / 累計通信 {http.count}回）")
     return rows, totals, warnings

@@ -869,7 +869,7 @@ window.addEventListener('resize', PC.fitSoon);
   set(); if (window.ResizeObserver) new ResizeObserver(set).observe(tb); }
 
 /* お客様表示（ドスパラのみ・社内向け情報を隠す） */
-PC.cust = (() => { try { return localStorage.getItem('pc-cust') === '1'; } catch (e) { return false; } })();
+PC.cust = window.PC_PUBLIC ? true : (() => { try { return localStorage.getItem('pc-cust') === '1'; } catch (e) { return false; } })();
 PC.setCust = (on) => {
   PC.cust = on; try { localStorage.setItem('pc-cust', on ? '1' : '0'); } catch (e) {}
   document.querySelector('.pc').classList.toggle('cust', on);
@@ -878,7 +878,8 @@ PC.setCust = (on) => {
   if (on && cur && !cur.dataset.tab.startsWith('same')) pcTab('same-desk');
   if (PC.ssRedraw) { PC.ss.open = {}; PC.ssRedraw(); }
 };
-document.querySelectorAll('.pc-cust').forEach((b) => b.addEventListener('click', () => PC.setCust(!PC.cust)));
+document.querySelectorAll('.pc-cust').forEach((b) => { if (window.PC_PUBLIC) b.remove(); else b.addEventListener('click', () => PC.setCust(!PC.cust)); });
+if (window.PC_PUBLIC) { const h = document.querySelector('.pc .brand h1'); if (h) h.textContent = 'ドスパラ PC検索'; }
 
 const pcHash = location.hash.slice(1);
 if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'ai', 'howto'].includes(pcHash)) pcTab(pcHash);
