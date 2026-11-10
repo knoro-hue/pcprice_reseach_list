@@ -52,6 +52,7 @@ def _row(item, kind) -> dict:
         "price": num(item.get("price02_min_inctax")) or num(item.get("number33")),
         "cpu": s.get("CPU型番", ""), "gpu": s.get("グラフィックス", ""), "os": s.get("OS", ""),
         "delivery": "短納期対象" if "短納期" in str(item.get("product_tags") or "") else "", "delivery_days": None,
+        "_deliv_id": str(item.get("deliv_date_id") or ""),
         "mem": s.get("メモリ容量", ""), "mem_type": s.get("メモリ規格", ""),
         "storage1": s.get("1stストレージ", ""), "storage_cap": s.get("1stストレージ容量", ""),
         "cooler": s.get("CPUクーラー", ""), "psu": s.get("電源", ""),
@@ -59,7 +60,47 @@ def _row(item, kind) -> dict:
     })
 
 
-def collect(log=print) -> tuple[list, dict, list]:
+def _deliv_text(html_text: str) -> str:
+    """商品ページの「出荷予定 2～7日後 (最大1週間)」を取り出す"""
+    import re
+    t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html_text))
+    m = re.search(r"出荷予定\s+(.+?)\s+(?:出荷元|商品到着目安)", t)
+    return clean(m.group(1)) if m else ""
+
+
+def _deliv_days(text: str):
+    """「2～7日後」→ 7（最大日数）。読めなければ None"""
+    import re
+    if "当日" in text:
+        return 0
+    if "翌日" in text or "翌営業日" in text:
+        return 1
+    m = re.search(r"(\d+)\s*[～~〜-]\s*(\d+)\s*日", text) or re.search(r"(\d+)\s*日", text)
+    if not m:
+        w = re.search(r"(\d+)\s*週間", text)
+        return int(w.group(1)) * 7 if w else None
+    return int(m.group(m.lastindex))
+
+
+def apply_delivery(rows: list, http: "Http", cache: dict, log=print) -> None:
+    """deliv_date_id（出荷予定の種類）ごとに商品ページを1回だけ開いて文言を覚え、全商品に付ける"""
+    for r in rows:
+        did = r.pop("_deliv_id", "")
+        if not did:
+            continue
+        if did not in cache:
+            try:
+                cache[did] = _deliv_text(http.get(r["url"]))
+                log(f"{MAKER} 出荷予定 id={did}: {cache[did] or '（読めず）'}")
+            except RuntimeError:
+                cache[did] = ""
+        txt = cache.get(did, "")
+        if txt:
+            r["delivery"] = f"出荷{txt}" + ("・短納期" if r.get("delivery") == "短納期対象" else "")
+            r["delivery_days"] = _deliv_days(txt)
+
+
+def collect(log=print, deliv_cache: dict | None = None) -> tuple[list, dict, list]:
     http = Http(wait=15)  # robots.txt の Crawl-delay: 15 に従う
     rows, totals, warnings = [], {}, []
     for kind in (DESK, NOTE):
@@ -83,4 +124,5 @@ def collect(log=print) -> tuple[list, dict, list]:
             items += _page(http, kind, t[0], t[1], t[2])[1]
         rows += [_row(it, kind) for it in items]
         log(f"{MAKER} {kind}: {len(items)}件（サイト {totals[kind]}件 / 累計通信 {http.count}回）")
+    apply_delivery(rows, http, deliv_cache if deliv_cache is not None else {}, log)
     return rows, totals, warnings

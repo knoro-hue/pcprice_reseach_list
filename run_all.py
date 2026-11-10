@@ -248,7 +248,9 @@ def main():
             continue
         try:
             if mod is pckoubou:
-                got, totals, warn = mod.collect()
+                dcache = load(f"{CACHE}/pk_deliv.json", {})
+                got, totals, warn = mod.collect(deliv_cache=dcache)
+                save(f"{CACHE}/pk_deliv.json", dcache)
             else:
                 cache = load(f"{CACHE}/{code}_detail.json", {})
                 got, totals, warn = mod.collect(cache, today)
