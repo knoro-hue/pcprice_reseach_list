@@ -24,7 +24,8 @@ def parse_grid(html_text: str) -> list[dict]:
         if not (href and price):
             continue
         out.append({"id": pid, "path": href.group(1), "name": clean(name.group(1)) if name else "",
-                    "price": num(price.group(1)), "spec": spec})
+                    "price": num(price.group(1)), "spec": spec,
+                    "deliv": (re.search(r'data-delivery-date="(\d{4}-\d{2}-\d{2})"', chunk) or [None, None])[1]})
     return out
 
 
@@ -107,6 +108,7 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
             "storage1": st, "storage_cap": _cap(st),
             "cooler": d.get("cooler", ""), "psu": d.get("psu", ""),
             "url": BASE + t["path"],
+            **_deliv(t.get("deliv"), today),
         }))
     totals = {k: sum(1 for r in rows if r["kind"] == k) for k in (DESK, NOTE)}
     log(f"{MAKER}: {len(rows)}件（詳細取得 {len(todo)}件 / 通信 {http.count}回）")
@@ -230,6 +232,16 @@ def fps(today: str, sample_url: str, log=print) -> dict | None:
     log(f"{MAKER} FPS: {len(models)}モデル")
     return {"updated": today, "quality": "最高", "res": ["1080p", "1440p", "4K"], "games": games,
             "rec": {g: (rec.get(g) or {}).get("1080p/FHD") for g in games}, "models": models}
+
+
+def _deliv(iso, today: str) -> dict:
+    """お届け最短日（YYYY-MM-DD）→ 納期表示と日数"""
+    if not iso:
+        return {"delivery": "", "delivery_days": None}
+    from datetime import date
+    d, t = date.fromisoformat(iso), date.fromisoformat(today)
+    n = (d - t).days
+    return {"delivery": f"最短{d.month}/{d.day}着（{n}日）", "delivery_days": n}
 
 
 def _cap(s: str) -> str:

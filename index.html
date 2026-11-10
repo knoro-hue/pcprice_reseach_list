@@ -280,10 +280,23 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 #howto .terms { gap: 10px 20px; font-size: 13.5px; line-height: 1.7; }
 #howto .howgrid { margin-bottom: 10px; }
 
+/* ドスパラ履歴・納期 */
+.pc .dh-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 10px; }
+.pc .dh-dates { display: flex; align-items: center; gap: 8px; }
+.pc .dh-date { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--brand); }
+.pc .dh-arrow { font-size: 18px; color: var(--brand); }
+.pc .dh-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pc .dh-pill { font: inherit; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-radius: 12px; border: 1px solid #d5e2f2; background: #f7faff; cursor: pointer; text-align: left; }
+.pc .dh-pill b { font-size: 24px; font-variant-numeric: tabular-nums; color: #0d1830; } .pc .dh-pill small { font-size: 12px; color: var(--color-fg-muted); }
+.pc .dh-pill.on { background: linear-gradient(135deg, var(--brand), var(--brand2)); border-color: transparent; } .pc .dh-pill.on b, .pc .dh-pill.on small { color: #fff; }
+.pc table.xl td.down { color: var(--color-ok); } .pc table.xl td.up { color: var(--color-bad); }
+.pc table.xl td.dlv { font-size: 12px; } .pc table.xl td.dlv.fast { color: var(--color-ok); font-weight: 700; }
+#dshist:not([hidden]) { display: grid; gap: 10px; }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
-.pc.cust .tab[data-tab="dsbase"], .pc.cust .tab[data-tab="changes"], .pc.cust .tab[data-tab="list"], .pc.cust .tab[data-tab="howto"], .pc.cust .tab[data-tab="ai"],
+.pc.cust .tab[data-tab="dsbase"], .pc.cust .tab[data-tab="changes"], .pc.cust .tab[data-tab="list"], .pc.cust .tab[data-tab="howto"], .pc.cust .tab[data-tab="ai"], .pc.cust .tab[data-tab="dshist"],
 .pc.cust .links .chip.primary, .pc.cust .ss-dsonly, .pc.cust .ss-l small { display: none; }
 .pc.cust .sm-c { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .pc.cust .sm-c .sm-more, .pc.cust .sm-c .sm-na { grid-column: 1 / -1; }
@@ -504,7 +517,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
   /* 下部固定タブ */
-  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
   .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
   .pc .tab::after { content: attr(data-short); font-size: 13px; }
@@ -578,6 +591,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">同スペック比較（デスクトップ）</button>
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
       <button class="tab" role="tab" data-tab="dsbase" data-short="基準比較" aria-selected="false">ドスパラ基準比較</button>
+      <button class="tab" role="tab" data-tab="dshist" data-short="履歴" aria-selected="false">ドスパラ履歴</button>
       <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
       <button class="tab" role="tab" data-tab="ai" data-short="AI分析" aria-selected="false">AI分析</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
@@ -684,6 +698,19 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     </div>
   </section>
 
+  <section class="page" id="dshist" hidden>
+    <div class="card">
+      <div class="cardhead"><div><h2>ドスパラ履歴：2つの日付を比べる</h2></div></div>
+      <div class="dh-bar">
+        <div class="dh-dates" data-draw="dhDates" data-source="dshist"></div>
+        <select class="dash-select fsel pc-dh-kind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
+        <label class="bigsearch"><span class="mg">⌕</span><input class="pc-dh-q" type="search" placeholder="型番・CPU・GPUで検索" aria-label="検索"></label>
+      </div>
+      <div class="dh-sum" data-draw="dhSum" data-source="dshist"></div>
+    </div>
+    <div class="card lv-tbl" data-draw="dhTable" data-source="dshist"></div>
+  </section>
+
   <section class="page" id="list" hidden>
     <div class="card">
       <div class="cardhead">
@@ -698,7 +725,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       </div>
       <p class="note">見出しで並び替え（初期は安い順）。表示は先頭300件まで。全件はExcelで</p>
       <div class="tbl"><table data-source="products" data-row-key="maker,id">
-        <thead><tr><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="price" class="n">価格(税込)</th><th data-field="cpu_key">CPU</th><th data-field="gpu_key">GPU</th><th data-field="mem">メモリ</th><th data-field="storage_cap">ストレージ</th><th data-field="cooler">クーラー</th><th data-field="psu">電源</th><th data-field="id">商品ID</th></tr></thead>
+        <thead><tr><th data-field="maker">メーカー</th><th data-field="kind">区分</th><th data-field="name">型番</th><th data-field="price" class="n">価格(税込)</th><th data-field="cpu_key">CPU</th><th data-field="gpu_key">GPU</th><th data-field="mem">メモリ</th><th data-field="storage_cap">ストレージ</th><th data-field="cooler">クーラー</th><th data-field="psu">電源</th><th data-field="delivery">納期</th><th data-field="id">商品ID</th></tr></thead>
         <tbody data-draw="listRows"></tbody>
       </table></div>
       <div class="mcards" data-draw="listCards" data-source="products"></div>
@@ -870,7 +897,7 @@ document.querySelectorAll('.pc-cust').forEach((b) => { if (window.PC_PUBLIC) b.r
 if (window.PC_PUBLIC) { const h = document.querySelector('.pc .brand h1'); if (h) h.textContent = 'ドスパラ PC検索'; }
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'dsbase', 'changes', 'list', 'ai', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'dsbase', 'changes', 'dshist', 'list', 'ai', 'howto'].includes(pcHash)) pcTab(pcHash);
 PC.setCust(PC.cust);
 
 /* 並び替え */
@@ -1743,12 +1770,12 @@ dash.draw('ssView', (el) => {
   });
 });
 PC.lsort = { f: 'price', d: 1 };
-PC.LCOLS = [['gpu_key', 'GPU'], ['cpu_key', 'CPU'], ['mem_gb', 'メモリ'], ['storage_gb', 'ストレージ'], ['psuw', '電源'], ['price', '金額'], ['maker', 'メーカー'], ['name', 'モデル名']];
+PC.LCOLS = [['gpu_key', 'GPU'], ['cpu_key', 'CPU'], ['mem_gb', 'メモリ'], ['storage_gb', 'ストレージ'], ['psuw', '電源'], ['price', '金額'], ['delivery', '納期'], ['maker', 'メーカー'], ['name', 'モデル名']];
 PC.ssListView = (el, list) => {
   const f = PC.ss, wrap = PC.el('div', 'card lv-tbl'), t = PC.el('table', 'xl');
   const cols = PC.LCOLS.filter(([k]) => !(PC.cust && k === 'maker'));
   if (f.game) cols.splice(5, 0, ['fps', 'FPS']);
-  const val = (p, k) => (k === 'psuw' ? PC.psuW(p) : k === 'fps' ? (PC.fpsOf(p, f.game) || {}).v : p[k]);
+  const val = (p, k) => (k === 'psuw' ? PC.psuW(p) : k === 'fps' ? (PC.fpsOf(p, f.game) || {}).v : k === 'delivery' ? (p.delivery_days ?? (p.delivery ? 900 : null)) : p[k]);
   const thead = PC.el('thead'), tr = PC.el('tr');
   cols.forEach(([k, lab]) => {
     const th = PC.el('th', ['mem_gb', 'storage_gb', 'psuw', 'price', 'fps'].includes(k) ? 'n' : '', lab);
@@ -1774,6 +1801,7 @@ PC.ssListView = (el, list) => {
       else if (k === 'psuw') { td.className = 'n'; td.append(PC.psuBadge(p)); }
       else if (k === 'fps') { td.className = 'n'; const fb = PC.fpsBadge(p); if (fb) td.append(fb); }
       else if (k === 'price') { td.className = 'n strong'; td.textContent = PC.yen(p.price) + '円'; }
+      else if (k === 'delivery') { td.className = 'dlv' + (p.delivery_days != null && p.delivery_days <= 3 ? ' fast' : ''); td.textContent = p.delivery || '—'; }
       else if (k === 'name') { const a = PC.el('a', null, p.name); a.href = p.url; a.target = '_blank'; a.rel = 'noopener'; td.append(a); }
       else if (k === 'maker') { const s = PC.el('span', 'mtag', p.maker); s.style.setProperty('--c', PC.mcol(p.maker)); td.append(s); }
       r.append(td);
@@ -1981,6 +2009,90 @@ dash.draw('aiGpus', (el) => {
   });
 });
 
+/* ===== ドスパラ履歴（2つの日付を比べて価格変動・新モデル・終売） ===== */
+PC.dh = { from: '', to: '', kind: '', q: '', view: 'chg', sort: { f: 'diff', d: 1 } };
+PC.dhData = () => { const h = PC.ok('dshist'); return h && h.dates && h.dates.length ? h : null; };
+dash.draw('dhDates', (el) => {
+  el.replaceChildren(); const h = PC.dhData(); if (!h) { el.append(PC.el('span', 'note', '履歴データがまだありません')); return; }
+  const ds = h.dates;
+  if (!ds.includes(PC.dh.to)) PC.dh.to = ds[ds.length - 1];
+  if (!ds.includes(PC.dh.from)) PC.dh.from = ds[Math.max(0, ds.length - 2)];
+  const mk = (lab, key) => {
+    const w = PC.el('label', 'dh-date'); w.append(PC.el('span', null, lab));
+    const s = PC.el('select', 'dash-select fsel'); ds.forEach((d) => s.append(new Option(d.replace(/-/g, '/'), d))); s.value = PC.dh[key];
+    s.addEventListener('change', () => { PC.dh[key] = s.value; PC.dhRedraw(); }); w.append(s); return w;
+  };
+  el.append(mk('比較元', 'from'), PC.el('span', 'dh-arrow', '→'), mk('比較先', 'to'));
+});
+PC.dhCalc = () => {
+  const h = PC.dhData(); if (!h) return null;
+  let a = h.dates.indexOf(PC.dh.from), b = h.dates.indexOf(PC.dh.to); if (a > b) [a, b] = [b, a];
+  const q = PC.dh.q, chg = [], add = [], end = [];
+  Object.entries(h.models).forEach(([id, m]) => {
+    if (PC.dh.kind && m.k !== PC.dh.kind) return;
+    if (q && !`${m.n} ${m.c} ${m.g} ${id}`.toLowerCase().includes(q)) return;
+    const x = m.p[a], y = m.p[b], r = { id, name: m.n, kind: m.k, cpu: m.c, gpu: m.g, mem: m.m, st: m.s, url: m.u };
+    if (x != null && y != null && x !== y) chg.push({ ...r, old: x, now: y, diff: y - x, pct: (y - x) / x * 100 });
+    else if (x == null && y != null) add.push({ ...r, now: y });
+    else if (x != null && y == null) end.push({ ...r, old: x });
+  });
+  return { chg, add, end, down: chg.filter((r) => r.diff < 0).length, up: chg.filter((r) => r.diff > 0).length };
+};
+PC.dhRedraw = () => ['dhDates', 'dhSum', 'dhTable'].forEach((d) => dash.draw(d));
+dash.draw('dhSum', (el) => {
+  el.replaceChildren(); const c = PC.dhCalc(); if (!c) return;
+  [['chg', '価格変動', `${c.chg.length}`, `値下げ ${c.down}・値上げ ${c.up}`], ['add', '新モデル', `${c.add.length}`, ''], ['end', '終売・掲載終了', `${c.end.length}`, '']].forEach(([v, lab, n, sub]) => {
+    const b = PC.el('button', 'dh-pill' + (PC.dh.view === v ? ' on' : '')); b.type = 'button';
+    b.append(PC.el('small', null, lab), PC.el('b', null, n)); if (sub) b.append(PC.el('small', null, sub));
+    b.addEventListener('click', () => { PC.dh.view = v; PC.dh.sort = { f: v === 'chg' ? 'diff' : 'gpu', d: 1 }; PC.dhRedraw(); });
+    el.append(b);
+  });
+});
+dash.draw('dhTable', (el) => {
+  el.replaceChildren(); const c = PC.dhCalc(); if (!c) return;
+  const v = PC.dh.view, rows = c[v];
+  const cols = [['kind', '区分'], ['gpu', 'GPU'], ['cpu', 'CPU'], ['mem', 'メモリ'], ['st', 'ストレージ']]
+    .concat(v === 'chg' ? [['old', '比較元の価格'], ['now', '比較先の価格'], ['diff', '差額'], ['pct', '差率']] : v === 'add' ? [['now', '価格']] : [['old', '最終価格']])
+    .concat([['name', 'モデル名']]);
+  const num = ['mem', 'st', 'old', 'now', 'diff', 'pct'];
+  const t = PC.el('table', 'xl'), tr = PC.el('tr');
+  cols.forEach(([k, lab]) => {
+    const th = PC.el('th', num.includes(k) ? 'n' : '', lab);
+    if (PC.dh.sort.f === k) th.setAttribute('aria-sort', PC.dh.sort.d > 0 ? 'ascending' : 'descending');
+    th.addEventListener('click', () => { PC.dh.sort = { f: k, d: PC.dh.sort.f === k ? -PC.dh.sort.d : 1 }; dash.draw('dhTable'); });
+    tr.append(th);
+  });
+  const th = PC.el('thead'); th.append(tr); t.append(th);
+  const pf = PC.perfField(PC.dh.sort.f === 'gpu' ? 'gpu_key' : PC.dh.sort.f === 'cpu' ? 'cpu_key' : '');
+  const sorted = rows.slice().sort((x, y) => {
+    const a = x[PC.dh.sort.f], b = y[PC.dh.sort.f];
+    if (a == null || b == null) return a == null ? (b == null ? 0 : 1) : -1;
+    return PC.dh.sort.d * (pf ? pf(a) - pf(b) || PC.natural(a, b) : typeof a === 'number' ? a - b : PC.natural(a, b));
+  });
+  const tb = PC.el('tbody');
+  sorted.slice(0, 1000).forEach((r) => {
+    const row = PC.el('tr', 'ds');
+    cols.forEach(([k]) => {
+      const td = PC.el('td', num.includes(k) ? 'n' : '');
+      if (k === 'gpu' || k === 'cpu') { const s = PC.el('span', 'bt', r[k]); PC.brandEl(s, r[k]); td.append(s); }
+      else if (k === 'mem') td.textContent = r.mem ? r.mem + 'GB' : '';
+      else if (k === 'st') td.textContent = r.st ? PC.stLabel(r.st).replace('SSD ', '') : '';
+      else if (k === 'old' || k === 'now') td.textContent = PC.yen(r[k]) + '円';
+      else if (k === 'diff') { td.className = 'n strong ' + (r.diff < 0 ? 'down' : 'up'); td.textContent = (r.diff > 0 ? '+' : '−') + PC.yen(Math.abs(r.diff)) + '円'; }
+      else if (k === 'pct') { td.className = 'n ' + (r.pct < 0 ? 'down' : 'up'); td.textContent = (r.pct > 0 ? '+' : '') + r.pct.toFixed(1) + '%'; }
+      else if (k === 'name') { const a = PC.el('a', null, r.name); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; td.append(a); }
+      else td.textContent = r[k] ?? '';
+      row.append(td);
+    });
+    tb.append(row);
+  });
+  t.append(tb);
+  if (!rows.length) { el.append(PC.el('div', 'tempty', '該当なし')); return; }
+  const sc = PC.el('div', 'xl-wrap'); sc.append(t); el.append(sc);
+});
+document.querySelectorAll('.pc-dh-kind').forEach((x) => x.addEventListener('change', () => { PC.dh.kind = x.value; PC.dhRedraw(); }));
+document.querySelectorAll('.pc-dh-q').forEach((x) => x.addEventListener('input', () => { PC.dh.q = x.value.trim().toLowerCase(); PC.dhRedraw(); }));
+
 /* 一覧 */
 PC.listRows = () => {
   const d = PC.ok('products'); if (!d) return null;
@@ -1993,7 +2105,7 @@ dash.draw('listRows', (tb) => {
   const rows = PC.listRows(); if (!rows) return tb.replaceChildren();
   PC.rows(tb, rows.slice(0, 300), [
     ['maker', null, (v) => 'tag ' + (PC.MKCLS[v] || ''), true], ['kind', null, 'dim'], ['name', null, 'strong'], ['price', PC.yen, 'n'],
-    ['cpu_key'], ['gpu_key'], ['mem', null, 'dim'], ['storage_cap', null, 'dim'], ['cooler', null, 'dim'], ['psu', null, 'dim'], ['id', null, 'dim'],
+    ['cpu_key'], ['gpu_key'], ['mem', null, 'dim'], ['storage_cap', null, 'dim'], ['cooler', null, 'dim'], ['psu', null, 'dim'], ['delivery', (v) => v || '—', 'dim'], ['id', null, 'dim'],
   ], (r) => PC.key(r.maker, r.id), null, true);
 });
 
@@ -2008,7 +2120,7 @@ dash.draw('listRows', (tb) => {
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
     }));
-    for (const [id, f] of [['ai', 'ai_analysis.json'], ['reco', 'ai_reco.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
+    for (const [id, f] of [['ai', 'ai_analysis.json'], ['reco', 'ai_reco.json'], ['dshist', 'ds_history.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
     try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }
     try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }

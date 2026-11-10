@@ -29,7 +29,7 @@ def parse_list(html_text: str) -> list[dict]:
         specs = [clean(s) for s in re.findall(r'item-spec-item-text">(.*?)</span>', chunk, flags=re.S)]
         out.append({"id": (code.group(1) if code else href.group(2)).upper(), "path": href.group(1),
                     "name": clean(name.group(1)) if name else "", "price": num(price.group(1)) if price else None,
-                    "specs": specs})
+                    "specs": specs, "nextday": "翌営業日出荷" in chunk})
     return out
 
 
@@ -121,6 +121,7 @@ def collect(cache: dict, today: str, log=print, max_detail: int = 1500) -> tuple
             "storage1": st, "storage_cap": _cap(st),
             "cooler": d.get("cooler", ""), "psu": d.get("psu", ""),
             "url": BASE + t["path"],
+            "delivery": "翌営業日出荷" if t.get("nextday") else "", "delivery_days": None,
         }))
     log(f"{MAKER}: {len(rows)}件（詳細取得 {len(todo)}件 / 通信 {http.count}回）")
     return rows, totals, warnings
