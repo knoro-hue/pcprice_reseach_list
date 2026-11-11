@@ -1,0 +1,5 @@
+200
+Content-Type text/plain; charset=utf-8
+access-control-allow-origin https://knoro-hue.github.io
+access-control-max-age 25200
+access-control-allow-credentials true
