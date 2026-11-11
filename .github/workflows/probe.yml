@@ -11,6 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: python probe/probe.py probe/urls.json
+      - run: python probe/hdr.py > probe_out/hdr.txt 2>&1 || true
       - run: |
           rm -rf probe/out && mv probe_out probe/out
           git config user.name github-actions[bot]; git config user.email 41898282+github-actions[bot]@users.noreply.github.com
