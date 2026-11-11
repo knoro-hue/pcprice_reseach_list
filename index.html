@@ -285,7 +285,11 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .dh-dates { display: flex; align-items: center; gap: 8px; }
 .pc .dh-date { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--brand); }
 .pc .dh-arrow { font-size: 18px; color: var(--brand); }
-.pc .dh-sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.pc .dh-sum { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+.pc .dh-sum .seg b { font-variant-numeric: tabular-nums; } .pc .dh-sum .seg small { font-size: 11px; opacity: .8; }
+.pc .dh-cal { font: inherit; font-size: 14px; height: 36px; padding: 0 10px; border: 1px solid #8fb3e0; border-radius: 8px; color: var(--brand); background: #f4f8fe; }
+#dshist table.xl td.dh-name { max-width: 34em; overflow: hidden; text-overflow: ellipsis; }
+.pc .dh-range { font-size: 12px; color: var(--color-fg-muted); }
 .pc .dh-pill { font: inherit; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border-radius: 12px; border: 1px solid #d5e2f2; background: #f7faff; cursor: pointer; text-align: left; }
 .pc .dh-pill b { font-size: 24px; font-variant-numeric: tabular-nums; color: #0d1830; } .pc .dh-pill small { font-size: 12px; color: var(--color-fg-muted); }
 .pc .dh-pill.on { background: linear-gradient(135deg, var(--brand), var(--brand2)); border-color: transparent; } .pc .dh-pill.on b, .pc .dh-pill.on small { color: #fff; }
@@ -698,13 +702,12 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 
   <section class="page" id="dshist" hidden>
     <div class="card">
-      <div class="cardhead"><div><h2>価格変更履歴（ドスパラ）：2つの日付を比べる</h2></div></div>
+      <div class="cardhead"><div><h2>価格変更履歴（ドスパラ）：2つの日付を比べる</h2></div><div class="dh-sum" data-draw="dhSum" data-source="dshist"></div></div>
       <div class="dh-bar">
         <div class="dh-dates" data-draw="dhDates" data-source="dshist"></div>
         <select class="dash-select fsel pc-dh-kind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
         <label class="bigsearch"><span class="mg">⌕</span><input class="pc-dh-q" type="search" placeholder="型番・CPU・GPUで検索" aria-label="検索"></label>
       </div>
-      <div class="dh-sum" data-draw="dhSum" data-source="dshist"></div>
     </div>
     <div class="card lv-tbl" data-draw="dhTable" data-source="dshist"></div>
   </section>
@@ -2009,6 +2012,8 @@ dash.draw('aiGpus', (el) => {
 /* ===== ドスパラ履歴（2つの日付を比べて価格変動・新モデル・終売） ===== */
 PC.dh = { from: '', to: '', kind: '', q: '', view: 'chg', sort: { f: 'diff', d: 1 } };
 PC.dhData = () => { const h = PC.ok('dshist'); return h && h.dates && h.dates.length ? h : null; };
+// カレンダーで選んだ日にデータがなければ、その日以前で最も近いデータのある日を使う
+PC.dhSnap = (ds, v) => { const le = ds.filter((d) => d <= v); return le.length ? le[le.length - 1] : ds[0]; };
 dash.draw('dhDates', (el) => {
   el.replaceChildren(); const h = PC.dhData(); if (!h) { el.append(PC.el('span', 'note', '履歴データがまだありません')); return; }
   const ds = h.dates;
@@ -2016,10 +2021,12 @@ dash.draw('dhDates', (el) => {
   if (!ds.includes(PC.dh.from)) PC.dh.from = ds[Math.max(0, ds.length - 2)];
   const mk = (lab, key) => {
     const w = PC.el('label', 'dh-date'); w.append(PC.el('span', null, lab));
-    const s = PC.el('select', 'dash-select fsel'); ds.forEach((d) => s.append(new Option(d.replace(/-/g, '/'), d))); s.value = PC.dh[key];
-    s.addEventListener('change', () => { PC.dh[key] = s.value; PC.dhRedraw(); }); w.append(s); return w;
+    const inp = PC.el('input', 'dh-cal'); inp.type = 'date'; inp.min = ds[0]; inp.max = ds[ds.length - 1]; inp.value = PC.dh[key];
+    inp.addEventListener('change', () => { if (!inp.value) return; PC.dh[key] = PC.dhSnap(ds, inp.value); PC.dhRedraw(); });
+    w.append(inp); return w;
   };
-  el.append(mk('比較元', 'from'), PC.el('span', 'dh-arrow', '→'), mk('比較先', 'to'));
+  el.append(mk('比較元', 'from'), PC.el('span', 'dh-arrow', '→'), mk('比較先', 'to'),
+    PC.el('span', 'dh-range', `データあり：${ds[0].slice(5).replace('-', '/')}〜${ds[ds.length - 1].slice(5).replace('-', '/')}`));
 });
 PC.dhCalc = () => {
   const h = PC.dhData(); if (!h) return null;
@@ -2038,19 +2045,21 @@ PC.dhCalc = () => {
 PC.dhRedraw = () => ['dhDates', 'dhSum', 'dhTable'].forEach((d) => dash.draw(d));
 dash.draw('dhSum', (el) => {
   el.replaceChildren(); const c = PC.dhCalc(); if (!c) return;
-  [['chg', '価格変動', `${c.chg.length}`, `値下げ ${c.down}・値上げ ${c.up}`], ['add', '新モデル', `${c.add.length}`, ''], ['end', '終売・掲載終了', `${c.end.length}`, '']].forEach(([v, lab, n, sub]) => {
-    const b = PC.el('button', 'dh-pill' + (PC.dh.view === v ? ' on' : '')); b.type = 'button';
-    b.append(PC.el('small', null, lab), PC.el('b', null, n)); if (sub) b.append(PC.el('small', null, sub));
-    b.addEventListener('click', () => { PC.dh.view = v; PC.dh.sort = { f: v === 'chg' ? 'diff' : 'gpu', d: 1 }; PC.dhRedraw(); });
+  [['chg', '価格変動', `${c.chg.length}`, `↓${c.down} ↑${c.up}`], ['add', '新モデル', `${c.add.length}`, ''], ['end', '終売', `${c.end.length}`, '']].forEach(([v, lab, n, sub]) => {
+    const b = PC.el('button', 'seg' + (PC.dh.view === v ? ' on' : '')); b.type = 'button';
+    b.append(`${lab} `, PC.el('b', null, n)); if (sub) b.append(PC.el('small', null, ` ${sub}`));
+    b.addEventListener('click', () => { PC.dh.view = v; PC.dh.sort = { f: v === 'chg' ? 'diff' : 'name', d: 1 }; PC.dhRedraw(); });
     el.append(b);
   });
 });
 dash.draw('dhTable', (el) => {
   el.replaceChildren(); const c = PC.dhCalc(); if (!c) return;
   const v = PC.dh.view, rows = c[v];
-  const cols = [['kind', '区分'], ['gpu', 'GPU'], ['cpu', 'CPU'], ['mem', 'メモリ'], ['st', 'ストレージ']]
-    .concat(v === 'chg' ? [['old', '比較元の価格'], ['now', '比較先の価格'], ['diff', '差額'], ['pct', '差率']] : v === 'add' ? [['now', '価格']] : [['old', '最終価格']])
-    .concat([['name', 'モデル名']]);
+  const dl = (d) => d.slice(5).replace('-', '/') + 'の価格';
+  const [fd, td] = PC.dh.from <= PC.dh.to ? [PC.dh.from, PC.dh.to] : [PC.dh.to, PC.dh.from];
+  const cols = [['kind', '区分'], ['name', 'モデル名']]
+    .concat(v === 'chg' ? [['diff', '差額'], ['pct', '差率'], ['old', dl(fd)], ['now', dl(td)]] : v === 'add' ? [['now', dl(td)]] : [['old', dl(fd)]])
+    .concat([['gpu', 'GPU'], ['cpu', 'CPU'], ['mem', 'メモリ'], ['st', 'ストレージ']]);
   const num = ['mem', 'st', 'old', 'now', 'diff', 'pct'];
   const t = PC.el('table', 'xl'), tr = PC.el('tr');
   cols.forEach(([k, lab]) => {
@@ -2077,7 +2086,7 @@ dash.draw('dhTable', (el) => {
       else if (k === 'old' || k === 'now') td.textContent = PC.yen(r[k]) + '円';
       else if (k === 'diff') { td.className = 'n strong ' + (r.diff < 0 ? 'down' : 'up'); td.textContent = (r.diff > 0 ? '+' : '−') + PC.yen(Math.abs(r.diff)) + '円'; }
       else if (k === 'pct') { td.className = 'n ' + (r.pct < 0 ? 'down' : 'up'); td.textContent = (r.pct > 0 ? '+' : '') + r.pct.toFixed(1) + '%'; }
-      else if (k === 'name') { const a = PC.el('a', null, r.name); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; td.append(a); }
+      else if (k === 'name') { td.className = 'dh-name'; const a = PC.el('a', null, r.name); a.href = r.url; a.target = '_blank'; a.rel = 'noopener'; a.title = r.name; td.append(a); }
       else td.textContent = r[k] ?? '';
       row.append(td);
     });
