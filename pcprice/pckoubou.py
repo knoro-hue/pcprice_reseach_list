@@ -96,7 +96,7 @@ def apply_delivery(rows: list, http: "Http", cache: dict, log=print) -> None:
                 cache[did] = ""
         txt = cache.get(did, "")
         if txt:
-            r["delivery"] = f"出荷{txt}" + ("・短納期" if r.get("delivery") == "短納期対象" else "")
+            r["delivery"] = (txt if "出荷" in txt else f"出荷{txt}") + ("・短納期" if r.get("delivery") == "短納期対象" else "")
             r["delivery_days"] = _deliv_days(txt)
 
 
