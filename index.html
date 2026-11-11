@@ -297,6 +297,22 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc table.xl td.dlv { font-size: 12px; } .pc table.xl td.dlv.fast { color: var(--color-ok); font-weight: 700; }
 #dshist:not([hidden]) { display: grid; gap: 10px; }
 
+/* ゲーム推奨環境 */
+.pc .req-panel { display: grid; gap: 8px; }
+.pc .req-panel::before { display: none; }
+.pc .req-h { display: flex; align-items: center; gap: 12px; } .pc .req-h b { font-size: 15px; color: var(--brand); }
+.pc .req-kind { display: flex; gap: 4px; margin-left: auto; }
+.pc .req-row { display: flex; gap: 8px; }
+.pc .req-url { flex: 1; min-width: 0; font: inherit; font-size: 14px; height: 40px; padding: 0 12px; border: 2px solid var(--brand); border-radius: 10px; background: #eef5ff; }
+.pc .req-status { margin: 0; font-size: 13px; color: var(--color-bad); }
+.pc .req-tiers { display: grid; gap: 6px; }
+.pc .req-tier { font: inherit; text-align: left; display: grid; gap: 2px; padding: 8px 12px; border-radius: 10px; border: 1px solid #b7cfee; background: #f7faff; cursor: pointer; }
+.pc .req-tier b { font-size: 14px; color: #0d1830; } .pc .req-tier span { font-size: 13px; color: #33415c; } .pc .req-tier small { font-size: 11.5px; color: var(--color-warn); }
+.pc .req-tier.on { border: 2px solid var(--brand); background: #e3efff; } .pc .req-tier.on b { color: var(--brand); }
+.pc .req-paste summary { font-size: 12.5px; color: var(--brand); cursor: pointer; }
+.pc .req-paste textarea { width: 100%; font: inherit; font-size: 13px; margin: 6px 0; padding: 8px; border: 1px solid #b7cfee; border-radius: 8px; }
+.pc .ss.reqmode .ss-g:has([data-draw=ssGame]) { display: none; }
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -521,7 +537,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
   /* 下部固定タブ */
-  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
   .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
   .pc .tab::after { content: attr(data-short); font-size: 13px; }
@@ -594,6 +610,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     <nav class="tabs" role="tablist">
       <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">デスク一覧</button>
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">ノート一覧</button>
+      <button class="tab" role="tab" data-tab="req" data-short="推奨環境" aria-selected="false">ゲーム推奨環境</button>
       <button class="tab" role="tab" data-tab="dsbase" data-short="ランキング" aria-selected="false">通販ランキング</button>
       <button class="tab" role="tab" data-tab="dshist" data-short="価格履歴" aria-selected="false">価格変更履歴</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
@@ -623,6 +640,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         
       </aside>
       <div class="ss-r">
+        <div class="card req-panel" data-draw="reqPanel" data-source="products" style="display:none"></div>
         <div class="card ss-sum"><div class="ss-sumt" data-draw="ssSummary" data-source="products"></div><div class="ss-bar"><div class="ss-seg" data-draw="ssSub" data-source="products"></div><div class="ss-view" data-draw="ssView" data-source="products"></div></div></div>
         <div class="ss-groups" data-draw="ssGroups" data-source="products"></div>
       </div>
@@ -798,6 +816,7 @@ PC.TYPES = ['値下げ', '値上げ', '新登場', '終売・掲載終了'];
 PC.TCLS = { '値下げ': 't-down', '値上げ': 't-up', '新登場': 't-new', '終売・掲載終了': 't-end' };
 PC.yen = (v) => (v == null || v === '' ? '' : d3.format(',')(v));
 PC.key = (...p) => p.map((x) => encodeURIComponent(x ?? '')).join(',');
+PC.req = { url: '', tiers: [], sel: -1, status: '', kind: 'デスクトップ' };
 PC.q = {}; PC.sort = {}; PC.sameKind = 'デスクトップ';
 PC.ok = (id) => { const d = dash.data(id); return d.status === 'ok' ? d.data : null; };
 
@@ -807,15 +826,17 @@ PC.COLORS = ['#e8710a', '#004da1', '#1f1f1f'];
 /* タブ */
 const pcTab = (name) => {
   document.querySelectorAll('.pc .tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
-  const sec = name.startsWith('same') ? 'same' : name;
+  PC.curTab = name;
+  const sec = name.startsWith('same') || name === 'req' ? 'same' : name;
   if (sec === 'same') {
-    const nk = name === 'same-note' ? 'ノート' : 'デスクトップ';
+    const nk = name === 'same-note' ? 'ノート' : name === 'req' ? PC.req.kind : 'デスクトップ';
     if (nk !== PC.sameKind && PC.f) { PC.f = { cpu: '', gpu: '', fam: '', mem: '' }; PC.q.same = ''; document.querySelectorAll('.pc-same-q').forEach((i) => { i.value = ''; }); if (PC.ssNew) { const sm = PC.ss.same, sb = PC.ss.sub, np = PC.ss.nopro; PC.ss = PC.ssNew(); PC.ss.same = sm; PC.ss.sub = sb; PC.ss.nopro = np; } }
     PC.sameKind = nk;
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+  ['reqPanel', 'ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+  document.querySelectorAll('.pc .ss').forEach((x) => x.classList.toggle('reqmode', name === 'req'));
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
@@ -897,7 +918,7 @@ document.querySelectorAll('.pc-cust').forEach((b) => { if (window.PC_PUBLIC) b.r
 if (window.PC_PUBLIC) { const h = document.querySelector('.pc .brand h1'); if (h) h.textContent = 'ドスパラ PC検索'; }
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'dsbase', 'dshist', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'req', 'dsbase', 'dshist', 'howto'].includes(pcHash)) pcTab(pcHash);
 PC.setCust(PC.cust);
 
 /* 並び替え */
@@ -925,6 +946,130 @@ PC.cpuPerf = (k) => {
   return (tier + n * 0.9 + suf + (/Plus/.test(t) ? 0.01 : 0)) * 11; // 一覧にないCPU（主にノート）は目安値
 };
 PC.perfField = (f) => (f === 'gpu_key' || f === 'gpu' ? PC.gpuPerf : f === 'cpu_key' || f === 'cpu' ? PC.cpuPerf : null);
+/* ===== ゲーム推奨スペックから選ぶ ===== */
+// 旧世代・要件表によく出るパーツの性能目安（同じ尺度）
+Object.assign(PC.GPU_PERF, { 'GT 1030': 1, 'GTX 750 Ti': 2, 'GTX 960': 4, 'GTX 970': 6, 'GTX 980': 7, 'GTX 980 Ti': 9, 'GTX 1050': 3, 'GTX 1050 Ti': 4,
+  'GTX 1060': 8, 'GTX 1070': 11, 'GTX 1070 Ti': 12, 'GTX 1080': 13, 'GTX 1080 Ti': 17, 'GTX 1650 SUPER': 7, 'GTX 1660': 8, 'GTX 1660 SUPER': 9, 'GTX 1660 Ti': 9,
+  'RTX 2060': 15, 'RTX 2060 SUPER': 17, 'RTX 2070': 18, 'RTX 2070 SUPER': 20, 'RTX 2080': 22, 'RTX 2080 SUPER': 23, 'RTX 2080 Ti': 27,
+  'RTX 3060 Ti': 25, 'RTX 3070': 29, 'RTX 3070 Ti': 31, 'RTX 3080': 37, 'RTX 3080 Ti': 41, 'RTX 3090': 43, 'RTX 3090 Ti': 46,
+  'RX 470': 6, 'RX 480': 7, 'RX 570': 7, 'RX 580': 8, 'RX 590': 9, 'RX 5500 XT': 8, 'RX 5600 XT': 15, 'RX 5700': 17, 'RX 5700 XT': 19, 'RX 6500 XT': 6,
+  'RX 6600': 19, 'RX 6600 XT': 21, 'RX 6650 XT': 22, 'RX 6700': 25, 'RX 6700 XT': 27, 'RX 6750 XT': 28, 'RX 6800': 34, 'RX 6800 XT': 39, 'RX 6900 XT': 42,
+  'RX 6950 XT': 45, 'RX 7600 XT': 23, 'RX 7700 XT': 34, 'RX 7900 GRE': 46, 'RX 7900 XT': 52, 'Arc A380': 5, 'Arc A580': 16, 'Arc A750': 19, 'Arc A770': 21,
+  'Arc B570': 22, 'Arc B580': 24 });
+Object.assign(PC.CPU_SCORE, { 'Core i5-4460': 6, 'Core i7-4770': 8, 'Core i5-6600': 8, 'Core i7-6700': 10, 'Core i5-7500': 8, 'Core i7-7700': 11, 'Core i3-8100': 8,
+  'Core i5-8400': 14, 'Core i7-8700': 17, 'Core i5-9400': 14, 'Core i7-9700': 18, 'Core i9-9900K': 21, 'Core i3-10100': 11, 'Core i5-10400': 18, 'Core i7-10700': 22,
+  'Core i9-10900K': 26, 'Core i5-11400': 21, 'Core i7-11700': 24, 'Core i3-12100': 17, 'Core i5-12600K': 32, 'Core i7-12700': 40, 'Core i9-12900K': 50,
+  'Core i5-13400': 30, 'Core i5-13600K': 40, 'Core i7-13700': 48, 'Core i9-13900K': 62, 'Ryzen 5 1600': 11, 'Ryzen 5 2600': 13, 'Ryzen 7 2700X': 16,
+  'Ryzen 5 3600': 19, 'Ryzen 7 3700X': 23, 'Ryzen 9 3900X': 28, 'Ryzen 5 5600': 24, 'Ryzen 5 5600X': 25, 'Ryzen 7 5800X': 29, 'Ryzen 9 5900X': 35,
+  'Ryzen 9 5950X': 40, 'Ryzen 5 7600': 33, 'Ryzen 5 7600X': 34, 'Ryzen 7 7700X': 44, 'Ryzen 9 7900X': 55, 'Ryzen 9 7950X': 65, 'FX-8350': 6 });
+PC.reqCpuKeys = (t) => {
+  const out = new Set(), s = String(t).replace(/[®™©]/g, ' ').replace(/\s+/g, ' ');
+  for (const m of s.matchAll(/Core\s*(i[3579])\s*[- ]?\s*(\d{4,5})([A-Z]{0,2})/gi)) out.add(`Core ${m[1].toLowerCase()}-${m[2]}${m[3].toUpperCase().replace(/^(F|T)$/, '')}`.replace(/-(\d+)$/, '-$1'));
+  for (const m of s.matchAll(/Core\s*Ultra\s*([579])\s*(\d{3})([A-Z]{0,2})/gi)) out.add(`Core Ultra ${m[1]} ${m[2]}${m[3].toUpperCase()}`);
+  for (const m of s.matchAll(/Ryzen\s*([3579])\s*(\d{4})\s*(X3D|XT|X|G|GT)?/gi)) out.add(`Ryzen ${m[1]} ${m[2]}${(m[3] || '').toUpperCase()}`);
+  for (const m of s.matchAll(/FX[- ]?(\d{4})/gi)) out.add(`FX-${m[1]}`);
+  return [...out];
+};
+PC.reqGpuKeys = (t) => {
+  const out = new Set(), s = String(t).replace(/[®™©]/g, ' ').replace(/\s+/g, ' ');
+  for (const m of s.matchAll(/(RTX|GTX|GT)\s*(\d{3,4})\s*(Ti\s*SUPER|Ti|SUPER)?/gi)) out.add(`${m[1].toUpperCase()} ${m[2]}${m[3] ? ' ' + m[3].replace(/\s+/g, ' ').replace(/ti/i, 'Ti').replace(/super/i, 'SUPER') : ''}`);
+  for (const m of s.matchAll(/\bRX\s*(\d{3,4})\s*(XTX|XT|GRE)?/gi)) out.add(`RX ${m[1]}${m[2] ? ' ' + m[2].toUpperCase() : ''}`);
+  for (const m of s.matchAll(/Arc\s*([AB]\d{3})/gi)) out.add(`Arc ${m[1].toUpperCase()}`);
+  return [...out];
+};
+PC.cpuReqScore = (k) => {
+  if (PC.CPU_SCORE[k] != null) return PC.CPU_SCORE[k];
+  const base = k.replace(/(K|KF|F|T)$/, ''); if (PC.CPU_SCORE[base] != null) return PC.CPU_SCORE[base];
+  let m = k.match(/Core i([3579])-(\d{1,2})(\d{3})/); // 世代から推定
+  if (m) return [0, 0, 0, 8, 0, 12, 0, 16, 0, 20][+m[1]] * (1 + Math.max(0, +m[2] - 8) * 0.17);
+  m = k.match(/Ryzen ([3579]) (\d)(\d{3})/); if (m) return [0, 0, 0, 8, 0, 12, 0, 16, 0, 22][+m[1]] * (1 + Math.max(0, +m[2] - 2) * 0.25);
+  return null;
+};
+// ページ本文（Markdown）から「見出し＋CPU/GPU/メモリ」の組を取り出す
+PC.parseReq = (text) => {
+  const lines = String(text).split(/\n/).map((l) => l.trim()), tiers = [];
+  const HEAD = /(必要|最低|最小|推奨|Minimum|Recommended)[^\n]{0,14}?(動作環境|環境|スペック|要件|システム|:|：|$)/i;
+  let cur = null, ver = '', multi = false;
+  const close = () => { if (cur && cur.cpus.length + cur.gpus.length) tiers.push(cur); cur = null; };
+  lines.forEach((l) => {
+    if (/^#{1,4}\s/.test(l)) { close(); ver = l.replace(/^#+\s*/, '').slice(0, 30); multi = false; return; }
+    const heads = (l.match(new RegExp(HEAD.source, 'gi')) || []);
+    if (l.length <= 40 && heads.length >= 2) { close(); multi = true; return; } // 横並びの表見出しは読まない
+    if (l.length <= 40 && heads.length === 1 && !PC.reqCpuKeys(l).length && !PC.reqGpuKeys(l).length) {
+      close(); multi = false; cur = { label: l.replace(/[:：|#*]/g, '').trim(), ver, cpus: [], gpus: [], mem: null, gpuLine: '', cpuLine: '' }; return;
+    }
+    if (!cur || multi) return;
+    PC.reqCpuKeys(l).forEach((k) => { if (!cur.cpus.includes(k)) cur.cpus.push(k); });
+    PC.reqGpuKeys(l).forEach((k) => { if (!cur.gpus.includes(k)) cur.gpus.push(k); });
+    const mm = l.match(/(\d{1,3})\s*GB/i), prev = lines[lines.indexOf(l) - 1] || '';
+    if (cur.mem == null && mm && (/メモリ|RAM|Memory/i.test(l) || /メモリ|RAM|Memory/i.test(prev)) && !/VRAM|ストレージ|空き|SSD|HDD/i.test(l)) cur.mem = +mm[1];
+  });
+  close();
+  // 同じ内容の段は新しい版（後に出てくる方）を残す
+  const seen = new Set();
+  return tiers.reverse().filter((t) => { const k = `${t.label}|${t.cpus}|${t.gpus}|${t.mem}`; if (seen.has(k)) return false; seen.add(k); return true; }).reverse();
+};
+
+PC.reqActive = () => PC.curTab === 'req' && PC.req.sel >= 0 && PC.req.tiers[PC.req.sel];
+PC.reqPass = (p) => {
+  const t = PC.reqActive(); if (!t) return true;
+  const gs = t.gpus.map((k) => PC.gpuPerf(k)).filter((v) => v != null), cs = t.cpus.map(PC.cpuReqScore).filter((v) => v != null);
+  if (gs.length && !(PC.gpuPerf(p.gpu_key) >= Math.min(...gs))) return false;
+  if (cs.length && !((PC.cpuPerf(p.cpu_key) ?? 0) >= Math.min(...cs))) return false;
+  if (t.mem && !((p.mem_gb || 0) >= t.mem)) return false;
+  return true;
+};
+PC.reqLoad = async (src, isText) => {
+  PC.req.status = '読み込み中…'; PC.req.tiers = []; PC.req.sel = -1; dash.draw('reqPanel');
+  try {
+    let text = src;
+    if (!isText) {
+      const res = await fetch('https://r.jina.ai/' + src, { headers: { 'X-Return-Format': 'markdown' } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      text = await res.text();
+    }
+    const tiers = PC.parseReq(text);
+    PC.req.tiers = tiers;
+    // 既定：一番最後に出てくる「推奨」（WQHD/4K を除く）
+    let pick = -1; tiers.forEach((t, i) => { if (/推奨|Recommended/i.test(t.label) && !/WQHD|4K|1440|2160/i.test(t.label)) pick = i; });
+    PC.req.sel = pick >= 0 ? pick : tiers.length - 1;
+    PC.req.status = tiers.length ? '' : 'CPU・GPUの記載を見つけられませんでした。下の欄に推奨環境の文章を貼り付けてください';
+  } catch (e) { PC.req.status = 'ページを読み込めませんでした（' + e.message + '）。下の欄に推奨環境の文章を貼り付けてください'; }
+  PC.ss.open = {}; PC.ss.gshow = 8; dash.draw('reqPanel'); PC.ssRedraw();
+};
+dash.draw('reqPanel', (el) => {
+  if (!PC.el) return;
+  el.style.display = PC.curTab === 'req' ? '' : 'none'; if (PC.curTab !== 'req') return;
+  el.replaceChildren();
+  const h = PC.el('div', 'req-h'); h.append(PC.el('b', null, 'ゲームの動作環境ページから選ぶ'));
+  const ks = PC.el('div', 'req-kind'); ['デスクトップ', 'ノート'].forEach((k) => { const b = PC.el('button', 'seg' + (PC.req.kind === k ? ' on' : ''), k); b.type = 'button'; b.addEventListener('click', () => { PC.req.kind = k; PC.sameKind = k; PC._ssb = null; dash.draw('reqPanel'); PC.ssRedraw(); }); ks.append(b); });
+  h.append(ks); el.append(h);
+  const row = PC.el('div', 'req-row'), inp = PC.el('input', 'req-url'); inp.type = 'url'; inp.placeholder = '動作環境ページのURL（例：https://jp.finalfantasyxiv.com/system_requirements/）'; inp.value = PC.req.url;
+  const go = PC.el('button', 'vbtn on', '読み込む'); go.type = 'button';
+  const run = () => { const u = inp.value.trim(); if (!/^https?:\/\//.test(u)) return; PC.req.url = u; PC.reqLoad(u, false); };
+  go.addEventListener('click', run); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
+  row.append(inp, go); el.append(row);
+  if (PC.req.status) el.append(PC.el('p', 'req-status', PC.req.status));
+  if (PC.req.tiers.length) {
+    const lst = PC.el('div', 'req-tiers');
+    PC.req.tiers.forEach((t, i) => {
+      const b = PC.el('button', 'req-tier' + (PC.req.sel === i ? ' on' : '')); b.type = 'button';
+      b.append(PC.el('b', null, t.label + (t.ver ? `（${t.ver}）` : '')));
+      const spec = PC.el('span', null, [t.cpus.length ? 'CPU ' + t.cpus.join(' / ') : '', t.gpus.length ? 'GPU ' + t.gpus.join(' / ') : '', t.mem ? `メモリ ${t.mem}GB` : ''].filter(Boolean).join('　'));
+      b.append(spec);
+      const unk = [...t.gpus.filter((k) => PC.GPU_PERF[k] == null), ...t.cpus.filter((k) => PC.cpuReqScore(k) == null)];
+      if (unk.length) b.append(PC.el('small', null, `性能不明のため判定に使わない：${unk.join(', ')}`));
+      b.addEventListener('click', () => { PC.req.sel = PC.req.sel === i ? -1 : i; PC.ss.open = {}; dash.draw('reqPanel'); PC.ssRedraw(); });
+      lst.append(b);
+    });
+    el.append(lst, PC.el('p', 'note', '選んだ環境の CPU・GPU（いずれか）以上の性能と、メモリ容量以上のモデルを表示します。性能は目安の比較です'));
+  }
+  const det = PC.el('details', 'req-paste'); det.append(PC.el('summary', null, 'URLで読めないときは、動作環境の文章を貼り付け'));
+  const ta = PC.el('textarea'); ta.rows = 5; ta.placeholder = '例）推奨：\nCPU: Core i7-9700\nGPU: GeForce RTX 2060 / Radeon RX 5600 XT\nメモリ: 16GB';
+  const b2 = PC.el('button', 'clearbtn', 'この文章で絞り込む'); b2.type = 'button'; b2.addEventListener('click', () => ta.value.trim() && PC.reqLoad(ta.value, true));
+  det.append(ta, b2); el.append(det);
+});
+
 PC.cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja', { numeric: true }));
 PC.sortRows = (name, rows) => {
   const st = PC.sort[name];
@@ -1480,7 +1625,7 @@ PC.ssBase = () => {
 PC.ssIn = (p, b) => { const [lo, hi] = PC.SS_BUDGET[PC.sameKind][+b]; return p.price >= lo && p.price < hi; };
 PC.ssMatch = (p, skip) => {
   const f = PC.ss;
-  return (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'fam' || !f.fam || PC.fam(p.cpu_key) === f.fam)
+  return PC.reqPass(p) && (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'fam' || !f.fam || PC.fam(p.cpu_key) === f.fam)
     && (skip === 'cpu' || skip === 'fam' || !f.cpu || p.cpu_key === f.cpu)
     && (skip === 'gpu' || !f.gpu || p.gpu_key === f.gpu) && (skip === 'mem' || !f.mem || String(p.mem_gb) === f.mem)
     && (skip === 'game' || !f.game || PC.fpsPass(p, skip === 'fps'));
