@@ -960,11 +960,11 @@ Object.assign(PC.CPU_SCORE, { 'Core i5-4460': 6, 'Core i7-4770': 8, 'Core i5-660
   'Core i5-8400': 14, 'Core i7-8700': 17, 'Core i5-9400': 14, 'Core i7-9700': 18, 'Core i9-9900K': 21, 'Core i3-10100': 11, 'Core i5-10400': 18, 'Core i7-10700': 22,
   'Core i9-10900K': 26, 'Core i5-11400': 21, 'Core i7-11700': 24, 'Core i3-12100': 17, 'Core i5-12600K': 32, 'Core i7-12700': 40, 'Core i9-12900K': 50,
   'Core i5-13400': 30, 'Core i5-13600K': 40, 'Core i7-13700': 48, 'Core i9-13900K': 62, 'Ryzen 5 1600': 11, 'Ryzen 5 2600': 13, 'Ryzen 7 2700X': 16,
-  'Ryzen 5 3600': 19, 'Ryzen 7 3700X': 23, 'Ryzen 9 3900X': 28, 'Ryzen 5 5600': 24, 'Ryzen 5 5600X': 25, 'Ryzen 7 5800X': 29, 'Ryzen 9 5900X': 35,
+  'Ryzen 5 3600': 19, 'Ryzen 7 3700X': 23, 'Ryzen 9 3900X': 28, 'Ryzen 5 5600': 24, 'Ryzen 5 5600X': 25, 'Ryzen 7 5800X': 29, 'Ryzen 9 5900X': 35, 'Ryzen 9 5900': 33,
   'Ryzen 9 5950X': 40, 'Ryzen 5 7600': 33, 'Ryzen 5 7600X': 34, 'Ryzen 7 7700X': 44, 'Ryzen 9 7900X': 55, 'Ryzen 9 7950X': 65, 'FX-8350': 6 });
 PC.reqCpuKeys = (t) => {
   const out = new Set(), s = String(t).replace(/[®™©]/g, ' ').replace(/\s+/g, ' ');
-  for (const m of s.matchAll(/Core\s*(i[3579])\s*[- ]?\s*(\d{4,5})([A-Z]{0,2})/gi)) out.add(`Core ${m[1].toLowerCase()}-${m[2]}${m[3].toUpperCase().replace(/^(F|T)$/, '')}`.replace(/-(\d+)$/, '-$1'));
+  for (const m of s.matchAll(/(?:Core\s*|\b)(i[3579])\s*[- ]\s*(\d{4,5})([A-Z]{0,2})\b/gi)) out.add(`Core ${m[1].toLowerCase()}-${m[2]}${m[3].toUpperCase().replace(/^(F|T)$/, '')}`.replace(/-(\d+)$/, '-$1'));
   for (const m of s.matchAll(/Core\s*Ultra\s*([579])\s*(\d{3})([A-Z]{0,2})/gi)) out.add(`Core Ultra ${m[1]} ${m[2]}${m[3].toUpperCase()}`);
   for (const m of s.matchAll(/Ryzen\s*([3579])\s*(\d{4})\s*(X3D|XT|X|G|GT)?/gi)) out.add(`Ryzen ${m[1]} ${m[2]}${(m[3] || '').toUpperCase()}`);
   for (const m of s.matchAll(/FX[- ]?(\d{4})/gi)) out.add(`FX-${m[1]}`);
@@ -988,7 +988,7 @@ PC.cpuReqScore = (k) => {
 // ページ本文（Markdown）から「見出し＋CPU/GPU/メモリ」の組を取り出す
 PC.parseReq = (text) => {
   const lines = String(text).split(/\n/).map((l) => l.trim()), tiers = [];
-  const HEAD = /(必要|最低|最小|推奨|Minimum|Recommended)[^\n]{0,14}?(動作環境|環境|スペック|要件|システム|:|：|$)/i;
+  const HEAD = /(必要|最低|最小|推奨|最高|最適|快適|Minimum|Recommended|Ultra|Epic|High|Medium|Low|Optimal|(?:高|中|低)(?:設定|画質|品質))[^\n]{0,14}?(動作環境|環境|スペック|要件|システム|設定|画質|:|：|\*\*|$)/i;
   let cur = null, ver = '', multi = false;
   const close = () => { if (cur && cur.cpus.length + cur.gpus.length) tiers.push(cur); cur = null; };
   lines.forEach((l) => {
@@ -996,7 +996,7 @@ PC.parseReq = (text) => {
     const heads = (l.match(new RegExp(HEAD.source, 'gi')) || []);
     if (l.length <= 40 && heads.length >= 2) { close(); multi = true; return; } // 横並びの表見出しは読まない
     if (l.length <= 40 && heads.length === 1 && !PC.reqCpuKeys(l).length && !PC.reqGpuKeys(l).length) {
-      close(); multi = false; cur = { label: l.replace(/[:：|#*]/g, '').trim(), ver, cpus: [], gpus: [], mem: null, gpuLine: '', cpuLine: '' }; return;
+      close(); multi = false; cur = { label: l.replace(/[:：|#*-]/g, '').trim(), ver, cpus: [], gpus: [], mem: null, gpuLine: '', cpuLine: '' }; return;
     }
     if (!cur || multi) return;
     PC.reqCpuKeys(l).forEach((k) => { if (!cur.cpus.includes(k)) cur.cpus.push(k); });
