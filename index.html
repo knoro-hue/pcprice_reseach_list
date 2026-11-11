@@ -517,7 +517,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
   /* 下部固定タブ */
-  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
   .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
   .pc .tab::after { content: attr(data-short); font-size: 13px; }
@@ -588,12 +588,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <h1>PC価格調査 3社比較</h1>
     </div>
     <nav class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">同スペック比較（デスクトップ）</button>
-      <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">同スペック比較（ノート）</button>
-      <button class="tab" role="tab" data-tab="dsbase" data-short="基準比較" aria-selected="false">ドスパラ基準比較</button>
-      <button class="tab" role="tab" data-tab="dshist" data-short="履歴" aria-selected="false">ドスパラ履歴</button>
-      <button class="tab" role="tab" data-tab="list" data-short="一覧" aria-selected="false">一覧</button>
-      <button class="tab" role="tab" data-tab="ai" data-short="AI分析" aria-selected="false">AI分析</button>
+      <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">デスク一覧</button>
+      <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">ノート一覧</button>
+      <button class="tab" role="tab" data-tab="dsbase" data-short="ランキング" aria-selected="false">通販ランキング</button>
+      <button class="tab" role="tab" data-tab="dshist" data-short="価格履歴" aria-selected="false">価格変更履歴</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
     </nav>
     <div class="sizer" aria-label="表の表示調整">
@@ -631,7 +629,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
     <div class="samewrap">
       <div class="card">
         <div class="cardhead">
-          <div><h2>ドスパラ基準比較（注力・ランキングモデル × 同じCPU×GPUの他社最安）</h2></div>
+          <div><h2>通販ランキング（ドスパラの注力・ランキングモデル × 同じCPU×GPUの他社最安）</h2></div>
           <span class="note" style="margin:0">ドスパラの注力ページ（ゲーミングデスク TC30・ゲーミングノート TC143・個人向けデスク・スタンダードノート）のおすすめランキングと注力枠に載っているモデルだけを、ページ上の並び順で表示。差は「ドスパラ − 他社」：＋（赤）ならドスパラが高い、−（緑）ならドスパラが安い。行クリックで他社の該当モデル</span>
         </div>
         <div class="filters">
@@ -700,7 +698,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 
   <section class="page" id="dshist" hidden>
     <div class="card">
-      <div class="cardhead"><div><h2>ドスパラ履歴：2つの日付を比べる</h2></div></div>
+      <div class="cardhead"><div><h2>価格変更履歴（ドスパラ）：2つの日付を比べる</h2></div></div>
       <div class="dh-bar">
         <div class="dh-dates" data-draw="dhDates" data-source="dshist"></div>
         <select class="dash-select fsel pc-dh-kind" aria-label="区分"><option value="">デスク＋ノート</option><option value="デスクトップ">デスクトップ</option><option value="ノート">ノート</option></select>
@@ -756,10 +754,9 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <h2>各タブの見方</h2>
         <p class="note">表は見出しをクリックすると並び替えできます（もう一度押すと逆順）</p>
         <ul class="howlist">
-          <li><span class="ic">⇄</span><div><b>同スペック比較（デスクトップ／ノート）</b>左でゲーム・予算・GPU・CPU・メモリを選ぶと、右に3社のモデルを表示します。「一覧表示」と「グループ表示」を切り替えられます</div></li>
-          <li><span class="ic">◎</span><div><b>ドスパラ基準比較</b>ドスパラのおすすめ・ランキング掲載モデルと、同じ構成の他社モデルの価格差を確認できます</div></li>
-          <li><span class="ic">≡</span><div><b>一覧</b>3社の全機種をキーワードやメーカーで探せます</div></li>
-          <li><span class="ic">★</span><div><b>AI分析</b>GPU・メモリ別に、ドスパラのおすすめモデルとパソコン工房との比較をまとめています</div></li>
+          <li><span class="ic">⇄</span><div><b>デスク一覧／ノート一覧</b>左でゲーム・予算・GPU・CPU・メモリを選ぶと、右に3社のモデルを表示します。「一覧表示」と「グループ表示」を切り替えられます</div></li>
+          <li><span class="ic">◎</span><div><b>通販ランキング</b>ドスパラのおすすめ・ランキング掲載モデルと、同じ構成の他社モデルの価格差を確認できます</div></li>
+          <li><span class="ic">↕</span><div><b>価格変更履歴</b>ドスパラの2つの日付を選んで、値下げ・値上げ・新モデル・終売を確認できます</div></li>
           <li><span class="ic">👁</span><div><b>お客様表示</b>右上のボタンで、ドスパラのモデルだけを表示する画面に切り替わります</div></li>
           <li><span class="ic">⬇</span><div><b>Excel</b>右上のボタンから、3社まとめの最新データをダウンロードできます</div></li>
         </ul>
@@ -897,7 +894,7 @@ document.querySelectorAll('.pc-cust').forEach((b) => { if (window.PC_PUBLIC) b.r
 if (window.PC_PUBLIC) { const h = document.querySelector('.pc .brand h1'); if (h) h.textContent = 'ドスパラ PC検索'; }
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'dsbase', 'changes', 'dshist', 'list', 'ai', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'dsbase', 'dshist', 'howto'].includes(pcHash)) pcTab(pcHash);
 PC.setCust(PC.cust);
 
 /* 並び替え */
