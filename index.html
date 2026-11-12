@@ -312,6 +312,25 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
 .pc .req-paste summary { font-size: 12.5px; color: var(--brand); cursor: pointer; }
 .pc .req-paste textarea { width: 100%; font: inherit; font-size: 13px; margin: 6px 0; padding: 8px; border: 1px solid #b7cfee; border-radius: 8px; }
 .pc .ss.reqmode .ss-g:has([data-draw=ssGame]) { display: none; }
+/* 推奨スペック入力欄：スクロールしても上部に固定・目立たせる */
+.pc .card.req-panel { position: sticky; top: calc(var(--tbh, 60px) + 20px); z-index: 30; padding: 14px 16px; border: 2px solid var(--brand); background: linear-gradient(180deg, #e9f2ff, #fff 70%); box-shadow: 0 8px 22px rgba(0, 77, 161, .18); }
+.pc .req-h b { font-size: 16px; }
+.pc .req-url { height: 48px !important; font-size: 16px !important; border-width: 3px !important; background: #fff !important; box-shadow: 0 0 0 4px rgba(0, 77, 161, .12); }
+.pc .req-url:focus { outline: none; box-shadow: 0 0 0 5px rgba(0, 77, 161, .3); }
+.pc .req-url.empty { animation: reqpulse 1.6s ease-in-out infinite; }
+@keyframes reqpulse { 50% { box-shadow: 0 0 0 7px rgba(0, 77, 161, .28); } }
+.pc .req-row .vbtn { height: 48px; padding: 0 22px; font-size: 15px; font-weight: 700; }
+.pc .req-tiers { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.pc .card.req-panel { grid-template-columns: minmax(0, 1fr); } .pc .req-panel > * { min-width: 0; }
+.pc .req-h { flex-wrap: wrap; }
+.pc .req-jump { margin-top: 8px; width: 100%; font: inherit; font-size: 13px; font-weight: 700; padding: 9px 12px; border-radius: 10px; border: 2px solid var(--brand); background: var(--brand); color: #fff; cursor: pointer; text-align: center; }
+.pc .req-jump:hover { filter: brightness(1.12); }
+@media (max-width: 700px) {
+  .pc .card.req-panel { top: 0; max-height: 70vh; overflow-y: auto; }
+  .pc .req-tiers { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78%; overflow-x: auto; }
+  .pc .req-panel > .note { display: none; }
+  .pc .req-url { font-size: 15px !important; } .pc .req-row .vbtn { padding: 0 14px; }
+}
 
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
@@ -632,7 +651,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <div class="ss-h"><h2>同スペック比較</h2><button class="clearbtn pc-ss-clear" type="button">✕ 条件をクリア</button></div>
         <label class="chk"><input type="checkbox" class="pc-ss-nopro" checked> Windows Pro 搭載モデルを除外</label>
         <label class="chk ss-dsonly"><input type="checkbox" class="pc-ss-same" checked> ドスパラに同じ構成（CPU×GPU×メモリ）があるモデルのみ</label>
-        <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div></div>
+        <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div><button class="req-jump" type="button">🎮 推奨スペックページを入力して絞り込む ›</button></div>
         <div class="ss-g alt"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">GPU</div><div class="chips" data-draw="ssGpu" data-source="products"></div></div>
         <div class="ss-g alt"><div class="ss-l">CPU</div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
@@ -840,6 +859,11 @@ const pcTab = (name) => {
   dash.setLink(name);
 };
 document.querySelectorAll('.pc .tab').forEach((b) => b.addEventListener('click', () => pcTab(b.dataset.tab)));
+document.querySelectorAll('.pc .req-jump').forEach((b) => b.addEventListener('click', () => {
+  PC.req.kind = PC.curTab === 'same-note' ? 'ノート' : 'デスクトップ';
+  pcTab('req'); window.scrollTo({ top: 0 });
+  setTimeout(() => { const i = document.querySelector('.pc .req-url'); if (i) i.focus(); }, 50);
+}));
 
 document.querySelectorAll('.pc-fcpu').forEach((el) => el.addEventListener('change', () => PC.setF({ cpu: el.value })));
 document.querySelectorAll('.pc-fgpu').forEach((el) => el.addEventListener('change', () => PC.setF({ gpu: el.value })));
@@ -1044,7 +1068,7 @@ dash.draw('reqPanel', (el) => {
   const h = PC.el('div', 'req-h'); h.append(PC.el('b', null, 'ゲームの動作環境ページから選ぶ'));
   const ks = PC.el('div', 'req-kind'); ['デスクトップ', 'ノート'].forEach((k) => { const b = PC.el('button', 'seg' + (PC.req.kind === k ? ' on' : ''), k); b.type = 'button'; b.addEventListener('click', () => { PC.req.kind = k; PC.sameKind = k; PC._ssb = null; dash.draw('reqPanel'); PC.ssRedraw(); }); ks.append(b); });
   h.append(ks); el.append(h);
-  const row = PC.el('div', 'req-row'), inp = PC.el('input', 'req-url'); inp.type = 'url'; inp.placeholder = '動作環境ページのURL（例：https://jp.finalfantasyxiv.com/system_requirements/）'; inp.value = PC.req.url;
+  const row = PC.el('div', 'req-row'), inp = PC.el('input', 'req-url'); inp.type = 'url'; inp.placeholder = '動作環境ページのURL（例：https://jp.finalfantasyxiv.com/system_requirements/）'; inp.value = PC.req.url; inp.classList.toggle('empty', !PC.req.url); inp.addEventListener('input', () => inp.classList.toggle('empty', !inp.value));
   const go = PC.el('button', 'vbtn on', '読み込む'); go.type = 'button';
   const run = () => { const u = inp.value.trim(); if (!/^https?:\/\//.test(u)) return; PC.req.url = u; PC.reqLoad(u, false); };
   go.addEventListener('click', run); inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
