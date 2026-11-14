@@ -1,1 +1,8 @@
-{"jina_portal": "https://r.jina.ai/https://store.steampowered.com/app/2012840/Portal_with_RTX/?l=japanese"}
+{"g4_robots": "https://www.4gamer.net/robots.txt",
+ "g4_top": "https://www.4gamer.net/",
+ "g4_search": "https://www.4gamer.net/script/search/index.php?mode=title&GAME_TITLE=%A5%E2%A5%F3%A5%B9%A5%BF%A1%BC%A5%CF%A5%F3%A5%BF%A1%BC%A5%EF%A5%A4%A5%EB%A5%BA",
+ "g4_mhw": "https://www.4gamer.net/games/769/G076945/",
+ "g4_hw": "https://www.4gamer.net/words/001/W00117/",
+ "steam_rev": "https://store.steampowered.com/appreviews/2246340?json=1&language=japanese&num_per_page=100&filter=recent&purchase_type=all",
+ "steam_det": "https://store.steampowered.com/api/appdetails?appids=2246340&l=japanese",
+ "steam_robots": "https://store.steampowered.com/robots.txt"}
