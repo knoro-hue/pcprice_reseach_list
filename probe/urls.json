@@ -1,4 +1,4 @@
-{"sr_a": "https://store.steampowered.com/appreviews/2246340?json=1",
- "sr_b": "https://store.steampowered.com/appreviews/2246340/?json=1&language=japanese&num_per_page=100",
- "sr_c": "https://store.steampowered.com/appreviews/1172470?json=1&language=japanese",
- "sr_d": "https://steamcommunity.com/app/2246340/reviews/?browsefilter=toprated&filterLanguage=japanese"}
+{"mp": "https://api.steampowered.com/ISteamChartsService/GetMostPlayedGames/v1/",
+ "ts": "https://store.steampowered.com/search/results/?filter=topsellers&cc=jp&l=japanese&json=1&count=50&category1=998",
+ "hc": "https://steamcommunity.com/app/2246340/homecontent/?userreviewsoffset=10&p=2&workshopitemspage=2&readytouseitemspage=2&mtxitemspage=2&itemspage=2&screenshotspage=2&videospage=2&artpage=2&allguidepage=2&webguidepage=2&integratedguidepage=2&discussionspage=2&numperpage=10&browsefilter=toprated&appid=2246340&appHubSubSection=10&l=japanese&filterLanguage=japanese&searchText=&maxInappropriateScore=50&forceanon=1",
+ "det": "https://store.steampowered.com/api/appdetails?appids=1172470&l=japanese&cc=jp"}
