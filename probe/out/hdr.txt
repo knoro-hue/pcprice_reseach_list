@@ -1,5 +1,1 @@
-200
-Content-Type text/plain; charset=utf-8
-access-control-allow-origin https://knoro-hue.github.io
-access-control-max-age 25200
-access-control-allow-credentials true
+人気ゲーム：37本（Steam売上上位 30本から／通信 129回）

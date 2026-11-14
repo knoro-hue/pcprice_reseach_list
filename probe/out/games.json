@@ -1,0 +1,767 @@
+{
+ "updated": "2026-11-14",
+ "source": "Steam 売上上位（日本）",
+ "games": [
+  {
+   "rank": 1,
+   "appid": 1172470,
+   "name": "エーペックスレジェンズ",
+   "url": "https://store.steampowered.com/app/1172470/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1172470/0f7e056bbc3fb645cfd812a0154ebf3d53ef47f1/capsule_231x87_alt_assets_7.jpg?t=1794339458",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "無料プレイ"
+   ],
+   "release": "2020年11月4日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: 64-bit Windows 10\nプロセッサー: AMD FX 4350 or Equivalent, Intel Core i3 6300 or Equivalent\nメモリー: 6 GB RAM\nグラフィック: AMD Radeon™ HD 7790 (2 GB), NVIDIA GeForce® GTX 950\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 75 GB の空き容量\n追記事項: ~3.8GB for 1 localized language\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: 64-bit Windows 10\nプロセッサー: Ryzen 5 CPU or Equivalent\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon™ R9 290, NVIDIA GeForce® GTX 970\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 75 GB の空き容量\n追記事項: ~3.8GB for 1 localized language",
+   "ds": "Apex Legends",
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 2,
+   "appid": 3393110,
+   "name": "AION 2",
+   "url": "https://store.steampowered.com/app/3393110/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3393110/bb7941735fbadd60a73e12ee8d23fa96fbe778f7/capsule_231x87_japanese.jpg?t=1792771538",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "MM（Massively Multiplayer）"
+   ],
+   "release": "2026年10月5日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 (64-bit)\nプロセッサー: AMD Ryzen™ 5 2600 / Intel® Core™ i5-10500\nメモリー: 8 GB RAM\nグラフィック: NVIDIA GTX 1050 Ti (4GB) / AMD Radeon RX 470 (4GB)\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 100 GB の空き容量\n追記事項: ゲーム内でFHD解像度を使用する場合は、互換性確保のため、グラフィックプリセットを「非常に低い」に設定してください。\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 (64-bit)\nプロセッサー: AMD Ryzen™ 7 3700X / Intel® Core™ i7-11700\nメモリー: 16 GB RAM\nグラフィック: NVIDIA RTX 2070 (8GB) / AMD Radeon RX 5700 XT (8GB)\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 100 GB の空き容量\n追記事項: ゲーム内でFHD解像度を使用する場合は、互換性確保のため、グラフィックプリセットを「低い」に設定してください。",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 6
+   }
+  },
+  {
+   "rank": 3,
+   "appid": 2860490,
+   "name": "ワロタ、俺の家のとなり魔王城www",
+   "url": "https://store.steampowered.com/app/2860490/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2860490/fa4fd706c868330604cc9e2b3ba95730d6fd1f93/capsule_231x87_japanese.jpg?t=1794634442",
+   "free": false,
+   "genres": [
+    "アクション",
+    "インディー",
+    "RPG"
+   ],
+   "release": "2026年11月12日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10, 11 (64bit)\nプロセッサー: Core™ i5-9400\nメモリー: 8 GB RAM\nグラフィック: GeForce® GTX 1050 Ti 4GB\nDirectX: Version 11\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 4,
+   "appid": 4282500,
+   "name": "ホロライブドリームス",
+   "url": "https://store.steampowered.com/app/4282500/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4282500/7a916ae469dbdcf1d851ca9918ee46b79f274327/capsule_231x87_japanese.jpg?t=1793163670",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "RPG"
+   ],
+   "release": "2026年7月22日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11 64-bit\nプロセッサー: AMD Ryzen™ 3 2200G / Intel® Core™ i3-8100\nメモリー: 8 GB RAM\nグラフィック: Radeon™ RX 470 / NVIDIA® GeForce® GTX 970\nストレージ: 50 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11 64-bit\nプロセッサー: AMD Ryzen™ 5 3500 / Intel® Core™ i5-9400\nメモリー: 8 GB RAM\nグラフィック: Radeon™ RX 580 / NVIDIA® GeForce® GTX 1060\nストレージ: 50 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 3
+   }
+  },
+  {
+   "rank": 5,
+   "appid": 227300,
+   "name": "Euro Truck Simulator 2",
+   "url": "https://store.steampowered.com/app/227300/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/227300/da84d11d3ddd817e0cca299608b469a854d75ba5/capsule_231x87.jpg?t=1794502925",
+   "free": false,
+   "genres": [
+    "インディー",
+    "シミュレーション"
+   ],
+   "release": "2012年10月12日",
+   "req": "Minimum:\nOS: Windows 10 64-bit\nProcessor: Intel Core i5-6400 or AMD Ryzen 3 1200 or similar\nMemory: 8 GB RAM\nGraphics: NVIDIA GeForce GTX 660 or AMD Radeon RX 460 or Intel HD 630 (2GB VRAM)\nHard Drive: 25 GB available space (Euro Truck Simulator 2 base game)\nRecommended:\nOS: Windows 10 64-bit\nProcessor: Intel Core i5-9600 or AMD Ryzen 5 3600 or similar\nMemory: 12 GB RAM\nGraphics: NVIDIA GeForce GTX 1660 or AMD Radeon RX 590 (2GB VRAM)\nHard Drive: 25 GB available space (Euro Truck Simulator 2 base game)",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 6,
+   "appid": 2638080,
+   "name": "勇者パーティはぜんめつしました。",
+   "url": "https://store.steampowered.com/app/2638080/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2638080/d9e17ecb2782ab9b361986e2a2cfb715d18863e4/capsule_231x87_japanese.jpg?t=1794308502",
+   "free": false,
+   "genres": [
+    "インディー",
+    "RPG"
+   ],
+   "release": "2026年11月9日",
+   "req": "最低:\nOS: Windows 11\nプロセッサー: AMD Ryzen 5 5625U 以上\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon Graphics（CPU内蔵）以上\nストレージ: 2 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 7,
+   "appid": 2868840,
+   "name": "Slay the Spire 2",
+   "url": "https://store.steampowered.com/app/2868840/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2868840/fb0ad136e9eaa4297a1ab3440d88ecb7209f44a2/capsule_231x87.jpg?t=1787169309",
+   "free": false,
+   "genres": [
+    "インディー",
+    "ストラテジー",
+    "早期アクセス"
+   ],
+   "release": "2026年3月5日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 (64-bit)\nプロセッサー: Dual-core 2.0 GHz\nメモリー: 4 GB RAM\nグラフィック: DirectX 12 or Vulkan compatible, 1 GB VRAM\nストレージ: 4 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 (64-bit)\nプロセッサー: Quad-core 3.0 GHz\nメモリー: 8 GB RAM\nグラフィック: DirectX 12 or Vulkan compatible, 2 GB VRAM\nストレージ: 4 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 8,
+   "appid": 1973530,
+   "name": "Limbus Company",
+   "url": "https://store.steampowered.com/app/1973530/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1973530/capsule_231x87.jpg?t=1793975559",
+   "free": true,
+   "genres": [
+    "無料プレイ"
+   ],
+   "release": "2023年2月26日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10\nプロセッサー: Intel Core i5\nメモリー: 8 GB RAM\nグラフィック: GeForce GT 1030\nDirectX: Version 10\nストレージ: 10 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10\nプロセッサー: Intel Core i5\nメモリー: 8 GB RAM\nグラフィック: GeForce GT 1030\nDirectX: Version 10\nストレージ: 10 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 6
+   }
+  },
+  {
+   "rank": 9,
+   "appid": 3513350,
+   "name": "Wuthering Waves",
+   "url": "https://store.steampowered.com/app/3513350/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3513350/fb30e8117e88d6f10e80fb445199594b2a2a6ddd/capsule_231x87_japanese.jpg?t=1794439536",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "RPG"
+   ],
+   "release": "2025年4月28日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows10 64-bit\nプロセッサー: Intel Core i5 (9th Gen) / Ryzen 2700\nメモリー: 16 GB RAM\nグラフィック: NVIDIA GeForce GTX 1060/AMD Radeon RX 570/Intel ARC A380\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 150 GB の空き容量\nサウンドカード: Windows Compatible Audio Device\n追記事項: HDD Supported, SSD Recommended.\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows10 64-bit\nプロセッサー: Intel Core i7 (9th Gen) / Ryzen 3700\nメモリー: 32 GB RAM\nグラフィック: NVIDIA GeForce RTX 2060/AMD Radeon RX 5700XT/intel ARC A750\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 150 GB の空き容量\nサウンドカード: Windows Compatible Audio Device\n追記事項: SSD Required.",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 3
+   }
+  },
+  {
+   "rank": 10,
+   "appid": 4435490,
+   "name": "Call of Duty®: Modern Warfare® 4",
+   "url": "https://store.steampowered.com/app/4435490/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4435490/733264f0bfe2db164d42ea7f7f19fd5a0b364294/capsule_231x87_japanese.jpg?t=1794339680",
+   "free": false,
+   "genres": [
+    "アクション"
+   ],
+   "release": "2026年10月22日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 10 64 Bit (最新アップデート)*\nプロセッサー: AMD Ryzen™ 5 1400またはIntel® Core™ i5-6600\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon™ RX 470, NVIDIA® GeForce® GTX 970 / 1060またはIntel® Arc™ A580\nネットワーク: ブロードバンドインターネット接続\nストレージ: 115 GB の空き容量\nサウンドカード: DirectX対応\n追記事項: *対応するWindows®オペレーティングシステムのトライアル、ベータ、またはインサイダーバージョンはサポートされていない場合があります。ローンチ時点で115 GBの空き容量があるSSD\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11 64 Bit (最新アップデート)*\nプロセッサー: AMD Ryzen™ 5 3600またはIntel® Core™ i7-8700K\nメモリー: 16 GB RAM\nグラフィック: AMD Radeon™ RX 6600XTまたはNVIDIA® GeForce® RTX 3060またはIntel® Arc™ B580\nネットワーク: ブロードバンドインターネット接続\nストレージ: 115 GB の空き容量\nサウンドカード: DirectX対応\n追記事項: *対応するWindows®オペレーティングシステムのトライアル、ベータ、またはインサイダーバージョンはサポートされていない場合があります。ローンチ時点で115 GBの空き容量があるSSD",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 0,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 11,
+   "appid": 1665460,
+   "name": "eFootball™",
+   "url": "https://store.steampowered.com/app/1665460/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1665460/7c1ef2670889241a42df4405da83ec99e4d6d442/capsule_231x87.jpg?t=1792635226",
+   "free": true,
+   "genres": [
+    "シミュレーション",
+    "スポーツ",
+    "無料プレイ"
+   ],
+   "release": "2021年9月29日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 - 64bit\nプロセッサー: Intel Core i5-2300, / AMD FX-4350\nメモリー: 8 GB RAM\nグラフィック: GeForce GTX 660 Ti / Radeon HD 7790\nネットワーク: ブロードバンドインターネット接続\nストレージ: 70 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 - 64bit\nプロセッサー: Intel Core i5-7600 / AMD Ryzen 5 1600\nメモリー: 8 GB RAM\nグラフィック: GeForce GTX 1060 / AMD Radeon RX 590\nネットワーク: ブロードバンドインターネット接続\nストレージ: 70 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 12,
+   "appid": 4618570,
+   "name": "ブースターパックヒーロー",
+   "url": "https://store.steampowered.com/app/4618570/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4618570/d9c79592eb622adc81f3d767c918a4a23f21bb1d/capsule_231x87_japanese.jpg?t=1794558396",
+   "free": false,
+   "genres": [
+    "カジュアル",
+    "ストラテジー"
+   ],
+   "release": "2026年11月10日",
+   "req": "最低:\nOS: Windows 10, 11\nプロセッサー: Dual-core @ 2.0 Ghz\nグラフィック: Any graphics card\n推奨:\nOS: Windows 10, 11\nプロセッサー: Dual-core @ 2.0 Ghz\nグラフィック: Any graphics card",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 13,
+   "appid": 3564740,
+   "name": "風燕伝：Where Winds Meet",
+   "url": "https://store.steampowered.com/app/3564740/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3564740/caeef1ff3fcd25edc1169012a3eddd2a4b5c4929/capsule_231x87_alt_assets_11_japanese.jpg?t=1794552485",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "カジュアル"
+   ],
+   "release": "2025年11月14日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 64bit\nプロセッサー: Core i7-7700K / Ryzen 5 1600\nメモリー: 16 GB RAM\nグラフィック: GTX 1060(6GB) / RX 480(8GB)\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 130 GB の空き容量\n追記事項: より良い体験を得るためにはSSDにインストールを推奨\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 64bit\nプロセッサー: Core i7-10700 / Ryzen 7 3700X\nメモリー: 32 GB RAM\nグラフィック: RTX 2070 SUPER / RX 6700 XT / ARC A750\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 200 GB の空き容量\n追記事項: より良い体験を得るためにはSSDにインストールを推奨",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 6,
+    "light": 3
+   }
+  },
+  {
+   "rank": 14,
+   "appid": 394360,
+   "name": "Hearts of Iron IV",
+   "url": "https://store.steampowered.com/app/394360/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/394360/08a0a8f6c28071017611aa39b835c193a27f2518/capsule_231x87.jpg?t=1794491980",
+   "free": false,
+   "genres": [
+    "シミュレーション",
+    "ストラテジー"
+   ],
+   "release": "2016年6月6日",
+   "req": "最低:\nOS: Windows® 10 Home 64 Bit\nプロセッサー: Intel® Core™ i5 750 | AMD® FX 4300\nメモリー: 4 GB RAM\nグラフィック: Nvidia® GeForce™ GTX 470 (1.28GB) | AMD® HD 5850 (1GB) | Intel Iris Xe G7 (Tiger Lake) | AMD® Radeon™ RX Vega 11\nDirectX: Version 9.0c\nストレージ: 2 GB の空き容量\nサウンドカード: Direct X- compatible soundcard.\n追記事項: Mouse and keyboard are required. / Latest available WHQL drivers from both manufacturers/ Internet Connection or LAN for multiplayer, Up to 32 other players in multiplayer mode.\n推奨:\nOS: Windows® 10 Home 64 bit\nプロセッサー: Intel® Core™ i5 2500K | AMD® Ryzen 3 2200G\nメモリー: 6 GB RAM\nグラフィック: Nvidia® GeForce™ GTX 570 (1.28GB) | AMD® Radeon™ HD 7970 (3GB) | Intel Iris Xe G7 (Tiger Lake)\nDirectX: Version 9.0c\nストレージ: 2 GB の空き容量\nサウンドカード: Direct X- compatible soundcard.\n追記事項: Mouse and keyboard are required. / Latest available WHQL drivers from both manufacturers. / Internet Connection or LAN for multiplayer, Up to 32 other players in multiplayer mode.",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 15,
+   "appid": 1449850,
+   "name": "Yu-Gi-Oh! Master Duel",
+   "url": "https://store.steampowered.com/app/1449850/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1449850/cc22c3ceaa31b5fc073dd32d237acc65a9efde6d/capsule_231x87.jpg?t=1793252158",
+   "free": true,
+   "genres": [
+    "シミュレーション",
+    "ストラテジー",
+    "無料プレイ"
+   ],
+   "release": "2022年1月18日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 Home (64bit) latest revision\nプロセッサー: Intel Core i5-9400F\nメモリー: 8 GB RAM\nグラフィック: NVIDIA GeForce GTX 1650\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 64 GB の空き容量\nサウンドカード: On Board\n追記事項: 1280 x 720 monitor resolution\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 Home (64bit) latest revision\nプロセッサー: Intel Core i5-11400F\nメモリー: 16 GB RAM\nグラフィック: NVIDIA GeForce RTX 3060\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 128 GB の空き容量\nサウンドカード: On Board\n追記事項: 1920 x 1080 monitor resolution",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 16,
+   "appid": 4508340,
+   "name": "NTE: Neverness to Everness",
+   "url": "https://store.steampowered.com/app/4508340/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4508340/484aa9396c520d414b5b3f5c619f96e0edc8e50c/capsule_231x87.jpg?t=1794352536",
+   "free": true,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "RPG"
+   ],
+   "release": "2026年7月7日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 64-bit\nプロセッサー: Intel Core i7-10700 (10th Gen) / Snapdragon® X\nメモリー: 16 GB RAM\nグラフィック: NVIDIA GeForce GTX 1660 / AMD Radeon RX 5600 / Qualcomm® Adreno X1 GPU\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 110 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 64-bit\nプロセッサー: Intel Core i7-12700 (12th Gen) / Snapdragon® X2 Elite\nメモリー: 32 GB RAM\nグラフィック: NVIDIA GeForce RTX 3060 / AMD Radeon RX 6700 / Qualcomm® Adreno X2 GPU\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 110 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 12
+   }
+  },
+  {
+   "rank": 17,
+   "appid": 2492040,
+   "name": "餓狼伝説 City of the Wolves",
+   "url": "https://store.steampowered.com/app/2492040/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2492040/20294bf22d4729a65a0f872ccf399db5ff73071e/capsule_231x87.jpg?t=1792688653",
+   "free": false,
+   "genres": [
+    "アクション"
+   ],
+   "release": "2026年1月22日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10\nプロセッサー: Intel Core i5-7500 / AMD Ryzen 3 1200\nメモリー: 8 GB RAM\nグラフィック: GTX1060 (VRAM 6GB) / Radeon RX 580 (VRAM 4GB)\nDirectX: Version 12\nストレージ: 60 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10\nプロセッサー: Intel Core i7 8700 / AMD Ryzen 5 3600\nメモリー: 16 GB RAM\nグラフィック: RTX2070 / Radeon RX 5700XT\nDirectX: Version 12\nストレージ: 60 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 9
+   }
+  },
+  {
+   "rank": 18,
+   "appid": 3432860,
+   "name": "病能探偵",
+   "url": "https://store.steampowered.com/app/3432860/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3432860/f10610fffa8ecde4043e1ef0b6fcf06aa5dd8b0d/capsule_231x87_japanese.jpg?t=1793883448",
+   "free": false,
+   "genres": [
+    "アドベンチャー",
+    "インディー"
+   ],
+   "release": "2026年11月4日",
+   "req": "最低:\nOS *: Windows 7 or higher\nプロセッサー: Intel Core i3\nメモリー: 8 GB RAM\nグラフィック: GeForce® GT1030 or higher\nDirectX: Version 11\nストレージ: 10 GB の空き容量\nサウンドカード: DirectX compatible\n追記事項: Recommended resolution 1920x1080\n推奨:\nOS: Windows 10 or higher\nプロセッサー: Intel Core i5\nメモリー: 16 GB RAM\nグラフィック: GeForce® GT1030 or higher\nDirectX: Version 11\nストレージ: 12 GB の空き容量\nサウンドカード: DirectX compatible\n追記事項: Recommended resolution 1920x1080",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 19,
+   "appid": 3609080,
+   "name": "スターセイヴァー",
+   "url": "https://store.steampowered.com/app/3609080/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3609080/b5ceadbbbae1441646b9c302e20dae9b6f5d2e19/capsule_231x87_japanese.jpg?t=1794469394",
+   "free": true,
+   "genres": [
+    "RPG",
+    "シミュレーション",
+    "ストラテジー"
+   ],
+   "release": "2025年12月10日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 (64bit)\nプロセッサー: Intel i5-7500 / AMD Ryzen 5 1400\nメモリー: 8 GB RAM\nグラフィック: NVIDIA GeForce GTX 1050 / AMD Radeon RX 560\nネットワーク: ブロードバンドインターネット接続\nストレージ: 20 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 20,
+   "appid": 4530370,
+   "name": "Football Manager 27",
+   "url": "https://store.steampowered.com/app/4530370/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4530370/3d06aef381c925bb6c091f13be44dd294b205a72/capsule_231x87.jpg?t=1794483499",
+   "free": false,
+   "genres": [
+    "シミュレーション",
+    "スポーツ",
+    "ストラテジー"
+   ],
+   "release": "2026年11月10日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 or 11 with all updates\nプロセッサー: Desktop: Intel Core i3-530 or AMD FX-4100 Laptop: Intel Core i3-330M or AMD A6-5200 Requires SSE4.2 & SSSE3\nメモリー: 6 GB RAM\nグラフィック: Desktop: NVIDIA GeForce GTX 960 or AMD Radeon R9 380 or Intel HD 530 Laptop: NVIDIA GeForce GTX 960M or AMD Radeon R9 M375 or Intel HD 530 1 GiB VRAM Requires Shader Model 5.0\nDirectX: Version 11\nストレージ: 20 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 with all updates - 64 bit\nプロセッサー: Desktop: Intel Core i5-9600 or AMD Ryzen 5 2600 Laptop: Intel Core i5-1035G7 or AMD Ryzen 7 3750H\nメモリー: 12 GB RAM\nグラフィック: Desktop: NVIDIA GeForce RTX 2060 or AMD Radeon RX 5600 XT Laptop: NVIDIA GeForce RTX 2060 Mobile or AMD Radeon RX 6600M 2 GiB VRAM\nDirectX: Version 11\nストレージ: 20 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 21,
+   "appid": 3061570,
+   "name": "ペルソナ５: The Phantom X",
+   "url": "https://store.steampowered.com/app/3061570/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3061570/07b0e821002a9f6a2e2fe057de2f8eb860b85087/capsule_231x87.jpg?t=1790928862",
+   "free": true,
+   "genres": [
+    "アドベンチャー",
+    "RPG",
+    "無料プレイ"
+   ],
+   "release": "2025年6月25日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11 64 bit\nプロセッサー: Intel® Core™i3-8100\nメモリー: 8 GB RAM\nグラフィック: NVIDIA® Geforce® GTX 750Ti 2G\nDirectX: Version 11\nストレージ: 70 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11 64 bit\nプロセッサー: Intel® Core™i5-8500\nメモリー: 16 GB RAM\nグラフィック: NVIDIA® Geforce® GTX 1060 6G\nDirectX: Version 12\nストレージ: 70 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 0
+   }
+  },
+  {
+   "rank": 22,
+   "appid": 3259780,
+   "name": "ファイナルファンタジー レゾナンス",
+   "url": "https://store.steampowered.com/app/3259780/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3259780/bd66d608dc41a24e3dcfa8a68fc7872cd0fed964/capsule_231x87_japanese.jpg?t=1793984485",
+   "free": false,
+   "genres": [
+    "RPG"
+   ],
+   "release": "2026年10月22日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11\nプロセッサー: AMD Ryzen™ 3 2300X / Intel® Core™ i3-8100\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon™ RX 6400 / Intel® Arc™ A580 / NVIDIA® GeForce® GTX 1650\nDirectX: Version 12\nストレージ: 15 GB の空き容量\n追記事項: 画面解像度：1920x1080 / フレームレート：30 / 品質設定：全て[低]\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11\nプロセッサー: AMD Ryzen™ 5 2500X / Intel® Core™ i3-8100\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon™ RX 5500 XT / Intel® Arc™ A580 / NVIDIA® GeForce® GTX 1650\nDirectX: Version 12\nストレージ: 15 GB の空き容量\n追記事項: 画面解像度：1920x1080 / フレームレート：60 / 品質設定：全て[最高]",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 23,
+   "appid": 2357570,
+   "name": "「オーバーウォッチ®」",
+   "url": "https://store.steampowered.com/app/2357570/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2357570/7a96583919542b66a209172b945fb4e1e68137e4/capsule_231x87_alt_assets_23.jpg?t=1793732501",
+   "free": true,
+   "genres": [
+    "アクション",
+    "無料プレイ"
+   ],
+   "release": "2023年8月10日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 10 64-bit (最新のService Pack)\nプロセッサー: Intel® Core™i3またはAMD Phenom™ X3 8650\nメモリー: 6 GB RAM\nグラフィック: NVIDIA®GeForce®GTX600シリーズ、AMDRadeon™HD7000シリーズ\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 50 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 10 64-bit (最新のService Pack)\nプロセッサー: Intel® Core™ i7またはAMD Ryzen™ 5\nメモリー: 8 GB RAM\nグラフィック: NVIDIA® GeForce® GTX 1060/ GeForce® GTX 1650 または AMD R9 380/AMD RX 6400 または Intel® Arc™ A770\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 50 GB の空き容量",
+   "ds": "Overwatch 2",
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 0
+   }
+  },
+  {
+   "rank": 24,
+   "appid": 4080220,
+   "name": "EA SPORTS FC™ 27",
+   "url": "https://store.steampowered.com/app/4080220/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4080220/b2e806003c348d3348774cddb10e5b31cd787ecf/capsule_231x87.jpg?t=1793610006",
+   "free": false,
+   "genres": [
+    "シミュレーション",
+    "スポーツ"
+   ],
+   "release": "2026年9月24日",
+   "req": "最低:\nOS: Windows 10/11 - 64-Bit (Latest Update).\nプロセッサー: AMD Ryzen 5 1600 or Intel Core i5 6600k\nメモリー: DDR4 Dual Channel 8 GB RAM\nグラフィック: AMD RX 570 or Nvidia GTX 1050 Ti\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 100 GB の空き容量\n追記事項: Estimated performance when set to \"\"Low\"\" preset: 1280x720 @ 60 FPS SSD Recommended\n推奨:\nOS: Windows 10/11 - 64-Bit (Latest Update).\nプロセッサー: AMD Ryzen 7 2700X or Intel Core i7 6700\nメモリー: Dual Channel 12 GB RAM\nグラフィック: AMD RX 5600 XT or Nvidia GTX 1660\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 100 GB の空き容量\n追記事項: Estimated performance when set to \"\"Medium\"\" preset: 1920x1080 @ 60 FPS SSD Required",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 25,
+   "appid": 3681610,
+   "name": "ドラゴンクエストモンスターズ４　枯れ木の国のビアンカ・フローラ",
+   "url": "https://store.steampowered.com/app/3681610/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3681610/6577ad84ab2aac4fe7deef8b0aa3d8eae42efb9c/capsule_231x87_japanese.jpg?t=1793308217",
+   "free": false,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "RPG"
+   ],
+   "release": "2026年12月3日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11\nプロセッサー: AMD Ryzen™ 3 2300X / Intel® Core™ i3-8100\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon™ RX 470 or AMD Radeon™ RX 5500 XT / Intel® Arc™ A380 / NVIDIA® GeForce® GTX 1660\nDirectX: Version 12\nストレージ: 40 GB の空き容量\n追記事項: VRAM 6GB 以上\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows® 11\nプロセッサー: AMD Ryzen™ 5 3500 / Intel® Core™ i5-8400\nメモリー: 16 GB RAM\nグラフィック: AMD Radeon™ RX 5500 XT / Intel® Arc™ A580 / NVIDIA® GeForce® RTX 2060 Super\nDirectX: Version 12\nストレージ: 40 GB の空き容量\n追記事項: VRAM 8GB 以上",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 0,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 26,
+   "appid": 4921660,
+   "name": "みんなでティア表!",
+   "url": "https://store.steampowered.com/app/4921660/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4921660/217d35c87e564dc8133005e08b973b42edc74e2a/capsule_231x87_japanese.jpg?t=1794452483",
+   "free": false,
+   "genres": [
+    "カジュアル",
+    "インディー"
+   ],
+   "release": "2026年11月11日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 64-bit（バージョン 1809 以降）\nプロセッサー: Intel Core i3 相当以上（デュアルコア）\nメモリー: 4 GB RAM\nグラフィック: DirectX 11 対応の内蔵グラフィックス\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 1 GB の空き容量\nサウンドカード: DirectX 対応サウンドカード\nVRサポート: 非対応\n追記事項: Microsoft Edge WebView2 ランタイムを同梱しているため、別途インストールは不要です。\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11 64-bit\nプロセッサー: Intel Core i5 相当以上（クアッドコア）\nメモリー: 8 GB RAM\nグラフィック: DirectX 11 対応の内蔵グラフィックス以上\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 1500 MB の空き容量\nサウンドカード: DirectX 対応サウンドカード\nVRサポート: 非対応",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 12,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": 27,
+   "appid": 5266240,
+   "name": "Potato Please",
+   "url": "https://store.steampowered.com/app/5266240/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5266240/b01dc513eb9df69b0944e4a2f2d9e628ec53ac0d/capsule_231x87.jpg?t=1794431346",
+   "free": false,
+   "genres": [
+    "カジュアル",
+    "インディー",
+    "シミュレーション"
+   ],
+   "release": "2026年11月3日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 64-bit\nプロセッサー: Intel Core i5-8400 or AMD Ryzen 5 2600\nメモリー: 8 GB RAM\nグラフィック: GeForce GTX 1060 or Radeon RX 580\nストレージ: 2 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11 64-bit\nプロセッサー: Intel Core i5-10400 or AMD Ryzen 5 3600\nメモリー: 16 GB RAM\nグラフィック: NVIDIA GeForce RTX 2070 or AMD Radeon RX 5700 XT\nストレージ: 4 GB の空き容量",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 3
+   }
+  },
+  {
+   "rank": 28,
+   "appid": 5160800,
+   "name": "Find The Needle",
+   "url": "https://store.steampowered.com/app/5160800/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/5160800/3dec380fa3c66a40ffc1d36be2ac518cf9dcda05/capsule_231x87.jpg?t=1793980111",
+   "free": false,
+   "genres": [
+    "カジュアル",
+    "インディー",
+    "シミュレーション"
+   ],
+   "release": "2026年11月6日",
+   "req": "最低:\nOS: Windows 10 64-bit\nプロセッサー: 4 cores / 8 threads, Intel i5-8400 or Ryzen 5 2600\nメモリー: 8 GB RAM\nグラフィック: dedicated GPU with Vulkan 1.3 support and 4 GB VRAM, GTX 1050 Ti or RX 570\nDirectX: Version 12\nストレージ: 3 GB の空き容量\n追記事項: Integrated graphics are not supported and may crash\n推奨:\nOS: Windows 11 64-bit\nプロセッサー: 6+ cores, Ryzen 5 5600 or Intel i5-12400\nメモリー: 16 GB RAM\nグラフィック: GTX 1660 Super, RTX 2060 with 6 GB VRAM\nDirectX: Version 12\nストレージ: 3 GB の空き容量\n追記事項: Very large factories are CPU heavy. A faster CPU keeps the frame rate up late in the game",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 3
+   }
+  },
+  {
+   "rank": 29,
+   "appid": 1049590,
+   "name": "エターナルリターン",
+   "url": "https://store.steampowered.com/app/1049590/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1049590/48ef324bd9d5a9445eaeb44ccca80c020f33714b/capsule_231x87.jpg?t=1794462660",
+   "free": true,
+   "genres": [],
+   "release": "2023年7月19日",
+   "req": "最低:\nOS: WINDOWS® 10 (64Bit)\nプロセッサー: Intel Core i5-6400, AMD Ryzen 5 2600\nメモリー: 8 GB RAM\nグラフィック: NVIDIA GeForce GTX 650 Ti, AMD Radeon HD 7770\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 20 GB の空き容量\n追記事項: Installing the game on an SSD improves loading times.\n推奨:\nOS: WINDOWS 11 (64Bit)\nプロセッサー: Intel Core i5-8400, AMD Ryzen 5 3500X\nメモリー: 16 GB RAM\nグラフィック: NVIDIA GeForce GTX 1060, AMD Radeon RX 580\nDirectX: Version 11\nネットワーク: ブロードバンドインターネット接続\nストレージ: 20 GB の空き容量\n追記事項: Installing the game on an SSD improves loading times.",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 3
+   }
+  },
+  {
+   "rank": 30,
+   "appid": 2406770,
+   "name": "Bodycam",
+   "url": "https://store.steampowered.com/app/2406770/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2406770/2bc46dcf375a61a0a5626bc96aaf09e32436e8cd/capsule_231x87.jpg?t=1794590337",
+   "free": false,
+   "genres": [
+    "アクション",
+    "インディー",
+    "MM（Massively Multiplayer）"
+   ],
+   "release": "2024年6月7日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11\nプロセッサー: AMD Ryzen 7 3700X, Intel Core i7-9700K\nメモリー: 8 GB RAM\nグラフィック: AMD Radeon RX 5700 (8 GB), NVIDIA GeForce RTX 2070 (8 GB)\nネットワーク: ブロードバンドインターネット接続\nストレージ: 50 GB の空き容量\n追記事項: SSD推奨\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10/11\nプロセッサー: AMD Ryzen 7 3800X, Intel Core i7-10700K\nメモリー: 16 GB RAM\nグラフィック: AMD Radeon RX 6600 XT (8 GB), NVIDIA GeForce RTX 3060 (12 GB)\nネットワーク: ブロードバンドインターネット接続\nストレージ: 50 GB の空き容量\n追記事項: SSD Recommended",
+   "ds": null,
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 3,
+    "light": 0
+   }
+  },
+  {
+   "rank": null,
+   "appid": 3932890,
+   "name": "Escape from Tarkov",
+   "url": "https://store.steampowered.com/app/3932890/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3932890/236dcc64545c082a9f4382757390ce91c474ddbe/capsule_231x87_alt_assets_2.jpg?t=1794590253",
+   "free": false,
+   "genres": [
+    "アクション",
+    "MM（Massively Multiplayer）",
+    "RPG"
+   ],
+   "release": "2025年11月15日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10\nプロセッサー: AMD Ryzen 5 3600 or similar\nメモリー: 16 GB RAM\nグラフィック: GTX 1660 or similar\nDirectX: Version 11\nストレージ: 80 GB の空き容量\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 11\nプロセッサー: Intel Core i7-14700F or better\nメモリー: 64 GB RAM\nグラフィック: RTX 4070 or better\nDirectX: Version 11\nストレージ: 80 GB の空き容量",
+   "ds": "Escape from Tarkov",
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": null,
+   "appid": 2246340,
+   "name": "モンスターハンターワイルズ",
+   "url": "https://store.steampowered.com/app/2246340/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2246340/970508d58e4f11f6f9ff3e2921b7eec558a50af8/capsule_231x87.jpg?t=1787549555",
+   "free": false,
+   "genres": [
+    "アクション",
+    "アドベンチャー",
+    "RPG"
+   ],
+   "release": "2025年2月27日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows®10 (64-BIT Required)/Windows®11 (64-BIT Required)\nプロセッサー: Intel® Core™ i5-10400 or Intel® Core™ i3-12100 or AMD Ryzen™ 5 3600\nメモリー: 16 GB RAM\nグラフィック: NVIDIA® GeForce® GTX 1660(VRAM 6GB) or AMD Radeon™ RX 5500 XT(VRAM 8GB)\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 75 GB の空き容量\n追記事項: SSD(必須)、グラフィック「最低」設定で、1080p(アップスケール使用、ネイティブ解像度720p)/30fpsのゲームプレイが可能です。DirectStorage対応。\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows®10 (64-BIT Required)/Windows®11 (64-BIT Required)\nプロセッサー: Intel® Core™ i5-10400 or Intel® Core™ i3-12100 or AMD Ryzen™ 5 3600\nメモリー: 16 GB RAM\nグラフィック: NVIDIA® GeForce® RTX 2060 Super(VRAM 8GB) or AMD Radeon™ RX 6600(VRAM 8GB)\nDirectX: Version 12\nネットワーク: ブロードバンドインターネット接続\nストレージ: 75 GB の空き容量\n追記事項: SSD(必須)、グラフィック「中」設定で、1080p/60fps(フレーム生成使用)のゲームプレイが可能です。DirectStorage対応。",
+   "ds": "Monster Hunter Wilds",
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 9,
+    "light": 0
+   }
+  },
+  {
+   "rank": null,
+   "appid": 271590,
+   "name": "グランド・セフト・オートV レガシー",
+   "url": "https://store.steampowered.com/app/271590/",
+   "img": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/capsule_231x87.jpg?t=1765387725",
+   "free": false,
+   "genres": [
+    "アクション",
+    "アドベンチャー"
+   ],
+   "release": "2015年4月13日",
+   "req": "最低:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 (64ビット)\nプロセッサー: Intel Core 2 Quad CPU Q6600 2.40GHz (4 CPU) / AMD Phenom 9850 Quad-Core Processor 2.5GHz (4 CPU)\nメモリー: 4 GB RAM\nグラフィック: NVIDIA 9800 GT 1GB / AMD HD 4870 1GB (DX 10、DX 10.1、DX 11)\nストレージ: 125 GB の空き容量\nサウンドカード: DirectX 10 100%互換\n追記事項: 将来のダウンロードコンテンツとプログラミングの変化により、本作の必要動作環境は変更される場合があります。最新の互換情報につきましては、ハードウェア製造元にご確認いただくか、 その他の要件: インストールとオンラインプレイには、ロックスター・ゲームスSocial Clubへのログインが必要です(13歳以上に限る)。初回起動時、オンラインプレイ、定期的な認証確認には、インターネット接続が必要です。インストールが必要なソフトウェアには、ロックスター・ゲームスSocial Clubのプラットフォーム、DirectX、Chromium、Microsoft Visual C++ 2008 SP1 再頒布可能パッケージ、および、デジタル著作権管理、システム、その他のサポート目的で特定のハードウェア属性を認識する認証ソフトウェアが含まれます。 一回限り有効なシリアルコードによるインターネットでの登録が必要です。登録はロックスター・ゲームスSocial Club アカウントをお持ちの方(13歳以上)に限られ、1つのシリアルコードにつき一回限り有効です。1つのSocial Club アカウントにつき、一度にPCからログインできるのは1つに限られます。使用済みのシリアルコードは譲渡できません。Social Club アカウントは譲渡不可なものとします。 パートナー要件: 本ソフトウェアの購入前に、本サイトのサービス利用規約をご確認ください。\n推奨:\n64 ビットプロセッサとオペレーティングシステムが必要です\nOS: Windows 10 (64ビット)\nプロセッサー: Intel Core i5 3470 3.2GHZ (4 CPU) / AMD X8 FX-8350 4GHZ (8 CPU)\nメモリー: 8 GB RAM\nグラフィック: NVIDIA GTX 660 2GB / AMD HD7870 2GB\nストレージ: 125 GB の空き容量\nサウンドカード: DirectX 10 100%互換",
+   "ds": "グランド・セフト・オートＶ",
+   "steam": true,
+   "reviews": {
+    "n": 30,
+    "heavy": 0,
+    "light": 0
+   }
+  },
+  {
+   "rank": null,
+   "appid": null,
+   "name": "VALORANT",
+   "url": "https://playvalorant.com/ja-jp/",
+   "img": null,
+   "free": true,
+   "genres": [],
+   "release": null,
+   "req": "",
+   "ds": "Valorant",
+   "steam": false,
+   "reviews": null
+  },
+  {
+   "rank": null,
+   "appid": null,
+   "name": "フォートナイト",
+   "url": "https://www.fortnite.com/",
+   "img": null,
+   "free": true,
+   "genres": [],
+   "release": null,
+   "req": "",
+   "ds": "Fortnite",
+   "steam": false,
+   "reviews": null
+  },
+  {
+   "rank": null,
+   "appid": null,
+   "name": "リーグ・オブ・レジェンド",
+   "url": "https://www.leagueoflegends.com/ja-jp/",
+   "img": null,
+   "free": true,
+   "genres": [],
+   "release": null,
+   "req": "",
+   "ds": "League of Legends",
+   "steam": false,
+   "reviews": null
+  },
+  {
+   "rank": null,
+   "appid": null,
+   "name": "マインクラフト（Java版）",
+   "url": "https://www.minecraft.net/ja-jp",
+   "img": null,
+   "free": true,
+   "genres": [],
+   "release": null,
+   "req": "",
+   "ds": "Minecraft",
+   "steam": false,
+   "reviews": null
+  }
+ ]
+}
