@@ -2,7 +2,7 @@
 
 - 人気順：Steam 検索「売上上位」（日本・ゲームのみ）
 - 公式動作環境：Steam ストア API（appdetails）の pc_requirements
-- 口コミ：Steam コミュニティの日本語レビュー（評価順 上位30件）に出てくる「重い／快適」などの語の件数
+- 口コミ：Steam コミュニティの日本語レビュー（評価順 上位50件）に出てくる「重い／快適」などの語の件数
   （レビュー本文は保存しない。件数だけ）
 - Steam 外の定番（Valorant など）は、ドスパラのゲーム性能データだけで扱う
 週1回の更新で十分なので、前回から6日未満なら取得しない。
@@ -11,11 +11,12 @@ import datetime as dt
 import html
 import json
 import re
+import urllib.parse
 
 from .common import Http
 
 TOP_N = 30          # 売上上位から取る数
-REVIEW_PAGES = 3    # 10件×3ページ
+REVIEW_PAGES = 5    # 10件×5ページ
 # ドスパラ「ゲーム性能」のゲーム名 → Steam appid（Steam 外は None）
 DS_GAMES = {"Apex Legends": 1172470, "Overwatch 2": 2357570, "Escape from Tarkov": 3932890, "Monster Hunter Wilds": 2246340,
             "グランド・セフト・オートＶ": 271590, "Valorant": None, "Fortnite": None, "League of Legends": None, "Minecraft": None}
@@ -23,7 +24,7 @@ NON_STEAM = {"Valorant": ("VALORANT", "https://playvalorant.com/ja-jp/"), "Fortn
              "League of Legends": ("リーグ・オブ・レジェンド", "https://www.leagueoflegends.com/ja-jp/"),
              "Minecraft": ("マインクラフト（Java版）", "https://www.minecraft.net/ja-jp")}
 HEAVY = re.compile(r"重い|重すぎ|重たい|カクつ|カクカク|カクる|フレームレートが(低|安定しな)|fps(が)?(出な|低|安定しな)|最適化(が|も)?(悪|不足|されて(い)?な|ひど|酷|甘)|スタッタ|クラッシュ|落ちる|ハイスペック(が)?必要|ゲーミングPCでも", re.I)
-LIGHT = re.compile(r"軽い|軽量|軽く|快適に?(動|遊|プレイ)|ヌルヌル|サクサク|最適化(が|は)?(良|いい|素晴|しっかり)|低スペ(ック)?でも|ノートでも", re.I)
+LIGHT = re.compile(r"軽い|軽量|快適に?(動|遊|プレイ)|ヌルヌル|サクサク|最適化(が|は)?(良|いい|素晴|しっかり)|低スペ(ック)?でも|ノートでも", re.I)
 
 
 def _text(h: str) -> str:
@@ -59,23 +60,32 @@ def details(http: Http, appid: int):
 
 
 def reviews(http: Http, appid: int):
-    heavy = light = n = 0
+    """評価順の日本語レビューを最大 REVIEW_PAGES×10 件読み、「重い／快適」系の語を含む件数を数える"""
+    heavy = light = 0
+    seen = set()
+    u = f"https://steamcommunity.com/app/{appid}/reviews/?browsefilter=toprated&filterLanguage=japanese&p=1"
     for p in range(1, REVIEW_PAGES + 1):
-        u = (f"https://steamcommunity.com/app/{appid}/homecontent/?userreviewsoffset={(p - 1) * 10}&p={p}&numperpage=10"
-             f"&browsefilter=toprated&appid={appid}&appHubSubSection=10&l=japanese&filterLanguage=japanese&searchText=&maxInappropriateScore=50&forceanon=1")
         try:
             h = http.get(u)
         except Exception:  # noqa: BLE001
             break
         cards = re.findall(r'<div class="apphub_CardTextContent">(.*?)</div>\s*</div>', h, re.S)
-        if not cards:
-            break
+        new = 0
         for c in cards:
-            t = html.unescape(re.sub(r"<[^>]+>", " ", c))
-            n += 1
+            t = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", c))).strip()
+            if t in seen:
+                continue
+            seen.add(t)
+            new += 1
             heavy += bool(HEAVY.search(t))
             light += bool(LIGHT.search(t))
-    return {"n": n, "heavy": heavy, "light": light}
+        cur = re.search(r'name="userreviewscursor" value="([^"]*)"', h)
+        if not new or not cur:
+            break
+        u = (f"https://steamcommunity.com/app/{appid}/homecontent/?userreviewscursor={urllib.parse.quote(cur.group(1))}"
+             f"&userreviewsoffset={p * 10}&p={p + 1}&numperpage=10&browsefilter=toprated&appid={appid}&appHubSubSection=10"
+             f"&l=japanese&filterLanguage=japanese&searchText=&maxInappropriateScore=50&forceanon=1")
+    return {"n": len(seen), "heavy": heavy, "light": light}
 
 
 def collect(prev=None, today=None, log=print, force=False):
