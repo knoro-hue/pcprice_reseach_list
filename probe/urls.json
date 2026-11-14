@@ -1,8 +1,4 @@
-{"g4a": "https://www.4gamer.net/games/759/G075952/",
- "g4b": "https://www.4gamer.net/games/759/G075995/",
- "g4c": "https://www.4gamer.net/games/759/G075994/",
- "g4ur": "https://www.4gamer.net/games/759/G075952/index_userreview.html",
- "g4feat": "https://www.4gamer.net/games/759/G075952/index_feature.html",
- "g4hw": "https://www.4gamer.net/games/759/G075952/index_hardware.html",
- "steam_rev2": "https://store.steampowered.com/appreviews/2246340?json=1&language=japanese&num_per_page=100&filter=recent&purchase_type=all&cursor=*",
- "steam_rev3": "https://store.steampowered.com/appreviews/2246340?json=1&language=japanese"}
+{"sr_a": "https://store.steampowered.com/appreviews/2246340?json=1",
+ "sr_b": "https://store.steampowered.com/appreviews/2246340/?json=1&language=japanese&num_per_page=100",
+ "sr_c": "https://store.steampowered.com/appreviews/1172470?json=1&language=japanese",
+ "sr_d": "https://steamcommunity.com/app/2246340/reviews/?browsefilter=toprated&filterLanguage=japanese"}
