@@ -29,7 +29,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from pcprice import analysis, dospara, mouse, pckoubou
+from pcprice import analysis, dospara, games, mouse, pckoubou
 from pcprice.common import DESK, FIELDS, NOTE
 
 JST = timezone(timedelta(hours=9))
@@ -323,6 +323,13 @@ def main():
                 save(f"{DATA}/ds_fps.json", f)
         except Exception as e:  # noqa: BLE001
             warnings.append(f"ドスパラ注力ページの取得失敗（前回分を使用）: {e}")
+    # 市場の人気ゲーム（Steam日本の売上上位）と公式動作環境・口コミの重さ傾向（週1回）
+    try:
+        gm = games.collect(load(f"{DATA}/games.json", {}), today, force="gm" in only)
+        if gm and gm["games"]:
+            save(f"{DATA}/games.json", gm)
+    except Exception as e:  # noqa: BLE001
+        warnings.append(f"人気ゲームの取得失敗（前回分を使用）: {e}")
     # ドスパラ vs パソコン工房の比較統計と AI 分析（APIキーがあるときだけ AI 文章を更新）
     reco = analysis.recommend(uniq, load(f"{DATA}/ds_fps.json", {}), today)
     save(f"{DATA}/ai_reco.json", reco)

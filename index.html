@@ -332,6 +332,40 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .req-url { font-size: 15px !important; } .pc .req-row .vbtn { padding: 0 14px; }
 }
 
+/* 人気ゲーム別スペック */
+.pc .gm-head { display: grid; gap: 10px; }
+.pc .gm-ht { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; } .pc .gm-ht h2 { margin: 0; } .pc .gm-ht .note { margin: 0; }
+.pc .gm-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.pc .gm-bar .grp { display: flex; gap: 4px; } .pc .gm-bar .lab { font-size: 12px; color: var(--color-fg-muted); margin-right: 2px; }
+.pc .gm-q { font: inherit; font-size: 13px; height: 32px; padding: 0 10px; border: 1px solid #b7cfee; border-radius: 8px; min-width: 180px; }
+.pc .gm-list { display: grid; gap: 10px; margin-top: 10px; }
+.pc .gm-card { padding: 12px 16px; display: grid; gap: 8px; }
+.pc .gm-top { display: flex; gap: 12px; align-items: center; }
+.pc .gm-rank { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: #fff; font-weight: 700; font-size: 14px; }
+.pc .gm-rank.ns { background: #5b6b82; font-size: 10.5px; }
+.pc .gm-img { flex: none; width: 120px; height: 45px; object-fit: cover; border-radius: 6px; background: #e6eef9; }
+.pc .gm-ttl { min-width: 0; display: grid; gap: 2px; } .pc .gm-ttl a { font-size: 15.5px; font-weight: 700; color: #0d1830; text-decoration: none; } .pc .gm-ttl a:hover { text-decoration: underline; }
+.pc .gm-ttl small { font-size: 11.5px; color: var(--color-fg-muted); }
+.pc .gm-badges { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.pc .gm-b { font-size: 11.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid #cddcf0; background: #f4f8fe; color: #33415c; white-space: nowrap; }
+.pc .gm-b.heavy { background: #fdecea; border-color: #f2b8b5; color: #a1261b; font-weight: 700; } .pc .gm-b.mid { background: #fff4e0; border-color: #f2d199; color: #8a5300; } .pc .gm-b.light { background: #e8f6ec; border-color: #a9dbb7; color: #1d6b35; }
+.pc .gm-t { width: 100%; border-collapse: collapse; font-size: 13px; }
+.pc .gm-t th { position: static; cursor: default; font-size: 11.5px; }
+.pc .gm-t td { padding: 5px 8px; border-bottom: 1px solid #e3ebf6; vertical-align: middle; }
+.pc .gm-t td.lv { font-weight: 700; white-space: nowrap; width: 64px; } .pc .gm-t tr.l1 td.lv { color: #5b6b82; } .pc .gm-t tr.l2 td.lv { color: var(--brand); } .pc .gm-t tr.l3 td.lv { color: #7b2ff7; }
+.pc .gm-t td.why { font-size: 11.5px; color: var(--color-fg-muted); }
+.pc table.gm-t { table-layout: fixed; } .pc .gm-t th:nth-child(1) { width: 64px; } .pc .gm-t th:nth-child(2) { width: 40%; } .pc .gm-t th:nth-child(4) { width: 96px; text-align: right; } .pc .gm-t th:nth-child(5) { width: 120px; text-align: right; } .pc .gm-t th:nth-child(6) { width: 112px; }
+.pc .gm-t td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pc .gm-t .gm-go { font: inherit; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--brand); background: #fff; color: var(--brand); cursor: pointer; white-space: nowrap; }
+.pc .gm-t .gm-go:hover { background: var(--brand); color: #fff; }
+.pc .gm-na { font-size: 12.5px; color: var(--color-fg-muted); }
+@media (max-width: 700px) {
+  .pc .gm-img { display: none; } .pc .gm-top { flex-wrap: wrap; } .pc .gm-badges { margin-left: 0; justify-content: flex-start; }
+  .pc .gm-t thead { display: none; } .pc .gm-t tr { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 10px; padding: 7px 0; border-bottom: 1px solid #e3ebf6; }
+  .pc .gm-t td { border: 0; padding: 0; width: auto !important; } .pc .gm-t td.lv { width: 52px !important; } .pc .gm-t td.spec { flex: 1 1 calc(100% - 62px); }
+  .pc .gm-t td.why { flex: 1 1 100%; padding-left: 62px; } .pc .gm-t td.n:nth-child(4) { margin-left: 62px; } .pc .gm-t td:last-child { margin-left: auto; }
+}
+
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
 .pc .custbtn.on { background: #0d1830; color: #fff; border-color: #0d1830; }
@@ -556,7 +590,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .sizer { display: none; }
   .pc .links { margin-left: 0; }
   /* 下部固定タブ */
-  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
+  .pc .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; border-radius: 16px 16px 0 0;
     padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(255, 255, 255, .97); backdrop-filter: blur(8px); box-shadow: 0 -6px 20px -10px rgba(0, 50, 120, .35); border-top: 1px solid var(--color-border-line); }
   .pc .tab { font-size: 0; padding: 10px 2px; border-radius: 10px; }
   .pc .tab::after { content: attr(data-short); font-size: 13px; }
@@ -630,6 +664,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       <button class="tab" role="tab" data-tab="same-desk" data-short="デスク" aria-selected="true">デスク一覧</button>
       <button class="tab" role="tab" data-tab="same-note" data-short="ノート" aria-selected="false">ノート一覧</button>
       <button class="tab" role="tab" data-tab="req" data-short="推奨環境" aria-selected="false">ゲーム推奨環境</button>
+      <button class="tab" role="tab" data-tab="games" data-short="人気ゲーム" aria-selected="false">人気ゲーム別スペック</button>
       <button class="tab" role="tab" data-tab="dsbase" data-short="ランキング" aria-selected="false">通販ランキング</button>
       <button class="tab" role="tab" data-tab="dshist" data-short="価格履歴" aria-selected="false">価格変更履歴</button>
       <button class="tab" role="tab" data-tab="howto" data-short="使い方" aria-selected="false">使い方</button>
@@ -735,6 +770,14 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
       </table></div>
       <div class="mcards" data-draw="changeCards" data-source="changes"></div>
     </div>
+  </section>
+
+  <section class="page" id="games" hidden>
+    <div class="card gm-head">
+      <div class="gm-ht"><h2>人気ゲーム別 おすすめスペック</h2><span class="note" data-draw="gmNote" data-source="games"></span></div>
+      <div class="gm-bar" data-draw="gmBar" data-source="games"></div>
+    </div>
+    <div class="gm-list" data-draw="gmList" data-source="games"></div>
   </section>
 
   <section class="page" id="dshist" hidden>
@@ -942,7 +985,7 @@ document.querySelectorAll('.pc-cust').forEach((b) => { if (window.PC_PUBLIC) b.r
 if (window.PC_PUBLIC) { const h = document.querySelector('.pc .brand h1'); if (h) h.textContent = 'ドスパラ PC検索'; }
 
 const pcHash = location.hash.slice(1);
-if (['same-desk', 'same-note', 'req', 'dsbase', 'dshist', 'howto'].includes(pcHash)) pcTab(pcHash);
+if (['same-desk', 'same-note', 'req', 'games', 'dsbase', 'dshist', 'howto'].includes(pcHash)) pcTab(pcHash);
 PC.setCust(PC.cust);
 
 /* 並び替え */
@@ -1035,8 +1078,9 @@ PC.parseReq = (text) => {
 };
 
 PC.reqActive = () => PC.curTab === 'req' && PC.req.sel >= 0 && PC.req.tiers[PC.req.sel];
-PC.reqPass = (p) => {
-  const t = PC.reqActive(); if (!t) return true;
+PC.reqPass = (p) => PC.tierPass(p, PC.reqActive());
+PC.tierPass = (p, t) => {
+  if (!t) return true;
   const gs = t.gpus.map((k) => PC.gpuPerf(k)).filter((v) => v != null), cs = t.cpus.map(PC.cpuReqScore).filter((v) => v != null);
   if (gs.length && !(PC.gpuPerf(p.gpu_key) >= Math.min(...gs))) return false;
   if (cs.length && !((PC.cpuPerf(p.cpu_key) ?? 0) >= Math.min(...cs))) return false;
@@ -1092,6 +1136,113 @@ dash.draw('reqPanel', (el) => {
   const ta = PC.el('textarea'); ta.rows = 5; ta.placeholder = '例）推奨：\nCPU: Core i7-9700\nGPU: GeForce RTX 2060 / Radeon RX 5600 XT\nメモリ: 16GB';
   const b2 = PC.el('button', 'clearbtn', 'この文章で絞り込む'); b2.type = 'button'; b2.addEventListener('click', () => ta.value.trim() && PC.reqLoad(ta.value, true));
   det.append(ta, b2); el.append(det);
+});
+
+/* ===== 人気ゲーム別スペック（Steam 日本の売上上位＋Steam外の定番） ===== */
+PC.gm = { kind: 'デスクトップ', sort: 'rank', q: '' };
+// ドスパラ実測（同じGPUのドスパラ機の中央値）で target fps 以上になる、いちばん性能の低いGPU
+PC.gmFpsGpu = (game, ri, target) => {
+  const gm = PC.fpsGpu(); if (!gm || !game) return null;
+  let best = null;
+  gm.forEach((v, k) => {
+    const [kind, gpu, g, i] = k.split('|');
+    if (kind !== 'デスクトップ' || g !== game || +i !== ri || v < target || PC.gmSkipGpu(gpu)) return;
+    const pf = PC.gpuPerf(gpu); if (!best || pf < best.pf) best = { gpu, v, pf };
+  });
+  return best;
+};
+PC.gmSkipGpu = (k) => !k || k === '内蔵GPU' || /PRO|Ada|^RTX A\d|Quadro|Laptop/.test(k); // 業務用・内蔵は目安に使わない
+PC.gmGpuAt = (perf) => { // 今売られているデスクトップGPUで、指定性能以上のいちばん下
+  const d = PC.ok('products') || []; let best = null;
+  new Set(d.filter((p) => p.kind === 'デスクトップ').map((p) => p.gpu_key)).forEach((k) => { const v = PC.gpuPerf(k); if (!PC.gmSkipGpu(k) && v >= perf && (!best || v < best.v)) best = { k, v }; });
+  return best && best.k;
+};
+PC.gmSpec = (g) => {
+  PC._gms = PC._gms && PC._gms.src === PC.ok('products') && PC._gms.fd === PC.fpsData() ? PC._gms : { src: PC.ok('products'), fd: PC.fpsData(), m: new Map() };
+  if (PC._gms.m.has(g)) return PC._gms.m.get(g);
+  // Steam の要件は「最低:」「推奨:」の2ブロック。ブロックごとに CPU・GPU・メモリを読む
+  const blk = String(g.req || '').split(/^(?=(?:推奨|Recommended)\s*[:：])/im);
+  const one = (txt) => {
+    if (!txt) return null; const ls = txt.split('\n'), r = { cpus: PC.reqCpuKeys(txt), gpus: PC.reqGpuKeys(txt), mem: null };
+    const ml = ls.find((l) => /メモリ|RAM|Memory/i.test(l) && !/VRAM|ストレージ|空き|SSD|HDD|Storage/i.test(l)), mm = ml && ml.match(/(\d{1,3})\s*GB/i);
+    if (mm) r.mem = +mm[1]; return r.cpus.length + r.gpus.length ? r : null;
+  };
+  const minT = one(blk.length > 1 || !/^(推奨|Recommended)/i.test(blk[0]) ? blk[0] : ''), recT = one(blk.length > 1 ? blk[1] : /^(推奨|Recommended)/i.test(blk[0]) ? blk[0] : '');
+  const fd = PC.fpsData(), recFps = g.ds && fd && fd.rec ? fd.rec[g.ds] : null, comp = recFps >= 144;
+  const gperf = (t) => (t && t.gpus.length ? Math.min(...t.gpus.map((k) => PC.gpuPerf(k))) : null);
+  const T = (lv, label, gpus, cpus, mem, why) => ({ lv, label, ver: g.name, gpus, cpus: cpus || [], mem: mem || null, why });
+  const out = [];
+  if (minT) out.push(T(1, '最低', minT.gpus, minT.cpus, minT.mem, '公式の最低動作環境'));
+  const f1 = g.ds ? PC.gmFpsGpu(g.ds, 0, 60) : null, rp = gperf(recT);
+  if (f1 && (rp == null || f1.pf > rp)) out.push(T(2, '快適', [f1.gpu], (recT || minT || {}).cpus, Math.max((recT || {}).mem || 0, 16), `ドスパラ実測：フルHD・最高画質で60fps以上（約${Math.round(f1.v)}fps）`));
+  else if (recT) out.push(T(2, '快適', recT.gpus, recT.cpus, recT.mem, '公式の推奨動作環境' + (f1 ? '（実測でもフルHD 60fps以上）' : '')));
+  const base = out.find((t) => t.lv === 2), hm = Math.max((base && base.mem) || 16, base && base.mem >= 16 ? 32 : 16);
+  // 高画質：対戦ゲームは フルHD 144fps、それ以外は WQHD 60fps（いずれも最高画質の実測）
+  const f2 = g.ds ? PC.gmFpsGpu(g.ds, comp ? 0 : 1, comp ? 144 : 60) : null, lab2 = comp ? 'フルHD・最高画質で144fps以上' : 'WQHD・最高画質で60fps以上';
+  if (f2 && (!base || f2.pf >= (gperf(base) ?? 0))) out.push(T(3, comp ? '高fps' : '高画質', [f2.gpu], base ? base.cpus : [], hm, `ドスパラ実測：${lab2}（約${Math.round(f2.v)}fps）`));
+  else if (base && base.gpus.length && gperf(base) * 1.8 >= 12) { const k = PC.gmGpuAt(gperf(base) * 1.8); if (k) out.push(T(3, '高画質', [k], base.cpus, hm, '推奨GPUの約1.8倍の性能（推定）')); }
+  PC._gms.m.set(g, out); return out;
+};
+PC.gmRows = () => {
+  const d = PC.ok('products'); if (!d) return [];
+  let rows = d.filter((p) => p.kind === PC.gm.kind && p.price && p.gpu_key && !/\bPro\b/i.test(p.os || ''));
+  if (PC.cust) rows = rows.filter((p) => p.maker === 'ドスパラ');
+  return rows;
+};
+PC.gmHeavy = (r) => {
+  if (!r || r.n < 10) return null;
+  const x = r.heavy / r.n, tip = `Steam日本語レビュー（評価順）${r.n}件のうち「重い・カクつく」系 ${r.heavy}件／「軽い・快適」系 ${r.light}件`;
+  return x >= 0.25 ? ['heavy', '口コミ：重いの声 多め', tip] : x >= 0.08 ? ['mid', '口コミ：重いの声 ややあり', tip] : ['light', '口コミ：重いの声 少なめ', tip];
+};
+PC.gmShow = (g, i) => {
+  const tiers = PC.gmSpec(g);
+  PC.req = { url: g.url || '', tiers: tiers.map((t) => ({ ...t, ver: '', label: `${g.name}　${t.label}（${t.why.replace(/^ドスパラ実測：/, '実測 ').replace(/（約\d+fps）/, '')}）` })), sel: i, status: '', kind: PC.gm.kind };
+  PC.ss.open = {}; PC._ssb = null; pcTab('req'); window.scrollTo({ top: 0 });
+};
+dash.draw('gmNote', (el) => {
+  const d = PC.ok('games'); el.textContent = d && d.updated ? `${d.updated} 更新（週1回）・${d.source}＋Steam外の定番` : 'データ準備中（次回の定期取得で作成されます）';
+});
+dash.draw('gmBar', (el) => {
+  el.replaceChildren();
+  const seg = (lab, opts, key) => { const g = PC.el('div', 'grp'); g.append(PC.el('span', 'lab', lab)); opts.forEach(([v, t]) => { const b = PC.el('button', 'seg' + (PC.gm[key] === v ? ' on' : ''), t); b.type = 'button'; b.addEventListener('click', () => { PC.gm[key] = v; dash.draw('gmBar'); dash.draw('gmList'); }); g.append(b); }); return g; };
+  el.append(seg('対象', [['デスクトップ', 'デスクトップ'], ['ノート', 'ノート']], 'kind'), seg('並び', [['rank', '人気順'], ['heavy', '要求スペックが高い順']], 'sort'));
+  const q = PC.el('input', 'gm-q'); q.type = 'search'; q.placeholder = 'ゲーム名で探す'; q.value = PC.gm.q;
+  q.addEventListener('input', () => { PC.gm.q = q.value; dash.draw('gmList'); }); el.append(q);
+});
+dash.draw('gmList', (el) => {
+  el.replaceChildren();
+  const d = PC.ok('games'); if (!d || !d.games || !d.games.length || !PC.ok('products')) { el.append(PC.el('p', 'gm-na', '人気ゲームのデータがまだありません')); return; }
+  const rows = PC.gmRows(), q = PC.gm.q.trim().toLowerCase();
+  let list = d.games.filter((g) => !q || g.name.toLowerCase().includes(q));
+  const need = (g) => { const t = PC.gmSpec(g).find((x) => x.lv === 2); return t && t.gpus.length ? Math.min(...t.gpus.map((k) => PC.gpuPerf(k))) : -1; };
+  if (PC.gm.sort === 'heavy') list = list.slice().sort((a, b) => need(b) - need(a));
+  list.forEach((g) => {
+    const c = PC.el('div', 'card gm-card'), top = PC.el('div', 'gm-top');
+    top.append(PC.el('span', 'gm-rank' + (g.rank ? '' : ' ns'), g.rank ? String(g.rank) : g.steam ? '定番' : 'Steam外'));
+    if (g.img) { const im = PC.el('img', 'gm-img'); im.src = g.img; im.alt = ''; im.loading = 'lazy'; top.append(im); }
+    const tt = PC.el('div', 'gm-ttl'), a = PC.el('a', null, g.name); a.href = g.url; a.target = '_blank'; a.rel = 'noopener';
+    tt.append(a, PC.el('small', null, [(g.genres || []).join('・'), g.release, g.free ? '基本無料' : ''].filter(Boolean).join('　'))); top.append(tt);
+    const bd = PC.el('div', 'gm-badges'), hv = PC.gmHeavy(g.reviews);
+    if (hv) { const b = PC.el('span', 'gm-b ' + hv[0], hv[1]); b.title = hv[2]; bd.append(b); }
+    if (g.ds && PC.fpsData()) bd.append(PC.el('span', 'gm-b', 'ドスパラ実測fpsあり'));
+    top.append(bd); c.append(top);
+    const tiers = PC.gmSpec(g);
+    if (!tiers.length) { c.append(PC.el('p', 'gm-na', 'CPU・GPUの記載がないため、スペックを出せませんでした（軽いゲームの可能性が高い）')); el.append(c); return; }
+    const tb = PC.el('table', 'gm-t'), th = PC.el('thead'), hr = PC.el('tr');
+    ['段', '目安スペック', '根拠', '該当機種', '最安', ''].forEach((h) => hr.append(PC.el('th', null, h))); th.append(hr); tb.append(th);
+    const body = PC.el('tbody');
+    tiers.forEach((t, i) => {
+      const tr = PC.el('tr', 'l' + t.lv), ok = rows.filter((p) => PC.tierPass(p, t)), mn = ok.length ? d3.min(ok, (p) => p.price) : null;
+      tr.append(PC.el('td', 'lv', t.label));
+      tr.append(PC.el('td', 'spec', [t.gpus.length ? 'GPU ' + t.gpus.join(' / ') : '', t.cpus.length ? 'CPU ' + t.cpus.join(' / ') : '', t.mem ? `メモリ ${t.mem}GB` : ''].filter(Boolean).join('　')));
+      tr.append(PC.el('td', 'why', t.why));
+      tr.append(PC.el('td', 'n', ok.length.toLocaleString() + '機種'));
+      tr.append(PC.el('td', 'n', mn ? PC.yen(mn) + '円〜' : '—'));
+      const td = PC.el('td'), b = PC.el('button', 'gm-go', '機種を見る ›'); b.type = 'button'; b.addEventListener('click', () => PC.gmShow(g, i)); td.append(b); tr.append(td);
+      body.append(tr);
+    });
+    tb.append(body); c.append(tb); el.append(c);
+  });
 });
 
 PC.cmp = (a, b) => (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ja', { numeric: true }));
@@ -2297,6 +2448,7 @@ dash.draw('listRows', (tb) => {
     }));
     for (const [id, f] of [['ai', 'ai_analysis.json'], ['reco', 'ai_reco.json'], ['dshist', 'ds_history.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
     try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }
+    try { const r = await fetch(`data/games.json?v=${v}`, { cache: 'no-store' }); dash._store.games = r.ok ? await r.json() : {}; } catch (e) { dash._store.games = {}; }
     try { const r = await fetch(`data/ds_featured.json?v=${v}`, { cache: 'no-store' }); dash._store.dsfeat = r.ok ? await r.json() : {}; } catch (e) { dash._store.dsfeat = {}; }
     try { const r = await fetch(`data/spec_history.json?v=${v}`, { cache: 'no-store' }); dash._store.trend = r.ok ? await r.json() : { dates: [], series: {} }; } catch (e) { dash._store.trend = { dates: [], series: {} }; }
     // 「最安とドスパラとの価格差」= ドスパラ価格 − 最安（ドスパラが最安なら0、ドスパラ無しは空欄）。古いデータにも適用
