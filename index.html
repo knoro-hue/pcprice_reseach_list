@@ -365,6 +365,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
   .pc .gm-t td { border: 0; padding: 0; width: auto !important; } .pc .gm-t td.lv { width: 52px !important; } .pc .gm-t td.spec { flex: 1 1 calc(100% - 62px); }
   .pc .gm-t td.why { flex: 1 1 100%; padding-left: 62px; } .pc .gm-t td.n:nth-child(4) { margin-left: 62px; } .pc .gm-t td:last-child { margin-left: auto; }
 }
+/* ブランド */
+.pc .ss-pre { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; } .pc .ss-pre:empty { display: none; }
+.pc .qchip.mkb { border-left: 4px solid var(--mkc, #8fb3e0); } .pc .qchip.mkb.mk0 { --mkc: #e8710a; } .pc .qchip.mkb.mk1 { --mkc: #004da1; } .pc .qchip.mkb.mk2 { --mkc: #1f1f1f; }
+.pc.cust .ss-brand { display: none; }
 
 /* お客様表示 */
 .pc .custbtn { cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; color: var(--brand); border-color: #8fb3e0; background: #f4f8fe; }
@@ -687,9 +691,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-event
         <label class="chk"><input type="checkbox" class="pc-ss-nopro" checked> Windows Pro 搭載モデルを除外</label>
         <label class="chk ss-dsonly"><input type="checkbox" class="pc-ss-same" checked> ドスパラに同じ構成（CPU×GPU×メモリ）があるモデルのみ</label>
         <div class="ss-g"><div class="ss-l">ゲーム <small data-draw="ssFpsNote" data-source="products"></small></div><div class="chips" data-draw="ssGame" data-source="products"></div><div class="chips ss-fps" data-draw="ssFps" data-source="products"></div><button class="req-jump" type="button">🎮 推奨スペックページを入力して絞り込む ›</button></div>
+        <div class="ss-g ss-brand"><div class="ss-l">ブランド <small>複数選択可</small></div><div class="ss-pre" data-draw="ssBrandPre" data-source="products"></div><div class="chips" data-draw="ssBrand" data-source="products"></div></div>
         <div class="ss-g alt"><div class="ss-l">予算</div><div class="chips" data-draw="ssBudget" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">GPU</div><div class="chips" data-draw="ssGpu" data-source="products"></div></div>
-        <div class="ss-g alt"><div class="ss-l">CPU</div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
+        <div class="ss-g alt"><div class="ss-l">CPU <small>複数選択可</small></div><div class="chips" data-draw="ssFam" data-source="products"></div><div class="ss-sub" data-draw="ssCpu" data-source="products"></div></div>
         <div class="ss-g"><div class="ss-l">メモリ</div><div class="chips" data-draw="ssMem" data-source="products"></div></div>
         
       </aside>
@@ -897,7 +902,7 @@ const pcTab = (name) => {
     if (PC.sameSel && PC.sameSel.kind !== PC.sameKind) PC.closeSame();
   }
   document.querySelectorAll('.pc section.page').forEach((s) => { s.hidden = s.id !== sec; });
-  ['reqPanel', 'ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+  ['reqPanel', 'ssBrand', 'ssBrandPre', 'ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
   document.querySelectorAll('.pc .ss').forEach((x) => x.classList.toggle('reqmode', name === 'req'));
   dash.setLink(name);
 };
@@ -995,8 +1000,8 @@ PC.GPU_PERF = { '内蔵GPU': 0, 'GTX 1650': 6, 'RTX 2050': 7, 'RTX 3050': 10, 'R
   'RTX 5070': 47, 'RX 9070 GRE': 46, 'RTX 4070 Ti': 48, 'RX 9070': 50, 'RTX 4070 Ti SUPER': 52, 'RX 9070 XT': 54, 'RTX 5070 Ti': 56, 'RX 7900 XTX': 58, 'RTX 4080': 60,
   'RTX 4080 SUPER': 62, 'RTX 5080': 65, 'RTX 4090': 75, 'RTX 5090': 90 };
 PC.gpuPerf = (k) => {
-  if (k == null) return null; const t = String(k), lap = /Laptop/.test(t), base = t.replace(/\s*Laptop$/, '');
-  let v = PC.GPU_PERF[base];
+  if (k == null) return null; const t = String(k), lap = /Laptop/.test(t), vm = t.match(/\s(\d{1,2})GB$/), base = t.replace(/\s\d{1,2}GB$/, '').replace(/\s*Laptop$/, '');
+  let v = PC.GPU_PERF[base]; if (v != null && vm) v += +vm[1] >= 16 ? 0.6 : 0; // VRAM大きい方を少し上に
   if (v == null) { const m = base.match(/(\d{4})/); v = m ? (+m[1] % 1000) / 20 : 5; if (/PRO|Ada|^RTX A/.test(base)) v += 5; }
   return lap ? v * 0.8 : v;
 };
@@ -1778,37 +1783,43 @@ PC.MIRROR.dsRows = 'dsCards';
 /* ===== 同スペック比較（左：予算・CPU・GPU・メモリで絞り込み／右：各社のモデル一覧） ===== */
 PC.SS_BUDGET = { 'デスクトップ': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 600000], [600000, 1e9]],
   'ノート': [[0, 100000], [100000, 150000], [150000, 200000], [200000, 250000], [250000, 300000], [300000, 400000], [400000, 1e9]] };
-PC.ssNew = () => ({ budget: '', fam: '', cpu: '', gpu: '', mem: '', game: '', fps: '', res: '0', same: true, nopro: true, open: {}, gshow: 8 });
+PC.ssNew = () => ({ budget: '', fam: [], cpu: [], brand: [], gpu: '', mem: '', game: '', fps: '', res: '0', same: true, nopro: true, open: {}, gshow: 8 });
 PC.ss = PC.ssNew();
 PC.man = (v) => (v / 10000).toFixed(0) + '万';
 PC.budgetLabel = ([lo, hi]) => (lo === 0 ? `〜${PC.man(hi)}` : hi >= 1e9 ? `${PC.man(lo)}〜` : `${PC.man(lo)}〜${PC.man(hi)}`);
 // 区分内の対象モデル（「2社以上が出している構成のみ」は CPU×GPU×メモリ が2社以上にあるもの）
-PC.ssBase = () => {
+PC.ssBase = (noBrand) => {
   const d = PC.ok('products'); if (!d) return null;
-  const key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}|${PC.ss.nopro}`;
-  if (PC._ssb && PC._ssb.src === d && PC._ssb.key === key) return PC._ssb.rows;
+  const br = noBrand ? [] : PC.ss.brand, key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}|${PC.ss.nopro}|${br}`;
+  PC._ssb = PC._ssb && PC._ssb.src === d ? PC._ssb : { src: d, m: new Map() };
+  if (PC._ssb.m.has(key)) return PC._ssb.m.get(key);
   let rows = d.filter((p) => p.kind === PC.sameKind && p.price && p.gpu_key && p.mem_gb);
   if (PC.ss.nopro) rows = rows.filter((p) => !/\bPro\b/i.test(p.os || ''));
+  if (br.length) rows = rows.filter((p) => br.includes(p.brand));
   if (PC.cust) rows = rows.filter((p) => p.maker === 'ドスパラ');
   else if (PC.ss.same) {
     // ドスパラに同じ CPU×GPU×メモリ があるモデルだけ（ドスパラ自身を含む）
     const ds = new Set(rows.filter((p) => p.maker === 'ドスパラ').map((p) => `${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`));
     rows = rows.filter((p) => ds.has(`${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`));
   }
-  PC._ssb = { src: d, key, rows }; return rows;
+  PC._ssb.m.set(key, rows); return rows;
 };
 PC.ssIn = (p, b) => { const [lo, hi] = PC.SS_BUDGET[PC.sameKind][+b]; return p.price >= lo && p.price < hi; };
 PC.ssMatch = (p, skip) => {
   const f = PC.ss;
-  return PC.reqPass(p) && (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'fam' || !f.fam || PC.fam(p.cpu_key) === f.fam)
-    && (skip === 'cpu' || skip === 'fam' || !f.cpu || p.cpu_key === f.cpu)
+  return PC.reqPass(p) && (skip === 'budget' || f.budget === '' || PC.ssIn(p, f.budget)) && (skip === 'fam' || PC.cpuOk(p, f, skip === 'cpu'))
     && (skip === 'gpu' || !f.gpu || p.gpu_key === f.gpu) && (skip === 'mem' || !f.mem || String(p.mem_gb) === f.mem)
     && (skip === 'game' || !f.game || PC.fpsPass(p, skip === 'fps'));
+};
+// CPU：選んだファミリーのどれか。ファミリー内で型番を選んでいれば、その型番だけ
+PC.cpuOk = (p, f, skipCpu) => {
+  if (!f.fam.length) return true; const fm = PC.fam(p.cpu_key); if (!f.fam.includes(fm)) return false;
+  if (skipCpu) return true; const inFam = f.cpu.filter((k) => PC.fam(k) === fm); return !inFam.length || inFam.includes(p.cpu_key);
 };
 PC.ssFacet = (skip) => { const b = PC.ssBase(); return b ? b.filter((p) => PC.ssMatch(p, skip)) : null; };
 PC.ssList = () => PC.ssFacet(null);
 PC.ssSet = (patch) => { Object.assign(PC.ss, patch, { open: {}, gshow: 8 }); PC.ssRedraw(); };
-PC.ssRedraw = () => ['ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
+PC.ssRedraw = () => ['ssBrand', 'ssBrandPre', 'ssGame', 'ssFps', 'ssBudget', 'ssFam', 'ssCpu', 'ssGpu', 'ssMem', 'ssSummary', 'ssSub', 'ssGroups'].forEach((d) => dash.draw(d));
 // 1グループ分のボタン（並びは固定、件数は他の条件を反映、0件は押せない）
 PC.ssChips = (el, field, keys, labelFn, keyFn) => {
   const rows = PC.ssFacet(field); if (!rows) return el.replaceChildren();
@@ -1816,23 +1827,33 @@ PC.ssChips = (el, field, keys, labelFn, keyFn) => {
   PC.chips(el, keys.map((k) => [labelFn(k), c.get(k) || 0]), (lab) => PC.ss[field] !== '' && labelFn(PC.ss[field]) === lab,
     (lab) => { const k = keys.find((x) => labelFn(x) === lab); PC.ssSet({ [field]: PC.ss[field] === String(k) ? '' : String(k) }); });
 };
+PC.ssMulti = (el, field, keys, keyFn, rows) => {
+  rows = rows || PC.ssFacet(field); if (!rows) return el.replaceChildren();
+  const c = d3.rollup(rows, (v) => v.length, keyFn), sel = PC.ss[field];
+  PC.chips(el, keys.map((k) => [k, c.get(k) || 0]), (k) => sel.includes(k), (k) => {
+    const nx = sel.includes(k) ? sel.filter((x) => x !== k) : [...sel, k], patch = { [field]: nx };
+    if (field === 'fam') patch.cpu = PC.ss.cpu.filter((x) => nx.includes(PC.fam(x))); // 外したファミリーの型番は解除
+    PC.ssSet(patch);
+  });
+};
 dash.draw('ssBudget', (el) => { const n = PC.SS_BUDGET[PC.sameKind].length; PC.ssChips(el, 'budget', d3.range(n).map(String), (i) => PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+i]), (p) => String(PC.SS_BUDGET[PC.sameKind].findIndex(([lo, hi]) => p.price >= lo && p.price < hi))); });
 // CPU：まずファミリー（Core i5・Ryzen 7 など）、選ぶとその下に型番で絞るボタン
 PC.FAM_ORDER = ['Core i3', 'Core i5', 'Core i7', 'Core i9', 'Core 3', 'Core 5', 'Core 7', 'Core Ultra 5', 'Core Ultra 7', 'Core Ultra 9', 'Ryzen 3', 'Ryzen 5', 'Ryzen 7', 'Ryzen 9', 'Ryzen AI 5', 'Ryzen AI 7', 'Ryzen AI 9', 'Ryzen AI Max', 'Ryzen AI Max+', 'Ryzen Threadripper', 'Xeon'];
 PC.famSort = (a, b) => { const ia = PC.FAM_ORDER.indexOf(a), ib = PC.FAM_ORDER.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || PC.natural(a, b); };
 dash.draw('ssFam', (el) => {
   const b = PC.ssBase(); if (!b) return el.replaceChildren();
-  PC.ssChips(el, 'fam', [...new Set(b.map((p) => PC.fam(p.cpu_key)))].sort(PC.famSort), (k) => k, (p) => PC.fam(p.cpu_key));
-  // ファミリーを変えたら型番の選択は解除
-  el.querySelectorAll('button').forEach((btn) => btn.addEventListener('click', () => { if (PC.ss.cpu) { PC.ss.cpu = ''; PC.ssRedraw(); } }));
+  PC.ssMulti(el, 'fam', [...new Set(b.map((p) => PC.fam(p.cpu_key)))].sort(PC.famSort), (p) => PC.fam(p.cpu_key));
 });
 dash.draw('ssCpu', (el) => {
-  el.replaceChildren(); const b = PC.ssBase(); if (!b || !PC.ss.fam) return;
-  const ks = [...new Set(b.filter((p) => PC.fam(p.cpu_key) === PC.ss.fam).map((p) => p.cpu_key))].sort((x, y) => PC.cpuPerf(x) - PC.cpuPerf(y) || PC.natural(x, y));
-  if (ks.length < 2) return;
-  el.append(PC.el('div', 'ss-fl', `${PC.ss.fam} の型番で絞る`));
-  const box = PC.el('div', 'chips'); el.append(box);
-  PC.ssChips(box, 'cpu', ks, (k) => k, (p) => p.cpu_key);
+  el.replaceChildren(); const b = PC.ssBase(); if (!b || !PC.ss.fam.length) return;
+  const rows = PC.ssFacet('cpu');
+  PC.ss.fam.slice().sort(PC.famSort).forEach((fm) => {
+    const ks = [...new Set(b.filter((p) => PC.fam(p.cpu_key) === fm).map((p) => p.cpu_key))].sort((x, y) => PC.cpuPerf(x) - PC.cpuPerf(y) || PC.natural(x, y));
+    if (ks.length < 2) return;
+    el.append(PC.el('div', 'ss-fl', `${fm} の型番で絞る（複数可）`));
+    const box = PC.el('div', 'chips'); el.append(box);
+    PC.ssMulti(box, 'cpu', ks, (p) => p.cpu_key, rows);
+  });
 });
 // 業務用（RTX PRO・RTX A○○・Ada・Quadro・Radeon Pro）は「その他」に畳む。選択中なら表示
 PC.minorGpu = (k) => /PRO|^RTX A\d|Ada|Quadro|Radeon Pro|^GTX|^RTX [234]0/i.test(k);
@@ -1847,9 +1868,44 @@ dash.draw('ssGpu', (el) => {
   }
 });
 dash.draw('ssMem', (el) => { const b = PC.ssBase(); if (!b) return el.replaceChildren(); PC.ssChips(el, 'mem', [...new Set(b.map((p) => String(p.mem_gb)))].sort((a, c) => a - c), (k) => k + 'GB', (p) => String(p.mem_gb)); });
+/* ブランド（パソコン工房はデータの「ブランド」欄、ほかは商品名から） */
+PC.BRAND_ORDER = { 'ドスパラ': ['GALLERIA', 'THIRDWAVE', 'raytrek'], 'パソコン工房': ['LEVEL∞', 'LEVELθ', 'SENSE∞', 'SOLUTION∞', 'STYLE∞'], 'マウス': ['G TUNE', 'NEXTGEAR', 'DAIV', 'mouse', 'MousePro'] };
+PC.BRAND_PRE = [['GALLERIA', 'LEVEL∞'], ['THIRDWAVE', 'LEVELθ']];
+PC.brandName = (p) => {
+  if (p.brand) return String(p.brand).replace(/\s+/g, '');
+  const n = String(p.name || '').replace(/^【[^】]*】\s*/, '');
+  if (p.maker === 'ドスパラ') return /raytrek/i.test(n) ? 'raytrek' : /THIRDWAVE/i.test(n) ? 'THIRDWAVE' : 'GALLERIA';
+  if (p.maker === 'パソコン工房') { const m = n.match(/^(LEVEL|SENSE|SOLUTION|STYLE)/i); return m ? m[1].toUpperCase() + '∞' : 'その他（工房）'; }
+  const m = n.match(/^(G TUNE|NEXTGEAR|DAIV|MousePro|mouse)/i); return m ? m[1] : 'その他（マウス）';
+};
+PC.brandSort = (a, b) => { const all = [].concat(...Object.values(PC.BRAND_ORDER)), ia = all.indexOf(a), ib = all.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || PC.natural(a, b); };
+dash.draw('ssBrand', (el) => {
+  const b = PC.ssBase(true); if (!b) return el.replaceChildren();
+  const rows = b.filter((p) => PC.ssMatch(p, 'brand'));
+  PC.ssMulti(el, 'brand', [...new Set(b.map((p) => p.brand))].sort(PC.brandSort), (p) => p.brand, rows);
+  const mk = new Map(b.map((p) => [p.brand, p.maker]));
+  el.querySelectorAll('button').forEach((btn) => { const m = mk.get(btn.firstChild.textContent); if (m) btn.classList.add('mkb', PC.MKCLS[m]); });
+});
+dash.draw('ssBrandPre', (el) => {
+  el.replaceChildren(); const b = PC.ssBase(true); if (!b || PC.cust) return;
+  const have = new Set(b.map((p) => p.brand));
+  PC.BRAND_PRE.filter((x) => x.every((k) => have.has(k))).forEach((x) => {
+    const on = x.length === PC.ss.brand.length && x.every((k) => PC.ss.brand.includes(k));
+    const bt = PC.el('button', 'seg' + (on ? ' on' : ''), x.join(' vs ')); bt.type = 'button';
+    bt.addEventListener('click', () => PC.ssSet({ brand: on ? [] : x.slice() })); el.append(bt);
+  });
+});
+// 読み込み時の整形：ブランド付与／同じGPUでVRAM容量違いがあるものは「RTX 5060 Ti 16GB」のように分ける
+PC.vramOf = (p) => { const m = String(p.gpu || '').match(/(\d{1,2})\s*GB/i); return m ? +m[1] : null; };
+PC.prep = (rows) => {
+  const vs = new Map();
+  rows.forEach((p) => { p.brand = PC.brandName(p); const v = PC.vramOf(p); if (v && p.gpu_key && p.gpu_key !== '内蔵GPU') (vs.get(p.gpu_key) || vs.set(p.gpu_key, new Set()).get(p.gpu_key)).add(v); });
+  rows.forEach((p) => { const v = PC.vramOf(p), set = vs.get(p.gpu_key); if (set && set.size > 1 && v) { p.gpu_base = p.gpu_key; p.gpu_key = `${p.gpu_key} ${v}GB`; } });
+};
+PC.cpuLabel = (f) => f.fam.map((fm) => { const c = f.cpu.filter((k) => PC.fam(k) === fm); return c.length ? c.join('/') : fm; }).join('・');
 dash.draw('ssSummary', (el) => {
   el.replaceChildren(); const list = PC.ssList(); if (!list) return;
-  const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), f.cpu || f.fam, f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
+  const f = PC.ss, parts = [PC.sameKind, f.budget !== '' && PC.budgetLabel(PC.SS_BUDGET[PC.sameKind][+f.budget]), PC.cpuLabel(f), f.brand.join('・'), f.gpu, f.mem && f.mem + 'GB', f.game && `${PC.gname(f.game)} ${PC.RES[+(f.res || 0)]}` + (f.fps ? ` ${PC.fpsTarget()}fps以上` : '')].filter(Boolean);
   const ng = new Set(list.map((p) => PC.LV[PC.order[0]].key(p))).size;
   el.append(PC.el('span', 'ss-cond', parts.join(' ・ ')), PC.el('b', 'ss-n', d3.format(',')(ng)), PC.el('span', null, 'グループ'), PC.el('b', 'ss-n', d3.format(',')(list.length)), PC.el('span', null, '機種'));
   if (false) {
@@ -1925,7 +1981,7 @@ PC.subMatrix = (g, mode, gi) => {
         else if (mode === 'psu') top.append(PC.stBadge(p));
         it.append(top, PC.el('span', 'sm-n', p.name));
         if (tree) it.append(PC.el('span', 'sm-s', `メモリ ${p.mem_gb}GB`));
-        else if (!f.cpu) it.append(PC.el('span', 'sm-s', p.cpu_key));
+        else if (f.cpu.length !== 1) it.append(PC.el('span', 'sm-s', p.cpu_key));
         cell.append(it);
       });
       if (mine.length > PC.SUB_SHOW) {
@@ -2445,6 +2501,7 @@ dash.draw('listRows', (tb) => {
       const res = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' });
       if (!res.ok) throw new Error(f + ' ' + res.status);
       dash._store[id] = await res.json();
+      if (id === 'products') PC.prep(dash._store[id]);
     }));
     for (const [id, f] of [['ai', 'ai_analysis.json'], ['reco', 'ai_reco.json'], ['dshist', 'ds_history.json']]) { try { const r = await fetch(`data/${f}?v=${v}`, { cache: 'no-store' }); dash._store[id] = r.ok ? await r.json() : {}; } catch (e) { dash._store[id] = {}; } }
     try { const r = await fetch(`data/ds_fps.json?v=${v}`, { cache: 'no-store' }); dash._store.fps = r.ok ? await r.json() : {}; } catch (e) { dash._store.fps = {}; }

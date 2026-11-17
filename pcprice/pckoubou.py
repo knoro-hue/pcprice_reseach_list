@@ -56,6 +56,7 @@ def _row(item, kind) -> dict:
         "mem": s.get("メモリ容量", ""), "mem_type": s.get("メモリ規格", ""),
         "storage1": s.get("1stストレージ", ""), "storage_cap": s.get("1stストレージ容量", ""),
         "cooler": s.get("CPUクーラー", ""), "psu": s.get("電源", ""),
+        "brand": s.get("(ブランド)", ""),
         "url": (BASE + url) if url.startswith("/") else url,
     })
 
