@@ -1788,20 +1788,22 @@ PC.ss = PC.ssNew();
 PC.man = (v) => (v / 10000).toFixed(0) + '万';
 PC.budgetLabel = ([lo, hi]) => (lo === 0 ? `〜${PC.man(hi)}` : hi >= 1e9 ? `${PC.man(lo)}〜` : `${PC.man(lo)}〜${PC.man(hi)}`);
 // 区分内の対象モデル（「2社以上が出している構成のみ」は CPU×GPU×メモリ が2社以上にあるもの）
-PC.ssBase = (noBrand) => {
+PC.ssBase = (noBrand, brList) => {
   const d = PC.ok('products'); if (!d) return null;
-  const br = noBrand ? [] : PC.ss.brand, key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}|${PC.ss.nopro}|${br}`;
+  const br = brList || (noBrand ? [] : PC.ss.brand), key = `${PC.sameKind}|${PC.ss.same}|${PC.cust}|${PC.ss.nopro}|${br}`;
   PC._ssb = PC._ssb && PC._ssb.src === d ? PC._ssb : { src: d, m: new Map() };
   if (PC._ssb.m.has(key)) return PC._ssb.m.get(key);
   let rows = d.filter((p) => p.kind === PC.sameKind && p.price && p.gpu_key && p.mem_gb);
   if (PC.ss.nopro) rows = rows.filter((p) => !/\bPro\b/i.test(p.os || ''));
-  if (br.length) rows = rows.filter((p) => br.includes(p.brand));
   if (PC.cust) rows = rows.filter((p) => p.maker === 'ドスパラ');
   else if (PC.ss.same) {
-    // ドスパラに同じ CPU×GPU×メモリ があるモデルだけ（ドスパラ自身を含む）
-    const ds = new Set(rows.filter((p) => p.maker === 'ドスパラ').map((p) => `${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`));
+    // ドスパラに同じ CPU×GPU×メモリ があるモデルだけ（ドスパラ自身を含む）。
+    // ドスパラのブランドを選んでいればそのブランドの構成と比べ、他社ブランドだけならドスパラ全体と比べる
+    const dsb = br.filter((b) => rows.some((p) => p.maker === 'ドスパラ' && p.brand === b));
+    const ds = new Set(rows.filter((p) => p.maker === 'ドスパラ' && (!dsb.length || dsb.includes(p.brand))).map((p) => `${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`));
     rows = rows.filter((p) => ds.has(`${p.cpu_key}|${p.gpu_key}|${p.mem_gb}`));
   }
+  if (br.length) rows = rows.filter((p) => br.includes(p.brand));
   PC._ssb.m.set(key, rows); return rows;
 };
 PC.ssIn = (p, b) => { const [lo, hi] = PC.SS_BUDGET[PC.sameKind][+b]; return p.price >= lo && p.price < hi; };
@@ -1881,9 +1883,12 @@ PC.brandName = (p) => {
 PC.brandSort = (a, b) => { const all = [].concat(...Object.values(PC.BRAND_ORDER)), ia = all.indexOf(a), ib = all.indexOf(b); return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || PC.natural(a, b); };
 dash.draw('ssBrand', (el) => {
   const b = PC.ssBase(true); if (!b) return el.replaceChildren();
-  const rows = b.filter((p) => PC.ssMatch(p, 'brand'));
-  PC.ssMulti(el, 'brand', [...new Set(b.map((p) => p.brand))].sort(PC.brandSort), (p) => p.brand, rows);
-  const mk = new Map(b.map((p) => [p.brand, p.maker]));
+  // 件数は「そのブランドを追加したら何件になるか」（ドスパラのブランドを選んでいれば比較相手はそのブランド）
+  const mk = new Map(b.map((p) => [p.brand, p.maker])), dsSel = PC.ss.brand.filter((k) => mk.get(k) === 'ドスパラ');
+  const rows = [];
+  [...mk.keys()].forEach((k) => { const ref = mk.get(k) === 'ドスパラ' || !dsSel.length ? [k] : [...dsSel, k];
+    PC.ssBase(false, [...new Set(ref)]).forEach((p) => { if (p.brand === k && PC.ssMatch(p, 'brand')) rows.push(p); }); });
+  PC.ssMulti(el, 'brand', [...mk.keys()].sort(PC.brandSort), (p) => p.brand, rows);
   el.querySelectorAll('button').forEach((btn) => { const m = mk.get(btn.firstChild.textContent); if (m) btn.classList.add('mkb', PC.MKCLS[m]); });
 });
 dash.draw('ssBrandPre', (el) => {
